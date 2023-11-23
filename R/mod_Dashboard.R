@@ -1,4 +1,4 @@
-#' Home UI Function
+#' Dashboard UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,17 +7,17 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_Home_ui <- function(id){
+mod_Dashboard_ui <- function(id){
   ns <- NS(id)
   tagList(
  
   )
 }
     
-#' Home Server Functions
+#' Dashboard Server Functions
 #'
 #' @noRd 
-mod_Home_server <- function(id){
+mod_Dashboard_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
  
@@ -25,7 +25,7 @@ mod_Home_server <- function(id){
 }
     
 ## To be copied in the UI
-# mod_Home_ui("Home_1")
+# mod_Dashboard_ui("Dashboard_1")
     
 ## To be copied in the server
-# mod_Home_server("Home_1")
+# mod_Dashboard_server("Dashboard_1")
