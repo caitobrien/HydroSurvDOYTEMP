@@ -26,46 +26,47 @@ app_ui <- function(request) {
                            # select species of interest
                            selectInput(inputId = "select_spp",
                                        label = "Select species",
-                                       choices = c("Chinook (CH)", "Steelhead (STL)"),
-                                       selected = NULL,
+                                       choices =  data$species,#c("Chinook (CH)", "Steelhead (STL)"),
+                                       selected = NULL,#"Chinook (CH)",
                                        width = "200px",
                                        multiple = T),
                            #select rear type
                            selectInput(inputId = "select_rear",
                                        label = "Select rearing type",
-                                       choices = c("Wild (W)", "Hatchery (H)"),
-                                       selected = NULL,
+                                       choices = data$rear_type, #c("Wild (W)", "Hatchery (H)"),
+                                       selected =  NULL, #"Wild (W)",
                                        width = "200px",
                                        multiple = T),
-                           # select response metric
-                           selectInput(inputId = "select_metric",
-                                       label = "Select response metric",
-                                       choices = c("Smolt-to-adult return ratio (SAR) ", " Transport to bypass ratio (T:B)"),
-                                       selected = NULL,
-                                       width = "200px",
-                                       multiple = T),
+                           # # select response metric
+                           # selectInput(inputId = "select_metric",
+                           #             label = "Select response metric",
+                           #             choices = c("Smolt-to-adult return ratio (SAR) ", " Transport to bypass ratio (T:B)"),
+                           #             selected = "Smolt-to-adult return ratio (SAR) ",
+                           #             width = "200px",
+                           #             multiple = T),
                            # select covariate of interest
                            selectInput(inputId = "select_cov",
                                        label = "Select covariate",
-                                       choices = c("Day of Year (DOY)", "Temperature"),
-                                       selected = NULL,
+                                       choices = data$covariate, #c("Day of Year (DOY)", "Temperature"),
+                                       selected = NULL, #"Day of Year (DOY)",
                                        width = "200px",
                                        multiple = T),
-                           # select years of interest
+                           # select years of interest--currently able to select one year based on function writtten-UPDATE
                            shinyWidgets::pickerInput(inputId = "select_year",
                                        label = "Select years",
-                                       choices = 1993:2018,
+                                       choices = unique(data$year),#1993:2018,
+                                       selected = NULL, #1993:2018,
                                        options = list(`actions-box` = TRUE),
                                        width = "200px",
-                                       multiple = T), #windowPadding = 1 doesn't work
-                           # add button to run after options are selected
-                           actionButton(inputId = 'btn_run_selected',
-                                        label = paste0('Run'),
-                                        icon = icon("wrench")),
-                           ## reset side bar selectoin
-                           actionButton(inputId = 'btn_reset_selected',
-                                        label = 'Reset',
-                                        icon = icon('refresh') )
+                                       multiple = T) #windowPadding = 1 doesn't work
+                           # # add button to run after options are selected
+                           # actionButton(inputId = 'btn_run_selected',
+                           #              label = paste0('Run'),
+                           #              icon = icon("wrench")),
+                           # ## reset side bar selectoin
+                           # actionButton(inputId = 'btn_reset_selected',
+                           #              label = 'Reset',
+                           #              icon = icon('refresh') )
 
                            ),
 
