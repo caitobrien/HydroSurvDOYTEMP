@@ -6,3 +6,4 @@
 #'
 #' @noRd
 
+data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
