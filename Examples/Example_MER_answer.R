@@ -148,20 +148,7 @@ plot_server <- function(id, finalDf) {
 
 #--------------------------------------------------------------------------------------
 # application ####
-ui <-
-#   fluidPage(
-#   titlePanel(title = "Hello"),
-#   sidebarLayout(
-#     sidebarPanel(
-#   dataselect_ui("dataselect")
-#     ),
-#   mainPanel(
-#     plot_ui("plot1")
-#     )
-#   )
-# )
-
-fluidPage(
+ui <- fluidPage(
   shinydashboard::dashboardPage(
     header = shinydashboard::dashboardHeader(
       title = "Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)"
