@@ -23,7 +23,7 @@ mod_Figures_ui <- function(id){
         shinydashboard::box(
           title = "X2",
           width = 6,
-          plotOutput(outputId = ns("plot2"))
+          plotOutput(outputId = "plot2")
         )
       ),
 
@@ -31,12 +31,12 @@ mod_Figures_ui <- function(id){
         shinydashboard::box(
           title = "X",
           width = 6,
-          plotOutput(outputId = ns("plot3"))),
+          plotOutput(outputId = "plot3")),
 
         shinydashboard::box(
           title = "X2",
           width = 6,
-          plotOutput(outputId = ns("plot4"))
+          plotOutput(outputId = "plot4")
         )
       )
     )

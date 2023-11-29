@@ -1,7 +1,13 @@
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(here)
 
+data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
+
+
+data$transport <- factor(data$transport, levels = c(0,1), labels = c("ROR", "T"))
+data$year <- factor(data$year)
 
 
 myModuleUI <- function(id) {
@@ -28,6 +34,14 @@ myModuleUI <- function(id) {
                   selected = NULL, #"Day of Year (DOY)",
                   width = "200px",
                   multiple = T),
+      # select years of interest--currently able to select one year based on function writtten-UPDATE
+      shinyWidgets::pickerInput(inputId = ns("select_year"),
+                                label = "Select years",
+                                choices = unique(data$year),#1993:2018,
+                                selected = NULL, #1993:2018,
+                                options = list(`actions-box` = TRUE),
+                                width = "200px",
+                                multiple = T), #windowPadding = 1 doesn't work
       plotOutput(ns("plot1")),
     )
 }
@@ -40,12 +54,13 @@ myModuleServer<- function(id){
       filter(data,
              species == input$select_spp &
              rear_type == input$select_rear &
-             covariate == input$select_cov
+             covariate == input$select_cov &
+             year == input$select_year
                )
     })
 
       output$plot1 <- renderPlot({
-        ggplot(df(), aes(df()$doy, df()$SAR, color = df()$year)) +
+        ggplot(df(), aes(doy, SAR, color = year, group = year)) +
           geom_point()
       })
     }
