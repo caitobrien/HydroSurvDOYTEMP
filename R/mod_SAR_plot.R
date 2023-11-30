@@ -1,4 +1,4 @@
-#' plot UI Function
+#' SAR_plot UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,40 +7,22 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_plot_ui <- function(id){
+mod_SAR_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
-    fluidPage(
-
-      fluidRow(
-        #      h2("Figures"),
-
-        shinydashboard::box(
-          title = "SAR",
-          width = 12,
-          plotOutput(outputId = ns("plot_1"))
-        )
-      ),
-
-      fluidRow(
-        shinydashboard::box(
-          title = "T:B",
-          width = 12,
-          plotOutput(outputId = "plot_2"))
-      )
-    )
+    plotOutput(outputId = ns("SAR_plot"))
   )
 }
 
-#' plot Server Functions
+#' SAR_plot Server Functions
 #'
 #' @noRd
-mod_plot_server <- function(id, finalDf){
+mod_SAR_plot_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    output$plot_1 <- renderPlot({
-      ggplot(finalDf(), aes( x= doy, color = transport, group = year)) +
+    output$SAR_plot <- renderPlot({
+      ggplot2::ggplot(finalDf(), aes( x= doy, color = transport, group = year)) +
         geom_point(aes(y =SAR, fill =  transport))+
         geom_jitter(aes(y =sar.pit, shape =  transport), alpha = .7)+
         tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport), alpha = .25) +
@@ -59,19 +41,12 @@ mod_plot_server <- function(id, finalDf){
                            labels = c("In-river, observed", "Transported, observed")) +
         guides(shape = "legend") +
         theme_minimal()
-
     })
-
-    output$plot_2 <- renderPlot({
-      shinipsum::random_ggplot(type = "line")
-    })
-
   })
 }
 
 ## To be copied in the UI
-# mod_plot_ui("plot_1")
+# mod_SAR_plot_ui("SAR_plot_1")
 
 ## To be copied in the server
-# mod_plot_server("plot_1")
-
+# mod_SAR_plot_server("SAR_plot_1")
