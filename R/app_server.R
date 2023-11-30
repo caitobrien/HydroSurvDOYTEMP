@@ -9,7 +9,10 @@ app_server <- function(input, output, session) {
 
   x <- mod_dataselect_server("dataselect_1")
   finalDf    <- x$finalDf
-  mod_plot_server("plot_1", finalDf)
+
+  mod_SAR_plot_server("SAR_plot_1", finalDf)
+
+  mod_TI_plot_server("TI_plot_1", finalDf)
 
   mod_Background_server("Background_1")
 

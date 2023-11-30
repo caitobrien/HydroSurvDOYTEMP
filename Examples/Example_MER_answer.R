@@ -129,17 +129,15 @@ TI_plot_server <- function(id, finalDf) {
 
     output$TI_plot <- renderPlot({
       finalDf() %>%
-        filter(transport == 1) %>%
-        ggplot(aes(x= doy, y= TI, color = transport, group = year)) +
+        ggplot(aes(x= doy, y= TI, group = year)) +
         geom_point()+
         geom_line()+
         labs( x = "Day-of-year\n(DOY)", y = "TI", color = NULL,
-              fill = NULL, shape = NULL,
               title = "Predicted TI"
         ) +
         geom_hline(yintercept = 1, color = "black" ) +
         scale_color_manual(values =  "black",
-                           labels = "Transported:In-river ratio \npredicted with 95% CI")+
+                            labels = "Transported:In-river ratio")+
         theme_minimal()
       })
   })

@@ -6,11 +6,7 @@
 #' @noRd
 #'
 
-data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
-
-
-data$transport<-as.factor(data$transport)
-data$year <- factor(data$year)
+#data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
 
 
 # data %>%
@@ -46,7 +42,14 @@ app_ui <- function(request) {
         body = shinydashboard::dashboardBody(
           shinydashboard::tabItems(
             shinydashboard::tabItem(tabName = "dashboard", mod_Dashboard_ui("Dashboard_ui_1")),
-            shinydashboard::tabItem(tabName = "figs", mod_plot_ui("plot_1")),
+            shinydashboard::tabItem(tabName = "figs",
+                                    fluidRow(
+                                      shinydashboard::box(title = "SAR",
+                                                          width = 12, mod_SAR_plot_ui("SAR_plot_1")),
+                                      shinydashboard::box(title = "TI",
+                                                          width = 12, mod_TI_plot_ui("TI_plot_1"))
+                                    )
+            ),
             shinydashboard::tabItem(tabName = "bkg", mod_Background_ui("Background_ui_1"))
           )
         )
@@ -79,3 +82,8 @@ golem_add_external_resources <- function() {
     # for example, you can add shinyalert::useShinyalert()
   )
 }
+
+
+
+
+

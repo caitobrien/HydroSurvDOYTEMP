@@ -22,7 +22,7 @@ golem::fill_desc(
   pkg_name = "HydroSurvDOYTEMP", # The Name of the package containing the App
   pkg_title = "PKG_TITLE", # The Title of the package containing the App
   pkg_description = "PKG_DESC.", # The Description of the package containing the App
-  author_first_name = "cAITLIN", # Your First Name
+  author_first_name = "CAITLIN", # Your First Name
   author_last_name = "OBRIEN", # Your Last Name
   author_email = "CSOBRIEN@UW.EDU", # Your Email
   repo_url = "https://github.com/caitobrien/HydroSurvDOYTEMP", # The URL of the GitHub Repo (optional),

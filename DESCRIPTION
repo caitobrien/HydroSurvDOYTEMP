@@ -1,7 +1,7 @@
 Package: HydroSurvDOYTEMP
 Title: PKG_TITLE
 Version: 0.0.0.9000
-Authors@R: person('cAITLIN', 'OBRIEN', email = 'CSOBRIEN@UW.EDU', role = c('cre', 'aut'))
+Authors@R: person('CAITLIN', 'OBRIEN', email = 'CSOBRIEN@UW.EDU', role = c('cre', 'aut'))
 Description: PKG_DESC.
 License: What license is it under?
 Imports: 

@@ -64,9 +64,9 @@ mod_dataselect_server <- function(id){
     finalDf <- reactive({
       filter(data,
              species == input$select_spp &
-               rear_type == input$select_rear &
-               covariate == input$select_cov &
-               year == input$select_year)
+             rear_type == input$select_rear &
+             covariate == input$select_cov &
+             year == input$select_year)
     })
 
     return(
