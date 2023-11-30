@@ -4,18 +4,19 @@ library(reshape2)
 library(DT)
 library(tidybayes)
 library(tidyverse)
+library(ggdist)
 
-data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
+#  data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
+# #
+# #
+#  data$transport<-as.factor(data$transport)
+#  data$year <- as.factor(data$year)
 
 
-data$transport<-as.factor(data$transport)
-data$year <- factor(data$year)
-
-
-# data %>%
-#   mutate(
-#     transport = as.factor(transport),
-#     year = as.factor(year),
+data<-data %>%
+  mutate(
+    transport = as.factor(transport),
+    year = as.factor(year))
 #     species = recode(species, "Ch" = "Chinook"))
 
 #----------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ dataselect_ui <- function(id) {
     shinyWidgets::pickerInput(inputId = ns("select_year"),
                               label = "Select years",
                               choices = unique(data$year),#1993:2018,
-                              selected = 2000, #1993:2018,
+                              selected = 2000, #unique(data$year),
                               options = list(`actions-box` = TRUE),
                               width = "200px",
                               multiple = T)
@@ -79,36 +80,18 @@ dataselect_server <- function(id) {
 
 #--------------------------------------------------------------------------------------
 # Plot module ####
-plot_ui <- function(id) {
+SAR_plot_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    fluidPage(
-
-      fluidRow(
-#      h2("Figures"),
-
-      shinydashboard::box(
-        title = "SAR",
-        width = 12,
-        plotOutput(outputId = ns("plot"))
-        )
-      ),
-
-      fluidRow(
-        shinydashboard::box(
-          title = "T:B",
-          width = 12,
-          plotOutput(outputId = "plot3"))
-        )
-      )
+        plotOutput(outputId = ns("SAR_plot"))
   )
-  }
+}
 
-plot_server <- function(id, finalDf) {
+SAR_plot_server <- function(id, finalDf) {
   moduleServer(id, function(input, output, session) {
 
-    output$plot <- renderPlot({
+    output$SAR_plot <- renderPlot({
         ggplot(finalDf(), aes( x= doy, color = transport, group = year)) +
         geom_point(aes(y =SAR, fill =  transport))+
         geom_jitter(aes(y =sar.pit, shape =  transport), alpha = .7)+
@@ -130,21 +113,38 @@ plot_server <- function(id, finalDf) {
         theme_minimal()
 
     })
-
-    output$plot2 <- renderPlot({
-      shinipsum::random_ggplot(type = "line")
-    })
-
-    output$plot3 <- renderPlot({
-      shinipsum::random_ggplot(type = "line")
-    })
-
-    output$plot4 <- renderPlot({
-      shinipsum::random_ggplot(type = "line")
-    })
   })
-
 }
+
+
+TI_plot_ui <-function(id) {
+  ns <-NS(id)
+  tagList(
+    plotOutput(outputId = ns("TI_plot"))
+  )
+}
+
+TI_plot_server <- function(id, finalDf) {
+  moduleServer(id, function(input, output, session) {
+
+    output$TI_plot <- renderPlot({
+      finalDf() %>%
+        filter(transport == 1) %>%
+        ggplot(aes(x= doy, y= TI, color = transport, group = year)) +
+        geom_point()+
+        geom_line()+
+        labs( x = "Day-of-year\n(DOY)", y = "TI", color = NULL,
+              fill = NULL, shape = NULL,
+              title = "Predicted TI"
+        ) +
+        geom_hline(yintercept = 1, color = "black" ) +
+        scale_color_manual(values =  "black",
+                           labels = "Transported:In-river ratio \npredicted with 95% CI")+
+        theme_minimal()
+      })
+  })
+  }
+
 
 #--------------------------------------------------------------------------------------
 # application ####
@@ -170,7 +170,14 @@ ui <- fluidPage(
     body = shinydashboard::dashboardBody(
       shinydashboard::tabItems(
         shinydashboard::tabItem(tabName = "dashboard"),
-        shinydashboard::tabItem(tabName = "figs", plot_ui("plot1")),
+        shinydashboard::tabItem(tabName = "figs",
+                                  fluidRow(
+                                    shinydashboard::box(title = "SAR",
+                                                        width = 12,SAR_plot_ui("SAR_plot_1")),
+                                    shinydashboard::box(title = "TI",
+                                                        width = 12,TI_plot_ui("TI_plot_1"))
+                                    )
+                                ),
         shinydashboard::tabItem(tabName = "bkg"))
         )
       )
@@ -179,7 +186,8 @@ ui <- fluidPage(
 server <- function(session, input, output) {
   x <- dataselect_server("dataselect")
   finalDf    <- x$finalDf
-  plot_server("plot1", finalDf)
+  SAR_plot_server("SAR_plot_1", finalDf)
+  TI_plot_server("TI_plot_1", finalDf)
 }
 
 shinyApp(ui = ui, server = server)
