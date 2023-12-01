@@ -1,23 +1,19 @@
 library(shiny)
-library(plotly)
-library(reshape2)
-library(DT)
+library(ggplot2)
 library(tidybayes)
 library(tidyverse)
 library(ggdist)
 
-#  data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
-# #
-# #
-#  data$transport<-as.factor(data$transport)
-#  data$year <- as.factor(data$year)
-
+# data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
+#
+# data$transport<-as.factor(data$transport)
+# data$year <- as.factor(data$year)
 
 data<-data %>%
   mutate(
-    transport = as.factor(transport),
+    transport = factor(transport, levels= c(0,1), label = c("In")),
     year = as.factor(year))
-#     species = recode(species, "Ch" = "Chinook"))
+    species = recode(species, "Ch" = "Chinook"))
 
 #----------------------------------------------------------------------------------------
 # Dataselect module ####
@@ -128,8 +124,8 @@ TI_plot_server <- function(id, finalDf) {
   moduleServer(id, function(input, output, session) {
 
     output$TI_plot <- renderPlot({
-      finalDf() %>%
-        ggplot(aes(x= doy, y= TI, group = year)) +
+
+        ggplot(finalDf(), aes(x= doy, y= TI, group = year)) +
         geom_point()+
         geom_line()+
         labs( x = "Day-of-year\n(DOY)", y = "TI", color = NULL,

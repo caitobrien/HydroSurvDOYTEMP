@@ -8,7 +8,7 @@ app_server <- function(input, output, session) {
   mod_Dashboard_server("Dashboard_1")
 
   x <- mod_dataselect_server("dataselect_1")
-  finalDf    <- x$finalDf
+ finalDf    <- x$finalDf
 
   mod_SAR_plot_server("SAR_plot_1", finalDf)
 

@@ -6,14 +6,22 @@
 #' @noRd
 #'
 
-#data<-read.csv(here::here("data", "ChSSWRT_mod_predict.csv"))
-
-
-# data %>%
-#   mutate(
-#     transport = as.factor(transport),
-#     year = as.factor(year),
-#     species = recode(species, "Ch" = "Chinook"))
+#  data<-read.csv(here::here("Examples/data", "ChSSRT_mod_predict.csv"))
+# #
+# #
+# data<- data %>%
+#    mutate(
+#      transport = as.factor(transport),
+#      year = as.factor(year),
+#      #species = as.factor(species),
+#      #rear_type = as.factor(rear_type),
+#      #covariate= as.factor(covariate)
+#      # species = factor(species, levels = "Ch", labels = "Chinook"),
+#      # rear_type = recode(rear_type, "W" = "Natural-origin",
+#      #                    "H" = "Hatchery-origin"),
+#      # covariate = recode(covariate, "DOY" = "Day-of-year (DOY)"),
+#      )
+# library(tidyverse)
 
 
 app_ui <- function(request) {
@@ -34,7 +42,7 @@ app_ui <- function(request) {
             shinydashboard::menuItem("Welcome", tabName = "dashboard", icon = icon("house")),
             shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line")),
             div(id = "tabs_filter",
-                conditionalPanel(condition = "input.tabs == figs",  mod_dataselect_ui("dataselect_1"))
+                conditionalPanel(condition = "input.tabs == 'figs'",  mod_dataselect_ui("dataselect_1"))
             ),
             shinydashboard::menuItem("Background Information", tabName = "bkg", icon = icon("book"))
           )
@@ -44,9 +52,9 @@ app_ui <- function(request) {
             shinydashboard::tabItem(tabName = "dashboard", mod_Dashboard_ui("Dashboard_ui_1")),
             shinydashboard::tabItem(tabName = "figs",
                                     fluidRow(
-                                      shinydashboard::box(title = "SAR",
+                                      shinydashboard::box(title = "Predicted Smolt-to-Adult Ration (SAR) versus observed SAR from PIT tag recoveries",
                                                           width = 12, mod_SAR_plot_ui("SAR_plot_1")),
-                                      shinydashboard::box(title = "TI",
+                                      shinydashboard::box(title = "Predicted Transport-to-Bypass Ratio (T:B)",
                                                           width = 12, mod_TI_plot_ui("TI_plot_1"))
                                     )
             ),
