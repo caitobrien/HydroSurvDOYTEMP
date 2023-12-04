@@ -17,18 +17,18 @@ mod_SAR_plot_ui <- function(id){
 #' SAR_plot Server Functions
 #'
 #' @noRd
-mod_SAR_plot_server <- function(id, finalDf){
-  moduleServer( id, function(input, output, session){
+mod_SAR_plot_server <- function(id, data){
+  moduleServer(id, function(input, output, session){
     ns <- session$ns
 
     output$SAR_plot <- renderPlot({
-   finalDf() %>%
-        # mutate(transport = as.factor(transport),
-        #        year = as.factor(year)
-        #        ) %>%
+    data() %>%
+        mutate(transport = as.factor(transport),
+               year = as.factor(year)
+               ) %>%
         ggplot( aes( x= doy, color = transport)) +
         geom_point(aes(y =SAR, fill =  transport))+
-        geom_jitter(aes(y =sar.pit, shape =  transport), alpha = .7)+
+        geom_point(aes(y =sar.pit, shape =  transport), alpha = .7)+
         tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year), alpha = .25) +
         # stat_summary( aes(y= SAR, group = transport,
         #              linetype = transport, color = transport),
@@ -55,22 +55,22 @@ mod_SAR_plot_server <- function(id, finalDf){
         scale_linetype_manual(values = c("dashed","dashed"),
                               breaks = c("0", "1"),
                               labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability")) +
-        guides(shape = "legend") +
-        ggrepel::geom_text_repel(data = . %>% filter(doy == 160),aes(y = SAR, label = year, color = transport),
-                                 force        = 0.5,
-                                 nudge_x      = 0.5,
-                                 direction    = "y",
-                                 hjust        = -1,
-                                 segment.size = 0.2,
-                                 min.segment.length = 0, #draw all line segments
-                                 xlim = c(-Inf,Inf), #allow values to extend to edges
-                                 max.overlaps = 50
-        )+
+        # ggrepel::geom_text_repel(data = . %>% group_by(year, transport) %>% filter(SAR == max(SAR)),aes(y = SAR, label = year, color = transport),
+        #                          # force        = 0.1,
+        #                          # nudge_x      = 0.1,
+        #                          # direction    = "y",
+        #                          # hjust        = -.7,
+        #                          # segment.size = 0.1,
+        #                            min.segment.length = 0, #draw all line segments
+        #                          # xlim = c(-Inf,Inf), #allow values to extend to edges
+        #                          # max.overlaps = 100
+        # )+
         coord_cartesian(clip = "off") + #disable clipping labels
-        theme_light()+ facet_grid(.~transport)
+        theme_light()+ facet_grid(species ~ rear_type)
     })
   })
 }
+
 
 
 ## To be copied in the UI

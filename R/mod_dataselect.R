@@ -30,9 +30,9 @@ mod_dataselect_ui <- function(id){
     selectInput(inputId = ns("select_cov"),
                 label = "Select covariate",
                 choices = data.pred$covariate, #c("Day of Year (DOY)", "Temperature"),
-                selected = unique(data.pred$covariate),
+                selected ="Day of Year (DOY)",
                 width = "200px",
-                multiple = T),
+                multiple = F),
     # select years of interest--currently able to select one year based on function writtten-UPDATE
     shinyWidgets::pickerInput(inputId = ns("select_year"),
                               label = "Select years",
@@ -60,19 +60,13 @@ mod_dataselect_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    # finalDf() is the data used to plot the table and plot
-    finalDf <- reactive({
-      filter(data,
-             species == input$select_spp &
-             rear_type == input$select_rear &
-             covariate == input$select_cov &
-             year == input$select_year)
+    reactive({
+        filter(data.pred,
+               species == input$select_spp,
+               rear_type == input$select_rear,
+               covariate == input$select_cov,
+               year == input$select_year)
     })
-
-    return(
-      list("finalDf" = finalDf)
-    )
-
   })
 }
 
