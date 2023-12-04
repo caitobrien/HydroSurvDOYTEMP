@@ -27,7 +27,7 @@ mod_TI_plot_server <- function(id, finalDf){
         ggplot( aes(x= doy, y= TI)) +
         geom_point(aes(group = year))+
         stat_summary(geom = "line", aes(group = year)) +
-        stat_summary(data = data1, aes(y= TI, x = doy),
+        stat_summary(data = data.pred, aes(y= TI, x = doy),
                      fun = median,
                      geom = "line",
                      color = "#545454",

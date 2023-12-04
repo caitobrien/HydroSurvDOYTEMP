@@ -23,23 +23,22 @@ mod_SAR_plot_server <- function(id, finalDf){
 
     output$SAR_plot <- renderPlot({
    finalDf() %>%
-        mutate(transport = as.factor(transport),
-               year = as.factor(year)
-               ) %>%
+        # mutate(transport = as.factor(transport),
+        #        year = as.factor(year)
+        #        ) %>%
         ggplot( aes( x= doy, color = transport)) +
         geom_point(aes(y =SAR, fill =  transport))+
         geom_jitter(aes(y =sar.pit, shape =  transport), alpha = .7)+
         tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year), alpha = .25) +
-        stat_summary( aes(y= SAR, group = as.factor(transport),
-                     linetype = as.factor(transport), color = as.factor(transport)),
-                     fun = median,
-                     geom = "line")+
-        stat_summary(data = data, aes(y= SAR, group = as.factor(transport), linetype = as.factor(transport)),
-                     geom = "ribbon",
-                     alpha = .1,
-                     fun.max = max,
-                     fun.min = min,
-                     color = "black")+
+        # stat_summary( aes(y= SAR, group = transport,
+        #              linetype = transport, color = transport),
+        #              fun = median,
+        #              geom = "line")+
+        # stat_summary(data = data.pred, aes(y= SAR, group = transport, linetype = transport, color = transport),
+        #              geom = "ribbon",
+        #              alpha = .1,
+        #              fun.max = max,
+        #              fun.min = min)+
         labs( x = "Day-of-year\n(DOY)", y = "Smolt-to-Adult Ratio\n(SAR)", color = "Per year",
               fill = "Per year", shape = NULL, #linetype = "Combined years",
               title = NULL
@@ -68,10 +67,11 @@ mod_SAR_plot_server <- function(id, finalDf){
                                  max.overlaps = 50
         )+
         coord_cartesian(clip = "off") + #disable clipping labels
-        theme_light()
+        theme_light()+ facet_grid(.~transport)
     })
   })
 }
+
 
 ## To be copied in the UI
 # mod_SAR_plot_ui("SAR_plot_1")
