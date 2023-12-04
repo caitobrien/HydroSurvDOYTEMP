@@ -12,7 +12,7 @@ library(ggdist)
 data<-data %>%
   mutate(
     transport = factor(transport, levels= c(0,1), label = c("In")),
-    year = as.factor(year))
+    year = as.factor(year),
     species = recode(species, "Ch" = "Chinook"))
 
 #----------------------------------------------------------------------------------------

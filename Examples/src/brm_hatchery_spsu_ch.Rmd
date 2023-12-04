@@ -28,12 +28,12 @@ df.ChSSWRT<-read_csv(here("data", "ChSSWRT_data_subset.csv"))
 ```{r data_subset, eval=FALSE}
 
 #---or use steps below
-DATA <- read.csv(file = here("Examples/data/", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+DATA <- read.csv(file = here::here("Examples/data/", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
 
-df.ChSSWRT <- DATA %>%
+df.ChSSHRT <- DATA %>%
   # filter to include wild all run types, with a transport code released from LGR
   filter(
-    t_rear_type == "W",
+    t_rear_type == "H",
     !is.na(pass_type),
     str_detect(rel_site, "LGR")
   ) %>%
@@ -75,6 +75,9 @@ df.ChSSWRT <- DATA %>%
 
 #write.csv(df.ChSSWRT, row.names = F, here("data", "ChSSWRT_data_subset.csv"))
 #df.ChSSWRT <- read.csv(here("data", "ChSSWRT_data_subset.csv"))
+data.pred<-read.csv(here::here("Examples/data", "ChSSRT_mod_predict.csv"))
+data.pred$transport<-as.factor(data.pred$transport)
+data.pred$year<-as.factor(data.pred$year)
 ```
 
 ```{r data_aggregate}
@@ -151,12 +154,12 @@ df.ChSSWRT %>%
 ## most current code
 ```{r mod_binomial}
 #rm(mod.1)
-mod.wild_Chinook_DOY <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+mod.hatchery_chinook_DOY <- brms::brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("Examples/results", "mod.wild_Chinook_DOY")
+                   file = here::here("Examples/results", "mod.hatchery_chinook_DOY")
                    )
 summary(mod.1.1)
 #mod.3 rerun with year as factor--no change
@@ -390,8 +393,8 @@ postpred_manual |>
 closest to JG code
 ```{r mod_linpred_wrangle_SAR}
 df.linpred<-newdata.full %>% 
-  add_linpred_draws(mod.hatchery_DOY, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
-  median_qi() %>% 
+  tidybayes::add_linpred_draws(mod.hatchery_chinook_DOY, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::median_qi() %>% 
   rename(SAR = .linpred,
          SAR.lo = .lower,
          SAR.hi = .upper) 
