@@ -8,6 +8,7 @@ Imports:
     config (>= 0.3.2),
     ggplot2,
     golem (>= 0.4.1),
+    reactable,
     shinipsum,
     shiny (>= 1.8.0),
     shinydashboard,

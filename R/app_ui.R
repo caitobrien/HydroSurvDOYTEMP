@@ -7,6 +7,8 @@
 #'
 
 #  data<-read.csv(here::here("Examples/data", "ChSSRT_mod_predict.csv"))
+#data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
+#library(tidyverse)
 # #
 # #
 # data<- data %>%
@@ -31,7 +33,8 @@ app_ui <- function(request) {
     fluidPage(
       shinydashboard::dashboardPage(
         header = shinydashboard::dashboardHeader(
-          title = "Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)"
+          title = "Seasonal Predictions Hydrosystem Survival", #Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)
+          titleWidth = 450
         ),
 
         ## Sidebar content - used as a navigation menu to each tab
@@ -49,11 +52,14 @@ app_ui <- function(request) {
         ),
         body = shinydashboard::dashboardBody(
           shinydashboard::tabItems(
-            shinydashboard::tabItem(tabName = "dashboard", mod_Dashboard_ui("Dashboard_ui_1")),
+            shinydashboard::tabItem(tabName = "dashboard",mod_Dashboard_ui("dashboard_text_1")),
             shinydashboard::tabItem(tabName = "figs",
                                     fluidRow(
-                                      shinydashboard::box(title = "Predicted Smolt-to-Adult Ration (SAR) versus observed SAR from PIT tag recoveries",
-                                                          width = 12, mod_SAR_plot_ui("SAR_plot_1")),
+                                      shinydashboard::box(title = "Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries",
+                                                          width = 12, mod_SAR_plot_ui("SAR_plot_1"),
+                                                          br(),
+                                                          "Table output:",
+                                                          mod_SAR_table_ui("SAR_table_1") ),
                                       shinydashboard::box(title = "Predicted Transport-to-Bypass Ratio (T:B)",
                                                           width = 12, mod_TI_plot_ui("TI_plot_1"))
                                     )

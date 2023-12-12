@@ -5,12 +5,12 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  mod_Dashboard_server("Dashboard_1")
+  mod_Dashboard_server("dashboard_text_1")
 
   Pdata <- reactive(mod_dataselect_server("dataselect_1"))
 
   mod_SAR_plot_server("SAR_plot_1", Pdata())
-
+  mod_SAR_table_server("SAR_table_1", Pdata())
 
   mod_TI_plot_server("TI_plot_1", Pdata())
 

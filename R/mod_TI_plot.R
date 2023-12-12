@@ -24,6 +24,11 @@ mod_TI_plot_server <- function(id, data){
     output$TI_plot <- renderPlot({
 
       data() %>%
+        mutate(transport = as.factor(transport),
+               rear_type = as.factor(rear_type),
+               covariate = as.factor(covariate),
+               species = as.factor(species)
+        ) %>%
         ggplot( aes(x= doy, y= TI)) +
         geom_point(aes(group = year))+
         stat_summary(geom = "line", aes(group = year)) +
@@ -50,7 +55,9 @@ mod_TI_plot_server <- function(id, data){
         xlim(NA, 170)+
         scale_color_manual(values =  "black",
                            labels = "Transported:In-river ratio")+
-        theme_light()+ facet_grid(species ~ rear_type)
+        theme_light()+ facet_grid(rear_type ~ species, scales = "free_y") +
+        theme(strip.background =element_rect(fill="lightgrey"))+
+        theme(strip.text = element_text(colour = 'black'))
     })
   })
 }

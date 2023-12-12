@@ -11,6 +11,8 @@
 mod_dataselect_ui <- function(id){
   ns <- NS(id)
   tagList(
+    br(),
+    "To plot survival predictions:",
     #select species
     selectInput(inputId = ns("select_spp"),
                 label = "Select species",
@@ -40,8 +42,8 @@ mod_dataselect_ui <- function(id){
                               selected = 2000, #1993:2018,
                               options = list(`actions-box` = TRUE),
                               width = "200px",
-                              multiple = T) #,
-    #
+                              multiple = T)
+
     # # add button to run after options are selected
     # actionButton(inputId = 'btn_run_selected',
     #              label = paste0('Run'),
@@ -61,12 +63,13 @@ mod_dataselect_server <- function(id){
     ns <- session$ns
 
     reactive({
-        filter(data.pred,
-               species == input$select_spp,
-               rear_type == input$select_rear,
-               covariate == input$select_cov,
-               year == input$select_year)
+        dplyr::filter(data.pred,
+                      species %in% c(input$select_spp),
+                      rear_type %in% c(input$select_rear),
+                      covariate %in% c(input$select_cov),
+                      year %in% c(input$select_year))
     })
+
   })
 }
 
