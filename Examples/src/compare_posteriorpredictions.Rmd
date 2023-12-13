@@ -131,7 +131,7 @@ summary_normal_predicted <- df.pred |>
 ```{r table_posteriorpredictions, echo=FALSE}
 tribble(
   ~Function,
-  "<code>predict(glmm, re_formula = NA)</code>",
+  "<code>predict(glmm, re_formula = ~ (1 + DOYz + I(DOYz^2) + Transport | Year))</code>",
   "<code>posterior_linpred(re_formula = NULL, transform = TRUE)</code>",
    "<code>posterior_epred(re_formula = NULL)</code>", 
     "<code>posterior_predict(re_formula = NULL)</code>", 
