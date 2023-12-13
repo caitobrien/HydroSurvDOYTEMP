@@ -1,5 +1,5 @@
 Package: HydroSurvDOYTEMP
-Title: PKG_TITLE
+Title: Seasonal Predictions of SAR & T:I for Chinook salmon and Steelhead
 Version: 0.0.0.9000
 Authors@R: person('CAITLIN', 'OBRIEN', email = 'CSOBRIEN@UW.EDU', role = c('cre', 'aut'))
 Description: PKG_DESC.
