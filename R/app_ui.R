@@ -7,8 +7,10 @@
 #'
 
 #  data<-read.csv(here::here("Examples/data", "ChSSRT_mod_predict.csv"))
-#data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
-#library(tidyverse)
+# data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
+# library(tidyverse)
+# library(reactable)
+# library(plotly)
 # #
 # #
 # data<- data %>%

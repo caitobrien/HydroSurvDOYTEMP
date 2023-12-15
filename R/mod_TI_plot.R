@@ -10,7 +10,7 @@
 mod_TI_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
-    plotOutput(outputId = ns("TI_plot"))
+    plotly::plotlyOutput(outputId = ns("TI_plot"))
   )
 }
 
@@ -21,9 +21,10 @@ mod_TI_plot_server <- function(id, data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    output$TI_plot <- renderPlot({
+    output$TI_plot <- plotly::renderPlotly({
 
-      data() %>%
+      plotly::ggplotly(
+        data() %>%
         mutate(transport = as.factor(transport),
                rear_type = as.factor(rear_type),
                covariate = as.factor(covariate),
@@ -57,7 +58,15 @@ mod_TI_plot_server <- function(id, data){
                            labels = "Transported:In-river ratio")+
         theme_light()+ facet_grid(rear_type ~ species, scales = "free_y") +
         theme(strip.background =element_rect(fill="lightgrey"))+
-        theme(strip.text = element_text(colour = 'black'))
+        theme(strip.text = element_text(colour = 'black')) +
+          theme(plot.margin = margin(1, 0, 0, 1.5, "cm")),
+        tooltip =  "text"
+      ) %>%
+        layout(
+          hovermode = "x"
+        ) %>%
+        plotly::config(displayModeBar = FALSE) %>%
+        plotly::config(showLink = FALSE)
     })
   })
 }
