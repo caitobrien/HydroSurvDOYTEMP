@@ -141,7 +141,7 @@ newdoyz <- ((90:160) - scale.x) / scale.sd
 
 
 newdata.doy <- expand_grid(
-  doyz = ((90:160) - attr(df.WCH$doyz, 'scaled:center')) / attr(df.WCH$doyz, 'scaled:scale')
+  doyz = ((90:160) - attr(df.WCH$doyz, 'scaled:center')) / attr(df.WCH$doyz, 'scaled:scale'),
   transport = c(0, 1),
   year = c(1993:2018),
   n = 348  #270 was used for H/W CH, could change based on each? 348 = mean(df.agg.W$n)
