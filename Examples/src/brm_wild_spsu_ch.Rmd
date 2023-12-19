@@ -28,7 +28,7 @@ df.ChSSWRT<-read_csv(here("data", "ChSSWRT_data_subset.csv"))
 ```{r data_subset, eval=FALSE}
 
 #---or use steps below
-DATA <- read.csv(file = here("data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
 
 df.ChSSWRT <- DATA %>%
   # filter to include wild all run types, with a transport code released from LGR
@@ -77,24 +77,46 @@ df.ChSSWRT <- DATA %>%
 #df.ChSSWRT <- read.csv(here("data", "ChSSWRT_data_subset.csv"))
 ```
 
+Temperature data
+```{r}
+#pulled from temp Rmarkdown
+df.ChSSWRT.temp<- df.ChSSWRT %>% 
+  mutate(
+    year = as.character(year),
+    doy = as.character(doy)
+  ) %>% 
+  left_join(y= select(LGR.temp.data, LGR.temp, LGR.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY"))
+
+df.ChSSWRT.temp<- df.ChSSWRT.temp %>% 
+  mutate ( LGR.tempz = scale(LGR.temp, center = TRUE, scale = TRUE),
+           LGR.temp.applyz = scale(LGR.temp.apply, center = TRUE, scale = TRUE)
+  ) %>% 
+  select(!c(LGR.temp, LGR.temp.apply))
+
+```
+
+
 ```{r data_aggregate}
 #for binomial left hand trial 
-df.agg <- df.ChSSWRT %>% 
+df.agg <- df.ChSSWRT.temp %>% 
   #calculate # of juveniles--used as total trials in binomial model
   group_by(year, doy, doyz, transport) %>% 
-  mutate(n = n()) %>% 
+  mutate(doy = as.numeric(doy),
+         n = n()) %>% 
   arrange(year, doy, doyz) %>% 
  # mutate(year = as.factor(year)) %>% 
   #set reponse as sum of alive per trials 
   summarize(alive = sum(alive),
-            n = mean(n)) %>% 
+            n = mean(n),
+            mean.LGR.tempz = mean(LGR.tempz),
+            mean.LGR.temp.applyz = mean(LGR.temp.applyz)) %>% 
   ungroup() %>% 
   #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
   arrange(year, doy, doyz, transport) %>% 
   mutate(doy.bin = cut(doy, breaks = seq(90, 160, 10), include.lowest = TRUE)) %>% 
   group_by(year, transport, doy.bin) %>% 
   mutate(doy.median = round(median(doy), 0),
-         sar.pit = alive/n ) %>% 
+         sar.pit = alive/n) %>% 
          # sar.pit.se = sd(sar.pit)/sqrt(n),
          # sar.pit.lower = mean(sar.pit) - 1.96 * sar.pit.se,
          # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>% 
@@ -149,21 +171,37 @@ df.ChSSWRT %>%
 - [plogis vs inv.logis:](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/inv.logit.html) The inverse logit is defined by exp(x)/(1+exp(x)) 
 
 ## most current code
-```{r mod_binomial}
+
+
+```{r mod_DOY_binomial}
 #rm(mod.1)
-mod.1.1 <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+mod.wild_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("results", "mod.1.1")
+                   file = here("Examples/results", "mod_wild_chinook_doy")
                    )
-summary(mod.1)
+summary(mod.wild_chinook_doy)
 #mod.3 rerun with year as factor--no change
 ```
 
+```{r mod_TEMP_binomial}
+#rm(mod.1)
+mod_wild_chinook_temp <- brm(alive | trials(n) ~ mean.LGR.tempz + I(mean.LGR.tempz^2) + transport + mean.LGR.tempz:transport + I(mean.LGR.tempz^2):transport + (1 + mean.LGR.tempz + I(mean.LGR.tempz^2) + transport | year), 
+                   data = df.agg, 
+                   family = binomial(link = "logit"), 
+                   chains = 3,
+                   cores = 3,
+                   file = here("Examples/results", "mod_wild_chinook_temp")
+                   )
+summary(mod_wild_chinook_temp)
+#mod.3 rerun with year as factor--no change
 
-```{r mod_binomial_summary}
+```
+
+
+```{r mod_binomial_DOY_summary}
 #plot estimates
 #no transformation
 stanplot(mod.1, 
@@ -217,28 +255,6 @@ exp(fixef(brm_binomial_ChSSWRT)[-c(3:6),-2]*sd(pull(df.agg, doyz), na.rm = T))
 ```
 
 
-```{r p_mod_binomial}
-#plot conditional effects w/o random/group-level effects
-c_eff_cen <- conditional_effects(mod.1, prob = .95, method = "posterior_epred", re_formula = NA, spaghetti = F) 
-
-#doy
-plot(c_eff_cen, plot = FALSE)[[1]]
-#transport
-plot(c_eff_cen, plot = FALSE)[[2]]
-
-#doy:transport
-c_eff_intrxn_1 <- conditional_effects(mod.1, effects="doyz",conditions = data.frame(transport = 1), prob = .95, method = "posterior_epred", re_formula = NA) 
-
-c_eff_intrxn_0 <- conditional_effects(mod.1, effects="doyz", conditions=data.frame(transport=0), prob = .95, method = "posterior_epred", re_formula = NA) 
-
-plot(c_eff_intrxn_1, plot=FALSE)[[1]]#transport
-plot(c_eff_intrxn_0, plot=FALSE)[[1]]#in-river
-
-
-
-```
-
-
 ## previous code s
 bernoulli
 ```{r mod_bernoulli, eval=FALSE}
@@ -250,30 +266,104 @@ mod.2 <- brm(alive ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):t
                    file = here("results", "mod.2")
                    )
 summary(mod.2)
+```
+
+```{r mod_temp_bernoulli, eval=FALSE}
+mod_wild_chinook_temp_bernoulli <- brm(alive ~ LGR.tempz + I(LGR.tempz^2) + transport + LGR.tempz:transport + I(LGR.tempz^2):transport + (1 + LGR.tempz + I(LGR.tempz^2) + transport | year), 
+                   data = df.ChSSWRT.temp, 
+                   family = bernoulli(link = "logit"), 
+                   chains = 3,
+                   cores = 3,
+                   file = here("Examples/results", "mod_wild_chinook_temp_bernoulli")
+                   )
+
 
 ```
 
 
 # predict
+##temp
+```{r mod_predict_temp}
+#rescale for temps similar to DOY? instead broke temps into 70 increments between range to match unique(DOY)
+seq_range(df.ChSSWRT.temp$LGR.tempz, n= 70, pretty = TRUE)
 
-adapting JG code
+newdata <- expand_grid(
+  mean.LGR.tempz = seq_range(df.ChSSWRT.temp$LGR.tempz, n= 70), #set range to match 70 DOY 160-90
+  transport = c(0, 1),
+  year = c(1993:2018),
+  n = 1  
+  ) 
+
+```
+
+```{r mod_linpred_wrangle_temp}
+df.linpred<-newdata %>% 
+  tidybayes::add_linpred_draws(mod_wild_chinook_temp, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::median_qi() %>% 
+  rename(SAR = .linpred,
+         SAR.lo = .lower,
+         SAR.hi = .upper) 
+
+df.linpred <- df.linpred %>% 
+  mutate(temp = mean.LGR.tempz * attr(df.ChSSWRT.temp$LGR.tempz, 'scaled:scale') + attr(df.ChSSWRT.temp$LGR.tempz, 'scaled:center'))
+
+df.linpred$TI <- NA
+df.linpred$TI[df.linpred$transport == 1] <- df.linpred$TI[df.linpred$transport == 1] <- df.linpred$SAR[df.linpred$transport == 1] / df.linpred$SAR[df.linpred$transport == 0]
+# T:I confidence interval
+df.linpred$TI.lo[df.linpred$transport == 1] <- df.linpred$TI.lo[df.linpred$transport == 0] <- df.linpred$SAR.lo[df.linpred$transport == 1] / df.linpred$SAR.lo[df.linpred$transport == 0] #JG code had SARlo1/SARhi0
+df.linpred$TI.hi[df.linpred$transport == 1] <- df.linpred$TI.hi[df.linpred$transport == 0] <- df.linpred$SAR.hi[df.linpred$transport == 1] / df.linpred$SAR.hi[df.linpred$transport == 0]#JG code had SARhi1/SARlo0
+```
+
+
+```{r mod_linpred_temp_csv}
+df.pred.post.h<-df.linpred %>% 
+  left_join(select(df.agg.H, "year", "doy", "transport", "sar.pit"), by = c("year", "doy", "transport")) %>% 
+  mutate( rear_type = "Hatchery-origin",
+          covariate = "Day-of-year (DOY)",
+          species = "Steelhead",
+          transport = as.factor(transport),
+          year = as.factor(year))
+
+df.pred.post.w<-df.linpred %>% 
+  left_join(select(df.agg.W, "year", "doy", "transport", "sar.pit"), by = c("year", "doy", "transport")) %>% 
+  mutate( rear_type = "Natural-origin",
+          covariate = "Day-of-year (DOY)",
+          species = "Steelhead",
+          transport = as.factor(transport),
+          year = as.factor(year))
+
+
+
+all<-rbind(df.pred.post.w.ch,df.pred.post.h.ch)
+
+write.csv(all, row.names = F, here("data", "Stl_mod_predict.csv"))
+
+all.all<-rbind(select(all, -c(5:7)), select(data.pred, -c(5:7)))
+
+write.csv(all.all, row.names = F, here("data", "df_mod_predict.csv"))
+
+data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
+
+```
+
+
+## adapting JG code
 ```{r mod_predict_SAR}
 ##create new dataframe with al doy, tran, and year options, set n trails =1
 
-# salmon
-W.scale.DOY.sal <- scale(df.ChSSWRT$doy) 
-W.scale.x.sal <- attr(W.scale.DOY.sal, "scaled:center")
-W.scale.sd.sal <- attr(W.scale.DOY.sal, "scaled:scale")
+scale.DOY <- scale(df.ChSSWRT$doy) 
+scale.x <- attr(scale.DOY, "scaled:center")
+scale.sd <- attr(scale.DOY, "scaled:scale")
 
 ##reassigns scale used for model to 90:160 for new dataset used in predictions. --could condense or pull scale from orig dataset
-newdoyz.w.sal <- ((90:160) - W.scale.x.sal) / W.scale.sd.sal 
+newdoyz <- ((90:160) - scale.x) / scale.sd 
 
 
 #####
 
 
 newdata <- expand_grid(
-  doyz = newdoyz.w.sal,
+  doyz = newdoyz,
   transport = c(0, 1),
   year = c(1993:2018),
   n = 270  #1 or mean?
