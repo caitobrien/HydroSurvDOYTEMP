@@ -27,7 +27,7 @@ mod_SAR_table_server <- function(id, data){
         select(species, rear_type, year, transport,doy, SAR, SAR.lo, SAR.hi, sar.pit)
 
       reactable::reactable(df.table, highlight = TRUE, filterable = TRUE,
-                           groupBy = c("year", "species","transport", "rear_type"),
+                           groupBy = c("species","transport", "rear_type", "year"),
                            columns = list(
                              #year = colDef(aggregate = "unique"),
                              #doy = colDef(aggregate = "median", format = colFormat(digits = 0)),
