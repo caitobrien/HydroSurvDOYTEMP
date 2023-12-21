@@ -15,21 +15,23 @@ library(modelr)
 ```
 
 
-
-#wild chinook
+Current code below is setup to manually run each df of choice through to extract predictions. Next step would be to set as a function to clean-up code. 
 
 ## Data wrangling
 
 ```{r data_import}
 #import saved subset file 
-df<-read_csv(here("Examples/data", "wild_steelhead_data_subset.csv"))
+df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "wild_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "wild_steelhead_data_subset.csv"))
+df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
 
-#df<-read_csv(file.choose())
+df<-read_csv(file.choose())
 ```
 
 
 
-```{r data_subset, eval=FALSE}
+```{r data_subset,  eval=FALSE}
 
 #---or use steps below
 DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
@@ -80,7 +82,7 @@ df<- DATA %>%
 #df.ChSSWRT <- read.csv(here("data", "ChSSWRT_data_subset.csv"))
 ```
 
-Temperature data
+
 ```{r bind_temp_data, eval=FALSE}
 #pulled from temp Rmarkdown
 df.WCH<- df.WCH %>% 
@@ -130,12 +132,12 @@ df.agg <- df%>%
 mod_wild_chinook_doy <- readRDS(here::here("Examples/results", "mod_wild_chinook_doy.rds"))
 mod_wild_chinook_temp<- readRDS(here::here("Examples/results", "mod_wild_chinook_temp.rds"))
 mod_wild_steelhead_doy<- readRDS(here::here("Examples/results", "mod_wild_steelhead_doy.rds"))
-mod_wild_Steelhead_temp<- readRDS(here::here("Examples/results", "mod_wild_steelhead_temp.rds"))
+mod_wild_steelhead_temp<- readRDS(here::here("Examples/results", "mod_wild_steelhead_temp.rds"))
 
 mod_hatchery_chinook_doy<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_doy.rds"))
 mod_hatchery_chinook_temp<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_temp.rds"))
 mod_hatchery_steelhead_doy<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_doy.rds"))
-mod_hatchery_Steelhead_temp<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_temp.rds"))
+mod_hatchery_steelhead_temp<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_temp.rds"))
   
 ```
 
@@ -169,37 +171,36 @@ newdata<-bind_cols(newdata.doy,newdata.temp[,1])
 
 ```{r add_predictions_SAR_TI}
 df.pred<-newdata %>% 
-  tidybayes::add_linpred_draws(mod_wild_chinook_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::add_linpred_draws(mod_wild_steelhead_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
   tidybayes::median_qi() %>% 
   rename(SAR = .linpred,
          SAR.lo = .lower,
          SAR.hi = .upper) %>% 
+  mutate(TI = ifelse(transport == 1, SAR[transport == 1] / SAR[transport == 0], NA),
+         TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
+         TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)) %>% 
   mutate(doy = (doyz * scale.sd.doy) + scale.x.doy,
          date = parse_date_time(x = paste(year, doy), orders = "yj"),
-         temp = (mean.tempz * scale.sd.temp) + scale.x.temp)
+         temp = (mean.tempz * scale.sd.temp) + scale.x.temp) 
 
 # back calculate:  df.agg$doyz * attr(df.agg$doyz, 'scaled:scale') + attr(df.agg$doyz, 'scaled:center')
 
-
-df.pred$TI <- NA
-df.pred$TI[df.pred$transport == 1] <- df.pred$TI[df.pred$transport == 1] <- df.pred$SAR[df.pred$transport == 1] / df.pred$SAR[df.pred$transport == 0]
-# T:I confidence interval
-df.pred$TI.lo[df.pred$transport == 1] <- df.pred$TI.lo[df.pred$transport == 0] <- df.pred$SAR.lo[df.pred$transport == 1] / df.pred$SAR.lo[df.pred$transport == 0] #JG code had SARlo1/SARhi0
-df.pred$TI.hi[df.pred$transport == 1] <- df.pred$TI.hi[df.pred$transport == 0] <- df.pred$SAR.hi[df.pred$transport == 1] / df.pred$SAR.hi[df.pred$transport == 0]#JG code had SARhi1/SARlo0
 ```
 
-```{r_append_obsdata_to_predictions}
+```{r append_obsdata_to_predictions}
 #repeat code for each to get prediction
-df.pred.w.ch.doy<-df.pred %>% 
+df.pred.w.stl.doy<-df.pred %>% 
   mutate(year = as.character(year)) %>% 
-  left_join(select(df.agg, "year", "doy", "mean.temp", "transport"), by = c("year", "doy", "temp" = "mean.temp", "transport")) %>% 
+  left_join(select(df.agg, "transport", "year","doy", "sar.pit" ), by = c("transport", "year", "doy")) %>% 
   mutate( rear_type = "Natural-origin", # "Natural-origin" "Hatchery-origin"
-          covariate = "Day-of-year (DOY)", # "Day-of-year (DOY)" "Temperature (°)"
-          species = "Chinook", # "Chinook" "Steelhead"
+          covariate =  "Day-of-year (DOY)", # "Day-of-year (DOY)" "Temperature (°)",#
+          species = "Steelhead", # "Chinook" "Steelhead"
           transport = as.factor(transport),
           year = as.factor(year)) 
 
 ```
+
+# Export predictions
 
 ```{r combine_final_predictions}
 all<-rbind(df.pred.w.ch.doy, df.pred.w.ch.temp,
@@ -209,7 +210,6 @@ all<-rbind(df.pred.w.ch.doy, df.pred.w.ch.temp,
 
 write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 
-#need to redo SAR for all--look into method
 
 ```
 

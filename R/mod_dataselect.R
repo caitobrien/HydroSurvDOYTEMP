@@ -16,7 +16,7 @@ mod_dataselect_ui <- function(id){
     #select species
     selectInput(inputId = ns("select_spp"),
                 label = "Select species",
-                choices =  data.pred$species,#c("Chinook (CH)", "Steelhead (STL)"),
+                choices =  c("Chinook", "Steelhead"),#data.pred$species
                 selected = unique(data.pred$species),
                 width = "200px",
                 multiple = T),
@@ -24,14 +24,14 @@ mod_dataselect_ui <- function(id){
     #select rear type
     selectInput(inputId = ns("select_rear"),
                 label = "Select rearing type",
-                choices = data.pred$rear_type, #c("Wild (W)", "Hatchery (H)"),
+                choices = c("Natural-origin", "Hatchery-origin"), #data.pred$rear_type,
                 selected = unique(data.pred$rear_type),
                 width = "200px",
                 multiple = T),
     #select covariate
     selectInput(inputId = ns("select_cov"),
                 label = "Select covariate",
-                choices = data.pred$covariate, #c("Day of Year (DOY)", "Temperature"),
+                choices = c("Day-of-year (DOY)","Temperature (°)"), #c("Day of Year (DOY)", "Temperature"),
                 selected ="Day of Year (DOY)",
                 width = "200px",
                 multiple = F),
@@ -62,14 +62,25 @@ mod_dataselect_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
-    reactive({
-        dplyr::filter(data.pred,
-                      species %in% c(input$select_spp),
-                      rear_type %in% c(input$select_rear),
-                      covariate %in% c(input$select_cov),
-                      year %in% c(input$select_year))
+  reactive({
+      data.pred %>%
+          filter(species %in% c(input$select_spp),
+                 rear_type %in% c(input$select_rear),
+                 covariate %in% c(input$select_cov),
+                 year %in% c(input$select_year)
+                 )
+    # x_var <- switch(input$select_cov,
+    #                 "Day-of-year (DOY)" == "doy",
+    #                 "Temperature (°)" == "temp",
+    #
+    #                 )
+    #
+    #
+    # if (x_var %in% colnames(filtered_data)) {
+    #   filtered_data <- filtered_data %>% select(x_var, species)
+    # }
+    # return(filtered_data)
     })
-
   })
 }
 
