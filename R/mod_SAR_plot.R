@@ -35,7 +35,7 @@ mod_SAR_plot_server <- function(id, data){
         ggplot( aes( x= doy, color = transport)) +
         geom_point(aes(y =SAR, fill =  transport))+
         tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year), alpha = .25) +
-        geom_point(aes(y =sar.pit, shape =  transport), alpha = .7)+
+        #geom_point(aes(y =sar.pit, shape =  transport), alpha = .7)+
         labs( x = "Day-of-year\n(DOY)", y = "Smolt-to-Adult Ratio\n(SAR)", color = "Per year",
               fill = "Per year", shape = NULL, #linetype = "Combined years",
               title = NULL

@@ -1,0 +1,218 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r packages}
+library(ggplot2)
+library(tidyverse)
+library(brms)
+library(beepr)
+library(here)
+library(tidybayes)
+library(lme4)
+library(broom)
+library(modelr)
+```
+
+
+
+#wild chinook
+
+## Data wrangling
+
+```{r data_import}
+#import saved subset file 
+df<-read_csv(here("Examples/data", "wild_steelhead_data_subset.csv"))
+
+#df<-read_csv(file.choose())
+```
+
+
+
+```{r data_subset, eval=FALSE}
+
+#---or use steps below
+DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+
+df<- DATA %>%
+  # filter to include wild all run types, with a transport code released from LGR
+  filter(
+    t_rear_type == "W",
+    !is.na(pass_type),
+    str_detect(rel_site, "LGR")
+  ) %>%
+  # extract year/doy and filter to include 80 to 160 doy from 1993 to 2018
+  mutate(
+    year = lubridate::year(rel_time),
+    doy = lubridate::yday(rel_time),
+  ) %>%
+  
+  filter(
+    between(year, 1993, 2018),
+    between(doy, 80, 160)
+  ) %>%
+  # redesignate tranportation codes--double check on -S and -T at other locations 
+  mutate(pass_type_T_R = case_when(
+    str_detect(pass_type, "-S") & str_length(pass_type) == 5 ~ "remove",
+    str_detect(pass_type, "-S") & str_length(pass_type) > 5 ~ "ROR",
+    str_detect(pass_type, "-TB") ~ "ROR",
+    str_detect(pass_type, "-TD") ~ "ROR",
+    str_detect(pass_type, "ROR") ~ "ROR",
+    str_detect(pass_type, "LWG-T") ~ "T",
+    .default = "remove"
+  )) %>%
+  filter(pass_type_T_R != "remove") %>% 
+  # # adding filters to match JG shared code for transport --- check this still stands
+  # filter(if_else(pass_type_T_R == "ROR", 
+  #                str_length(pass_type) %in% c(3, 7),
+  #                str_detect(pass_type, "LWG-T")
+  #                )
+  #        ) %>%
+  # add binary codes
+  mutate(
+    transport = if_else(pass_type_T_R == "T", 1, 0),
+    alive = if_else(!is.na(adu_lgr_first), 1, 0),
+    doyz = scale(doy, center = TRUE, scale = TRUE)
+  ) 
+
+
+#write.csv(df.WCH, row.names = F, here("Examples/data", "wild_spsu_chinook_data_subset.csv"))
+#df.ChSSWRT <- read.csv(here("data", "ChSSWRT_data_subset.csv"))
+```
+
+Temperature data
+```{r bind_temp_data, eval=FALSE}
+#pulled from temp Rmarkdown
+df.WCH<- df.WCH %>% 
+  mutate(
+    year = as.character(year),
+    doy = as.character(doy)
+  ) %>% 
+  left_join(y= select(LGR.temp.data, LGR.temp, LGR.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
+  mutate ( LGR.tempz = scale(LGR.temp, center = TRUE, scale = TRUE)
+  ) %>% 
+  select(!c( LGR.temp.apply, LGR.temp.applyz))
+```
+
+
+```{r data_aggregate}
+#for binomial left hand trial 
+df.agg <- df%>% 
+  #calculate # of juveniles--used as total trials in binomial model
+  group_by(year, doy, doyz, transport) %>% 
+  mutate(doy = as.numeric(doy),
+         n = n()) %>% 
+  arrange(year, doy, doyz) %>% 
+ # mutate(year = as.factor(year)) %>% 
+  #set reponse as sum of alive per trials 
+  summarize(alive = sum(alive),
+            n = mean(n),
+            mean.tempz = mean(LGR.tempz),
+            mean.temp = mean(LGR.temp)) %>% 
+  ungroup() %>% 
+  #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
+  arrange(year, doy, doyz, transport) %>% 
+  mutate(doy.bin = cut(doy, breaks = seq(90, 160, 10), include.lowest = TRUE)) %>% 
+  group_by(year, transport, doy.bin) %>% 
+  mutate(doy.median = round(median(doy), 0),
+         sar.pit = alive/n) %>% 
+         # sar.pit.se = sd(sar.pit)/sqrt(n),
+         # sar.pit.lower = mean(sar.pit) - 1.96 * sar.pit.se,
+         # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>% 
+  ungroup() %>% 
+  mutate( date = parse_date_time(x = paste(year, doy), orders = "yj")) %>% 
+  mutate(year = as.character(year))
+```
+
+# predict
+
+```{r import_models}
+mod_wild_chinook_doy <- readRDS(here::here("Examples/results", "mod_wild_chinook_doy.rds"))
+mod_wild_chinook_temp<- readRDS(here::here("Examples/results", "mod_wild_chinook_temp.rds"))
+mod_wild_steelhead_doy<- readRDS(here::here("Examples/results", "mod_wild_steelhead_doy.rds"))
+mod_wild_Steelhead_temp<- readRDS(here::here("Examples/results", "mod_wild_steelhead_temp.rds"))
+
+mod_hatchery_chinook_doy<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_doy.rds"))
+mod_hatchery_chinook_temp<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_temp.rds"))
+mod_hatchery_steelhead_doy<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_doy.rds"))
+mod_hatchery_Steelhead_temp<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_temp.rds"))
+  
+```
+
+```{r generate_newdata}
+#####doy
+scale.doy <- scale(as.numeric(df$doy))
+scale.x.doy <- attr(scale.doy, "scaled:center")
+scale.sd.doy <- attr(scale.doy, "scaled:scale")
+
+scale.temp <- scale(as.numeric(df$LGR.temp))
+scale.x.temp <- attr(scale.temp, "scaled:center")
+scale.sd.temp <- attr(scale.temp, "scaled:scale")
+
+
+newdata.doy <- expand_grid(
+  doyz = ((90:160) - scale.x.doy) / scale.sd.doy,
+  transport = c(0, 1),
+  year = c(1993:2018),
+  n = 1
+  ) 
+
+newdata.temp <- expand_grid(
+  mean.tempz = seq_range(df$LGR.tempz, n = 71), #to match DOY 
+  transport = c(0, 1),
+  year = c(1993:2018),
+  n = 1
+  ) 
+
+newdata<-bind_cols(newdata.doy,newdata.temp[,1])
+```
+
+```{r add_predictions_SAR_TI}
+df.pred<-newdata %>% 
+  tidybayes::add_linpred_draws(mod_wild_chinook_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::median_qi() %>% 
+  rename(SAR = .linpred,
+         SAR.lo = .lower,
+         SAR.hi = .upper) %>% 
+  mutate(doy = (doyz * scale.sd.doy) + scale.x.doy,
+         date = parse_date_time(x = paste(year, doy), orders = "yj"),
+         temp = (mean.tempz * scale.sd.temp) + scale.x.temp)
+
+# back calculate:  df.agg$doyz * attr(df.agg$doyz, 'scaled:scale') + attr(df.agg$doyz, 'scaled:center')
+
+
+df.pred$TI <- NA
+df.pred$TI[df.pred$transport == 1] <- df.pred$TI[df.pred$transport == 1] <- df.pred$SAR[df.pred$transport == 1] / df.pred$SAR[df.pred$transport == 0]
+# T:I confidence interval
+df.pred$TI.lo[df.pred$transport == 1] <- df.pred$TI.lo[df.pred$transport == 0] <- df.pred$SAR.lo[df.pred$transport == 1] / df.pred$SAR.lo[df.pred$transport == 0] #JG code had SARlo1/SARhi0
+df.pred$TI.hi[df.pred$transport == 1] <- df.pred$TI.hi[df.pred$transport == 0] <- df.pred$SAR.hi[df.pred$transport == 1] / df.pred$SAR.hi[df.pred$transport == 0]#JG code had SARhi1/SARlo0
+```
+
+```{r_append_obsdata_to_predictions}
+#repeat code for each to get prediction
+df.pred.w.ch.doy<-df.pred %>% 
+  mutate(year = as.character(year)) %>% 
+  left_join(select(df.agg, "year", "doy", "mean.temp", "transport"), by = c("year", "doy", "temp" = "mean.temp", "transport")) %>% 
+  mutate( rear_type = "Natural-origin", # "Natural-origin" "Hatchery-origin"
+          covariate = "Day-of-year (DOY)", # "Day-of-year (DOY)" "Temperature (°)"
+          species = "Chinook", # "Chinook" "Steelhead"
+          transport = as.factor(transport),
+          year = as.factor(year)) 
+
+```
+
+```{r combine_final_predictions}
+all<-rbind(df.pred.w.ch.doy, df.pred.w.ch.temp,
+           df.pred.h.ch.doy, df.pred.h.ch.temp,
+           df.pred.w.stl.doy, df.pred.w.stl.temp,
+           df.pred.h.stl.doy, df.pred.h.stl.temp)
+
+write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
+
+#need to redo SAR for all--look into method
+
+```
+
+
+
+
