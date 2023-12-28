@@ -219,5 +219,37 @@ write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 ```
 
 
+# Summary table
+
+```{r summary_table}
+
+library(gtsummary)
+
+summary(mod_wild_chinook_doy)
+tbl_regression(mod_wild_chinook_doy, intercept = TRUE) %>% 
+  modify_table_styling(
+    label = list(
+      
+    )
+  )
+
+
+data(trial)
+tbl <- trial %>%
+  select(age, marker, response) %>%
+  tbl_summary()
+
+# Modify the table header names
+modified_tbl <- modify_table_styling(
+  tbl,
+  label = list(
+    age ~ "Patient Age",
+    marker ~ "Biomarker",
+    response ~ "Treatment Response"
+  )
+)
+
+modified_tbl
+```
 
 
