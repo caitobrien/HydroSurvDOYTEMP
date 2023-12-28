@@ -123,7 +123,8 @@ df.agg <- df%>%
          # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>% 
   ungroup() %>% 
   mutate( date = parse_date_time(x = paste(year, doy), orders = "yj")) %>% 
-  mutate(year = as.character(year))
+  mutate(year = as.character(year),
+         transport = as.character(transport))
 ```
 
 # predict
@@ -176,27 +177,31 @@ df.pred<-newdata %>%
   rename(SAR = .linpred,
          SAR.lo = .lower,
          SAR.hi = .upper) %>% 
-  mutate(TI = ifelse(transport == 1, SAR[transport == 1] / SAR[transport == 0], NA),
+  group_by(year, doyz) %>% 
+  mutate(transport = as.factor(transport),
+         TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
          TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
          TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)) %>% 
+  ungroup() %>% 
   mutate(doy = (doyz * scale.sd.doy) + scale.x.doy,
          date = parse_date_time(x = paste(year, doy), orders = "yj"),
          temp = (mean.tempz * scale.sd.temp) + scale.x.temp) 
 
 # back calculate:  df.agg$doyz * attr(df.agg$doyz, 'scaled:scale') + attr(df.agg$doyz, 'scaled:center')
-
 ```
 
 ```{r append_obsdata_to_predictions}
 #repeat code for each to get prediction
 df.pred.w.stl.doy<-df.pred %>% 
-  mutate(year = as.character(year)) %>% 
-  left_join(select(df.agg, "transport", "year","doy", "sar.pit" ), by = c("transport", "year", "doy")) %>% 
-  mutate( rear_type = "Natural-origin", # "Natural-origin" "Hatchery-origin"
-          covariate =  "Day-of-year (DOY)", # "Day-of-year (DOY)" "Temperature (°)",#
-          species = "Steelhead", # "Chinook" "Steelhead"
+  mutate(year = as.character(year),
+         transport = as.character(transport)) %>% 
+  left_join(select(df.agg, "transport", "year","doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>% 
+  mutate( rear_type =   "Natural-origin", # "Hatchery-origin",#
+          covariate =  "Day-of-year (DOY)" , # "Temperature (°C)",#
+          species =  "Steelhead", # "Chinook", #
           transport = as.factor(transport),
-          year = as.factor(year)) 
+          year = as.factor(year)) %>% 
+  rename( n.obs = n.y)
 
 ```
 

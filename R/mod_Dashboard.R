@@ -45,9 +45,11 @@ mod_Dashboard_ui <- function(id) {
         ),
     column(
       width = 6,
-      shinydashboard::box(
-        width = NULL,
-        "MAP/IMAGE?"
+       shinydashboard::box(
+         width = NULL,
+        shiny::img(src = "www/map.png", height = "400px", width = "auto"),
+        br(),
+        "Figure Caption: "
       )
     )
     )
@@ -60,6 +62,7 @@ mod_Dashboard_ui <- function(id) {
 mod_Dashboard_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
   })
 }
 

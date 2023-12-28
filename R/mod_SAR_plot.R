@@ -38,14 +38,22 @@ mod_SAR_plot_server <- function(id, data){
         species = as.factor(species)
         ) %>%
         group_by( year) %>%
-      ggplot( aes( x= x_var, color = transport)) +
-        geom_point(aes(y =SAR, fill =  transport))+
-        tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year), alpha = .25)+
-        geom_point(aes(y =sar.pit, shape =  transport), alpha = .7)+
+      ggplot( aes( x= x_var)) +
+        geom_point(aes(y =SAR, fill =  transport, color = transport), alpha = .3)+
+        tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year, color = transport), alpha = .25)+
+        geom_point(aes(y =sar.pit, size = n.obs, shape =  transport, color = transport), alpha = .7)+
+        # stat_summary(fun = "median",
+        #              geom = "line",
+        #              color = "black",
+        #              size = 1,
+        #              aes(linetype = transport, y = SAR)) +
         labs( x = data()$covariate,
               y = "Smolt-to-Adult Ratio\n(SAR)",
+              shape = NULL,
+              size = "Number of fish, observed",
               color = "Per year",
-              fill = "Per year", shape = NULL, #linetype = "Combined years",
+              fill = "Per year", shape = NULL,
+              linetype = "Combined years",
               title = NULL
         ) +
         scale_color_manual(breaks = c("0", "1"),
@@ -57,21 +65,27 @@ mod_SAR_plot_server <- function(id, data){
         scale_shape_manual(values = c(21,21),
                            breaks = c("0", "1"),
                            labels = c("In-river, observed", "Transported, observed")) +
-        scale_linetype_manual(values = c("dashed","dashed"),
-                              breaks = c("0", "1"),
-                              labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
-       #  ggrepel::geom_text_repel(data = . %>% group_by(year, transport) %>% filter(doy == 160),aes(y = SAR, label = year, color = transport),
-       #                           force        = 0.1,
-       #                           nudge_x      = 0.1,
-       #                           direction    = "y",
-       #                           hjust        = -.7,
-       #                           segment.size = 0.1,
-       #                           min.segment.length = 0, #draw all line segments
-       #                           xlim = c(-Inf,Inf), #allow values to extend to edges
-       #                           max.overlaps = 30
-       #  )+
+        # scale_linetype_manual(values = c("solid","dashed"),
+        #                       breaks = c("0", "1"),
+        #                       labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
+        scale_size_continuous( breaks = seq_range(data()$n.obs, n = 4, pretty = TRUE)) +
+        guides(shape = guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
+                                    order = 1),
+               size = guide_legend(order = 2),
+               color = guide_legend(order = 3),
+               fill = guide_legend(order = 3)) +
+               # linetype = guide_legend(order = 4)) +
+        ggrepel::geom_text_repel(data = . %>% group_by(covariate, species, rear_type, year, transport) %>% filter(x_var == max(x_var)) %>% arrange(year, desc(SAR)),aes(y = SAR, label = year, color = transport),
+                                 force        = 0.1,
+                                 nudge_x      = 0.1,
+                                 direction    = "y",
+                                 hjust        = -.7,
+                                 segment.size = 0.05,
+                                 min.segment.length = 0, #draw all line segments
+                                 xlim = c(-Inf,Inf), #allow values to extend to edges
+                                 max.overlaps = 100
+        )+
         coord_cartesian(clip = "off") + #disable clipping labels
-       # # xlim(NA, 170)+
         theme_light()+ facet_grid(rear_type ~ species, scales = "free_y") +
         theme(strip.background =element_rect(fill="lightgrey"))+
         theme(strip.text = element_text(colour = 'black')) +
@@ -80,7 +94,7 @@ mod_SAR_plot_server <- function(id, data){
   })
 }
 
-
+seq_range(data.pred$n.obs[data.pred$species == "Steelhead" & data.pred$rear_type == "Natural-origin"], n = 4, pretty = TRUE)
 
 ## To be copied in the UI
 # mod_SAR_plot_ui("SAR_plot_1")

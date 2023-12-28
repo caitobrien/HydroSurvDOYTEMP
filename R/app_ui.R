@@ -7,10 +7,11 @@
 #'
 
 #
-# data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
-# library(tidyverse)
-# library(reactable)
-# library(plotly)
+data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
+library(tidyverse)
+library(reactable)
+library(plotly)
+library(modelr)
 
 
 app_ui <- function(request) {
