@@ -42,7 +42,7 @@ mod_dataselect_ui <- function(id){
     shinyWidgets::pickerInput(inputId = ns("select_year"),
                               label = "Select years",
                               choices = unique(data.pred$year),#1993:2018,
-                              selected = 1993:2018,
+                              selected = 2000, #1993:2018,
                               options = list(`actions-box` = TRUE),
                               width = "200px",
                               multiple = T)
