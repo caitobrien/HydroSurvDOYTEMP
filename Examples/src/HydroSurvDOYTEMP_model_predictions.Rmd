@@ -221,35 +221,84 @@ write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 
 # Summary table
 
-```{r summary_table}
+```{r summary_table_function}
+#function to import models
+import_models <- function(models_folder) {
+  model_files <- list.files(models_folder, pattern = "\\.rds$", full.names = TRUE)
+  model_list <- lapply(model_files, readRDS)
+  names(model_list) <- gsub("\\.rds$", "", basename(model_files))
+  return(model_list)
+}
 
-library(gtsummary)
+#define model folder path
+model_folder<- here::here("data/models")
 
-summary(mod_wild_chinook_doy)
-tbl_regression(mod_wild_chinook_doy, intercept = TRUE) %>% 
-  modify_table_styling(
-    label = list(
-      
-    )
-  )
+#import models from the designated folder path
+model_list <- import_models(models_folder)
+  
 
+#function to generate and save tables from imported models
+create_model_tables <- function(model_list, output_directory) {
+  for (i in seq_along(model_list)) {
+    #extract model name for file output
+    model_name <- basename(names(model_list)[i])
+    #extract coefficients and rename variables
+    tbl <- as.data.frame(fixef(model_list[[i]]))
+    rownames(tbl) <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport")
+    #create table
+    table <- tbl %>%
+      mutate_if(is.numeric, round, digits = 2) %>%
+      knitr::kable("html") %>%
+      kableExtra::kable_styling(c("striped", "hover"), full_width = FALSE)
+    #export to new file folder at html
+    file_path <- file.path(output_directory, paste0("table_", model_name, ".html"))
+    write_file(table, file_path)
+  }
+}
 
-data(trial)
-tbl <- trial %>%
-  select(age, marker, response) %>%
-  tbl_summary()
+# Replace 'output_directory' with your desired output directory
+output_directory <- here::here("inst/app/www")
 
-# Modify the table header names
-modified_tbl <- modify_table_styling(
-  tbl,
-  label = list(
-    age ~ "Patient Age",
-    marker ~ "Biomarker",
-    response ~ "Treatment Response"
-  )
-)
-
-modified_tbl
+# Create tables
+create_model_tables(model_list, output_directory)
 ```
 
+
+```{r summary_table_single}
+tbl<-as.data.frame(fixef(mod_wild_chinook_doy)) 
+
+rownames(tbl) <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport") 
+
+table<-tbl %>% 
+  mutate_if(is.numeric, round, digits = 2 ) %>% 
+  knitr::kable("html") %>% 
+   kableExtra::kable_styling(c("striped", "hover"), full_width = F)
+
+table
+
+# Save the HTML kable table to a file
+write_file(table, here::here("inst/app/www", "table.html"))
+```
+
+```{r}
+tabsetPanel(
+  id = "myTabs",
+  tabPanel("Natural-origin Chinook",
+           includeHTML("inst/app/www/table_mod_wild_chinook_doy.html"),
+           br(),
+           includeHTML("inst/app/www/table_mod_wild_chinook_temp.html")),
+  tabPanel("Hatchery-origin Chinook",
+           includeHTML("inst/app/www/table_mod_hatchery_chinook_doy.html"),
+           br(),
+           includeHTML("inst/app/www/table_mod_hatchery_chinook_temp.html")),
+  tabPanel("Natural-origin Steelhead",
+           includeHTML("inst/app/www/table_mod_wild_steelhead_doy.html"),
+           br(),
+           includeHTML("inst/app/www/table_mod_wild_steelhead_temp.html")),
+  tabPanel("Hatchery-origin Steelhead",
+           includeHTML("inst/app/www/table_mod_hatchery_steelhead_doy.html"),
+           br(),
+           includeHTML("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
+),
+```
 
