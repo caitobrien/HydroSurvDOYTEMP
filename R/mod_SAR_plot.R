@@ -94,7 +94,7 @@ mod_SAR_plot_server <- function(id, data){
   })
 }
 
-seq_range(data.pred$n.obs[data.pred$species == "Steelhead" & data.pred$rear_type == "Natural-origin"], n = 4, pretty = TRUE)
+
 
 ## To be copied in the UI
 # mod_SAR_plot_ui("SAR_plot_1")
