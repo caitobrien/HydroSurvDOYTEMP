@@ -207,3 +207,74 @@ subplot(plot_list, nrows = length(unique(plot_data$species)), shareX = TRUE, sha
       align = "left"
     )
   ))
+
+
+#####
+
+p<-ggplotly(
+  plot_data %>%
+    mutate(transport = as.factor(transport)) %>%
+    ggplot( aes( x= x_var, color = transport, )) +
+      geom_point(aes(y =SAR, fill =  transport, legendgroup = transport), name = "Predicted")+
+      geom_ribbon( aes( ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year), alpha = .25) +
+      geom_point(aes(y =sar.pit, shape = transport), alpha = .7)+
+      labs(shape = "Observed", fill = "predicted", color = NULL)+
+      #
+      # scale_color_manual(breaks = c("0", "1"),
+      #                    values = c("steelblue4", "#b47747"),
+      #                    labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
+      # scale_fill_manual(breaks = c("0", "1"),
+      #                   values = c("steelblue4", "#b47747"),
+      #                   labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
+      # scale_shape_manual(values = c(21,21),
+      #                    breaks = c("0", "1"),
+      #                    labels = c("In-river, observed", "Transported, observed")) +
+      # scale_linetype_manual(values = c("dashed","dashed"),
+      #                       breaks = c("0", "1"),
+      #                       labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
+      facet_grid(rear_type ~ species, scales = "free_y") +
+    heme(legend.title = element_blank())
+)
+
+
+p %>%
+  layout(
+    legend = list(
+      x = 0.5,
+      y = 1.2,
+      traceorder = "normal",
+      bgcolor = "#f8f9fa",
+      bordercolor = "black",
+      borderwidth = 1,
+      itemsizing = "constant",
+      itemwidth = 30
+    )
+  )
+
+
+######
+library(ggplot2)
+library(plotly)
+library(dplyr)
+
+# Assuming plot_data contains the necessary columns x_var, transport, SAR, SAR.lo, SAR.hi, sar.pit, year, species, rear_type
+
+# Create the ggplot object
+gg <- plot_data %>%
+  ggplot(aes(x = x_var, color = as.factor(transport))) +
+  geom_point(aes(y = SAR, fill = as.factor(transport), shape = as.factor(transport),
+                 legendgroup = as.factor(transport), name = "Transported")) +
+  geom_ribbon(aes(ymin = SAR.lo, ymax = SAR.hi, fill = as.factor(transport),
+                  group = year, legendgroup = as.factor(transport), name = "Transported CI"), alpha = 0.25) +
+  geom_point(aes(y = sar.pit, shape = as.factor(transport),
+                 legendgroup = as.factor(transport), name = "Another Transported Point"), alpha = 0.7) +
+  facet_grid(rear_type ~ species, scales = "free_y") +
+  theme(legend.title = element_blank())  # Hide the default legend title
+
+# Convert ggplot to plotly
+p <- ggplotly(gg)
+
+# Display the interactive plot
+p
+
+
