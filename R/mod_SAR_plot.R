@@ -39,7 +39,7 @@ mod_SAR_plot_server <- function(id, data){
         ) %>%
         group_by( year) %>%
       ggplot( aes( x= x_var)) +
-        geom_point(aes(y =SAR, fill =  transport, color = transport), alpha = .3)+
+        geom_point(aes(y =SAR, fill =  transport, color = transport))+
         tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, group = year, color = transport), alpha = .25)+
         geom_point(aes(y =sar.pit, size = n.obs, shape =  transport, color = transport), alpha = .7)+
         # stat_summary(fun = "median",
@@ -49,11 +49,11 @@ mod_SAR_plot_server <- function(id, data){
         #              aes(linetype = transport, y = SAR)) +
         labs( x = data()$covariate,
               y = "Smolt-to-Adult Ratio\n(SAR)",
-              shape = NULL,
-              size = "Number of fish, observed",
-              color = "Per year",
-              fill = "Per year", shape = NULL,
-              linetype = "Combined years",
+              shape = "Observed data",
+              size = "Number of fish observed",
+              color = "Predicted SAR",
+              fill = "Predicted SAR",
+             # linetype = "Combined years",
               title = NULL
         ) +
         scale_color_manual(breaks = c("0", "1"),
@@ -64,14 +64,17 @@ mod_SAR_plot_server <- function(id, data){
                           labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
         scale_shape_manual(values = c(21,21),
                            breaks = c("0", "1"),
-                           labels = c("In-river, observed", "Transported, observed")) +
+                           labels = c("In-river", "Transported")) +
         # scale_linetype_manual(values = c("solid","dashed"),
         #                       breaks = c("0", "1"),
         #                       labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
-        scale_size_continuous( breaks = seq_range(data()$n.obs, n = 4, pretty = TRUE)) +
+        scale_size_continuous(range = c(1, 5),
+                              breaks = c(1, pretty(c(1, max(na.omit(data()$n.obs)), n = 3)))) +
         guides(shape = guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
                                     order = 1),
-               size = guide_legend(order = 2),
+               size = guide_legend(override.aes = list(
+                 label = list(size = 8)),
+                 order = 2),
                color = guide_legend(order = 3),
                fill = guide_legend(order = 3)) +
                # linetype = guide_legend(order = 4)) +

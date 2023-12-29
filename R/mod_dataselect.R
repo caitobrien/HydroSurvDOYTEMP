@@ -13,6 +13,15 @@ mod_dataselect_ui <- function(id){
   tagList(
     br(),
     "To plot survival predictions:",
+
+    #select covariate
+    selectInput(inputId = ns("select_cov"),
+                label = "Select covariate",
+                choices = c("Day-of-year (DOY)","Temperature (°C)"), #c("Day of Year (DOY)", "Temperature"),
+                selected ="Day of Year (DOY)",
+                width = "200px",
+                multiple = F),
+
     #select species
     selectInput(inputId = ns("select_spp"),
                 label = "Select species",
@@ -28,18 +37,12 @@ mod_dataselect_ui <- function(id){
                 selected = unique(data.pred$rear_type),
                 width = "200px",
                 multiple = T),
-    #select covariate
-    selectInput(inputId = ns("select_cov"),
-                label = "Select covariate",
-                choices = c("Day-of-year (DOY)","Temperature (°)"), #c("Day of Year (DOY)", "Temperature"),
-                selected ="Day of Year (DOY)",
-                width = "200px",
-                multiple = F),
-    # select years of interest--currently able to select one year based on function writtten-UPDATE
+
+    # select years of interest
     shinyWidgets::pickerInput(inputId = ns("select_year"),
                               label = "Select years",
                               choices = unique(data.pred$year),#1993:2018,
-                              selected = 2000, #1993:2018,
+                              selected = 1993:2018,
                               options = list(`actions-box` = TRUE),
                               width = "200px",
                               multiple = T)

@@ -130,10 +130,10 @@ df.agg <- df%>%
 # predict
 
 ```{r import_models}
-mod_wild_chinook_doy <- readRDS(here::here("Examples/results", "mod_wild_chinook_doy.rds"))
-mod_wild_chinook_temp<- readRDS(here::here("Examples/results", "mod_wild_chinook_temp.rds"))
-mod_wild_steelhead_doy<- readRDS(here::here("Examples/results", "mod_wild_steelhead_doy.rds"))
-mod_wild_steelhead_temp<- readRDS(here::here("Examples/results", "mod_wild_steelhead_temp.rds"))
+mod_natural_chinook_doy <- readRDS(here::here("Examples/results", "mod_natural_chinook_doy.rds"))
+mod_natural_chinook_temp<- readRDS(here::here("Examples/results", "mod_natural_chinook_temp.rds"))
+mod_natural_steelhead_doy<- readRDS(here::here("Examples/results", "mod_natural_steelhead_doy.rds"))
+mod_natural_steelhead_temp<- readRDS(here::here("Examples/results", "mod_natural_steelhead_temp.rds"))
 
 mod_hatchery_chinook_doy<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_doy.rds"))
 mod_hatchery_chinook_temp<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_temp.rds"))
@@ -172,7 +172,7 @@ newdata<-bind_cols(newdata.doy,newdata.temp[,1])
 
 ```{r add_predictions_SAR_TI}
 df.pred<-newdata %>% 
-  tidybayes::add_linpred_draws(mod_wild_steelhead_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::add_linpred_draws(mod_natural_steelhead_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
   tidybayes::median_qi() %>% 
   rename(SAR = .linpred,
          SAR.lo = .lower,
@@ -222,6 +222,10 @@ write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 # Summary table
 
 ```{r summary_table_function}
+
+#moved to fct_model_tables
+
+
 #function to import models
 import_models <- function(models_folder) {
   model_files <- list.files(models_folder, pattern = "\\.rds$", full.names = TRUE)
@@ -231,7 +235,7 @@ import_models <- function(models_folder) {
 }
 
 #define model folder path
-model_folder<- here::here("data/models")
+models_folder<- here::here("data/models")
 
 #import models from the designated folder path
 model_list <- import_models(models_folder)
@@ -243,62 +247,51 @@ create_model_tables <- function(model_list, output_directory) {
     #extract model name for file output
     model_name <- basename(names(model_list)[i])
     #extract coefficients and rename variables
-    tbl <- as.data.frame(fixef(model_list[[i]]))
-    rownames(tbl) <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport")
+    tbl <- as.data.frame(brms::fixef(model_list[[i]]))
+    
+    # Conditional row names based on model name
+    if (grepl("doy", model_name, ignore.case = TRUE)) {
+      row_names <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport")
+    } else {
+      row_names <- c("Intercept", "Temperature", "Temp^2", "Transport", "Temperature:Transport", "tempz2:transport")
+    } 
+    
+    rownames(tbl) <- row_names
+    
+    # Extracting variables from the model name for the table header
+    model_vars <- strsplit(model_name, "_")[[1]][2:4]  # Extracts species, rear_type, and covariate
+    
+    # Creating the table header
+    header <-  paste("Table", i, "Covariates of model for", 
+                     paste(paste0(tools::toTitleCase(model_vars[1]),"-origin"), tools::toTitleCase(model_vars[2]), collapse = " "),
+                     "including the covariate",
+                    ifelse(tolower(model_vars[3]) == "doy", "day-of-year (DOY)", "temperature (C)"))
+    
+    
     #create table
     table <- tbl %>%
       mutate_if(is.numeric, round, digits = 2) %>%
-      knitr::kable("html") %>%
-      kableExtra::kable_styling(c("striped", "hover"), full_width = FALSE)
+      knitr::kable("html", caption = paste0(header)) %>%
+      kableExtra::kable_styling(c("striped", "hover"), full_width = TRUE) 
+
+    
     #export to new file folder at html
     file_path <- file.path(output_directory, paste0("table_", model_name, ".html"))
     write_file(table, file_path)
   }
 }
 
+
 # Replace 'output_directory' with your desired output directory
 output_directory <- here::here("inst/app/www")
 
 # Create tables
 create_model_tables(model_list, output_directory)
+
+
+
+
 ```
 
 
-```{r summary_table_single}
-tbl<-as.data.frame(fixef(mod_wild_chinook_doy)) 
-
-rownames(tbl) <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport") 
-
-table<-tbl %>% 
-  mutate_if(is.numeric, round, digits = 2 ) %>% 
-  knitr::kable("html") %>% 
-   kableExtra::kable_styling(c("striped", "hover"), full_width = F)
-
-table
-
-# Save the HTML kable table to a file
-write_file(table, here::here("inst/app/www", "table.html"))
-```
-
-```{r}
-tabsetPanel(
-  id = "myTabs",
-  tabPanel("Natural-origin Chinook",
-           includeHTML("inst/app/www/table_mod_wild_chinook_doy.html"),
-           br(),
-           includeHTML("inst/app/www/table_mod_wild_chinook_temp.html")),
-  tabPanel("Hatchery-origin Chinook",
-           includeHTML("inst/app/www/table_mod_hatchery_chinook_doy.html"),
-           br(),
-           includeHTML("inst/app/www/table_mod_hatchery_chinook_temp.html")),
-  tabPanel("Natural-origin Steelhead",
-           includeHTML("inst/app/www/table_mod_wild_steelhead_doy.html"),
-           br(),
-           includeHTML("inst/app/www/table_mod_wild_steelhead_temp.html")),
-  tabPanel("Hatchery-origin Steelhead",
-           includeHTML("inst/app/www/table_mod_hatchery_steelhead_doy.html"),
-           br(),
-           includeHTML("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
-),
-```
 
