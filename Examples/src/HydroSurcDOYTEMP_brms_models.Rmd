@@ -39,15 +39,16 @@ summary(mod.wild_chinook_doy)
 ```
 
 ```{r mod_TEMP_binomial}
-#rm(mod.1)
-mod_wild_chinook_temp <- brm(alive | trials(n) ~ mean.LGR.tempz + I(mean.LGR.tempz^2) + transport + mean.LGR.tempz:transport + I(mean.LGR.tempz^2):transport + (1 + mean.LGR.tempz + I(mean.LGR.tempz^2) + transport | year), 
+rm(mod_hatchery_chinook_temp)
+mod_hatchery_chinook_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + mean.tempz:transport + I(mean.tempz^2):transport + (1 + mean.tempz + I(mean.tempz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("Examples/results", "mod_wild_chinook_temp")
+                   file = here("Examples/results", "mod_hatchery_chinook_temp")
                    )
 summary(mod_wild_chinook_temp)
 #mod.3 rerun with year as factor--no change
+mod_hatchery_chinook_temp$data
 
 ```

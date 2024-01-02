@@ -278,3 +278,60 @@ p <- ggplotly(gg)
 p
 
 
+##########
+
+library(plotly)
+library(dplyr)
+
+# Example data generation
+set.seed(123)
+year <- rep(2022, 365)
+doy <- 1:365
+survival <- runif(365, 0.3, 0.8)
+migrating_fish <- sample(50:200, 365, replace = TRUE)
+
+data <- data.frame(year, doy, survival, migrating_fish)
+
+data.pred.x<-data.pred %>%
+  group_by(covariate, species, doyz) %>%
+  mutate(total_observed = sum(n.obs, na.rm = TRUE)) %>%
+  ungroup %>%
+  mutate(prop_obs = n.obs/total_observed )
+
+
+# Calculate total migration and survival for the year
+total_migration <- sum(data$migrating_fish)
+total_survival <- sum(data$survival * data$migrating_fish)
+
+# Create plot
+ data.pred.x %>%
+  filter(
+         species == "Chinook",
+         rear_type == "Natural-origin",
+         covariate == "Day-of-year") %>%
+   # ggplot(aes(x= date))+
+   # geom_line(aes(y=SAR, color= transport))+
+   # geom_bar(aes(y = prop_obs))
+
+  plot_ly( x = ~date) %>%
+  add_trace(y = ~SAR, type = 'scatter', mode = 'lines', name = 'Predicted Survival') %>%
+
+# %>%
+#   layout(
+#     title = 'Survival and Migration for 2022',
+#     xaxis = list(title = 'Day of Year'),
+#     yaxis = list(title = 'Proportion'),
+#     annotations = list(
+#       x = 365, y = 1, xref = 'x', yref = 'y',
+#       text = paste("Total Migration: ", total_migration, "<br>Total Survival: ", total_survival),
+#       showarrow = FALSE,
+#       font = list(size = 12)
+#     )
+#   )
+
+# Display the plot
+plot
+
+
+
+ggplot

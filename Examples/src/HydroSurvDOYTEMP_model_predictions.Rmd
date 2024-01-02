@@ -12,6 +12,7 @@ library(tidybayes)
 library(lme4)
 library(broom)
 library(modelr)
+library(GGally)
 ```
 
 
@@ -35,6 +36,8 @@ df<-read_csv(file.choose())
 
 #---or use steps below
 DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+
+DATA <- read.csv(file = file.choose(), stringsAsFactors = FALSE, na.strings = c("", "NA"))
 
 df<- DATA %>%
   # filter to include wild all run types, with a transport code released from LGR
@@ -84,16 +87,18 @@ df<- DATA %>%
 
 
 ```{r bind_temp_data, eval=FALSE}
-#pulled from temp Rmarkdown
-df.WCH<- df.WCH %>% 
+#join temp data from Rmarkdown
+df<- df%>% 
   mutate(
     year = as.character(year),
     doy = as.character(doy)
   ) %>% 
-  left_join(y= select(LGR.temp.data, LGR.temp, LGR.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
-  mutate ( LGR.tempz = scale(LGR.temp, center = TRUE, scale = TRUE)
+  left_join(y= select(BON.temp.data, BON.temp, BON.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
+  mutate ( BON.tempz = scale(BON.temp, center = TRUE, scale = TRUE)
   ) %>% 
-  select(!c( LGR.temp.apply, LGR.temp.applyz))
+  select(!c( BON.temp.apply))
+
+write.csv(df, row.names = F, here("Examples/data/HydroSurvDOYTEMP_data_subset", "wild_steelhead_data_subset.csv"))
 ```
 
 
@@ -109,8 +114,8 @@ df.agg <- df%>%
   #set reponse as sum of alive per trials 
   summarize(alive = sum(alive),
             n = mean(n),
-            mean.tempz = mean(LGR.tempz),
-            mean.temp = mean(LGR.temp)) %>% 
+            mean.tempz = mean(BON.tempz),
+            mean.temp = mean(BON.temp)) %>% 
   ungroup() %>% 
   #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
   arrange(year, doy, doyz, transport) %>% 
@@ -125,13 +130,15 @@ df.agg <- df%>%
   mutate( date = parse_date_time(x = paste(year, doy), orders = "yj")) %>% 
   mutate(year = as.character(year),
          transport = as.character(transport))
+
+#write.csv(df.WCH, row.names = F, here("Examples/data", "wild_spsu_chinook_data_subset.csv"))
 ```
 
 # predict
 
 ```{r import_models}
 mod_natural_chinook_doy <- readRDS(here::here("Examples/results", "mod_natural_chinook_doy.rds"))
-mod_natural_chinook_temp<- readRDS(here::here("Examples/results", "mod_natural_chinook_temp.rds"))
+mod_natural_chinook_temp<- readRDS(here::here("Examples/results", "mod_wild_chinook_temp.rds"))
 mod_natural_steelhead_doy<- readRDS(here::here("Examples/results", "mod_natural_steelhead_doy.rds"))
 mod_natural_steelhead_temp<- readRDS(here::here("Examples/results", "mod_natural_steelhead_temp.rds"))
 
@@ -148,7 +155,7 @@ scale.doy <- scale(as.numeric(df$doy))
 scale.x.doy <- attr(scale.doy, "scaled:center")
 scale.sd.doy <- attr(scale.doy, "scaled:scale")
 
-scale.temp <- scale(as.numeric(df$LGR.temp))
+scale.temp <- scale(as.numeric(df$BON.temp))
 scale.x.temp <- attr(scale.temp, "scaled:center")
 scale.sd.temp <- attr(scale.temp, "scaled:scale")
 
@@ -161,7 +168,7 @@ newdata.doy <- expand_grid(
   ) 
 
 newdata.temp <- expand_grid(
-  mean.tempz = seq_range(df$LGR.tempz, n = 71), #to match DOY 
+  mean.tempz = seq_range(df$BON.tempz, n = 71), #to match DOY 
   transport = c(0, 1),
   year = c(1993:2018),
   n = 1
@@ -196,9 +203,9 @@ df.pred.w.stl.doy<-df.pred %>%
   mutate(year = as.character(year),
          transport = as.character(transport)) %>% 
   left_join(select(df.agg, "transport", "year","doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>% 
-  mutate( rear_type =   "Natural-origin", # "Hatchery-origin",#
-          covariate =  "Day-of-year (DOY)" , # "Temperature (°C)",#
-          species =  "Steelhead", # "Chinook", #
+  mutate( rear_type =    "Natural-origin", #"Hatchery-origin",#
+          covariate =    "Day-of-year (DOY)" , # "Temperature (°C)",#
+          species =    "Steelhead", #"Chinook", #
           transport = as.factor(transport),
           year = as.factor(year)) %>% 
   rename( n.obs = n.y)
@@ -293,5 +300,13 @@ create_model_tables(model_list, output_directory)
 
 ```
 
+# correlation matrix
+
+
+```{r correlation_matrix}
+
+GGally::ggpairs(data.pred, columns = c(1,5), ggplot2::aes(color = as.factor(transport), group = interaction(species, rear_type)))
+
+```
 
 
