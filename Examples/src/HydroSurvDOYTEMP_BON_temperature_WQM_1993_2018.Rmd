@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r import}
+
+library(data.table)
+library(here)
+library(tidyverse)
+library(zoo)
+
+BON.temp.raw<-read_csv(here::here("Examples/data", "rivermg_1704223998_133.csv"))
+
+BON.temp.data <- BON.temp.raw %>%
+  # mutate(across(everything(), ~ifelse(.=="", NA, as.character(.)))) %>%
+    filter(!row_number() %in% c(367:370)) %>% 
+  pivot_longer(
+    cols = c(2:27),
+    names_to = "ID",
+    values_to = "value"
+  ) %>%
+  separate(ID, c("CY", "BON", "ID")) %>%
+  pivot_wider(
+    names_from = "ID",
+    values_from = "value"
+  ) %>%
+  mutate_at(c("tempc"), as.numeric) %>%
+  separate(1, c("mm", "dd")) %>%
+  mutate(
+    CY = as.numeric(CY),
+    mm = as.numeric(mm),
+    dd = as.numeric(dd)
+  ) %>%
+  arrange(CY) %>% # sort data to use rollmean
+  group_by(CY) %>%
+  filter(complete.cases(tempc)) %>% #remove any days without temp (following JG's code) -update for age of return?
+  mutate(
+    BON.temp = rollmean(tempc, k = 7, fill = NA, align = "right"), #same as JG code, returns NA for 7 day average with NA's present
+    BON.temp.apply = rollapply(tempc, width = 7, FUN = function(x) mean(x, na.rm = TRUE), by = 1, by.column = TRUE, partial = TRUE, fill = NA, align = "right") #adjusts for NA's within d7 averages
+  ) %>%
+  mutate(YMD = lubridate::ymd(paste(CY, mm, dd, sep = "-"))) %>%
+  mutate(DOY = lubridate::yday(YMD)) %>%
+ # select("CY","mm", "DOY", "BON.temp") %>%
+  mutate(
+    CY = as.character(CY),
+    DOY = as.character(DOY)
+  )
+
+
+#merge with larger dataset
+
+
+
+
+```
+
+
