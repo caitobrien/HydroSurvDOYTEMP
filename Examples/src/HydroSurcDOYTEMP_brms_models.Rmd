@@ -47,7 +47,7 @@ mod_hatchery_chinook_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2
                    cores = 3,
                    file = here("Examples/results", "mod_hatchery_chinook_temp")
                    )
-summary(mod_wild_chinook_temp)
+summary(mod_hatchery_chinook_temp)
 #mod.3 rerun with year as factor--no change
 mod_hatchery_chinook_temp$data
 
