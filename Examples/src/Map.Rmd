@@ -19,13 +19,14 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(ggplot2)
 library(sf)
+library(tidyverse)
 
 # Load world map data
 us_states <- ne_states(country = "United States of America", returnclass = "sf")
 
 
 # Filter PNW states (Washington, Oregon, Idaho)
-pnw_states <- us_states%>%
+pnw_states <- us_states %>%
   filter(admin == "United States of America" &
            name %in% c("Washington", "Oregon", "Idaho"))
 
@@ -33,7 +34,7 @@ pnw_states <- us_states%>%
 pnw_state_centroids <- st_centroid(pnw_states)
 
 # Define bounding box for PNW states
-pnw_bbox <- st_bbox(pnw_states)
+#pnw_bbox <- st_bbox(pnw_states)
 
 
 # # Load Columbia River data
@@ -63,8 +64,8 @@ river_dam_labels <- data.frame(
   lon = c(-117.293, -120, -121.953, -117.42806),  # Longitude for the rivers and dams
   lat = c(45.5, 45.6, 45.8, 46.8)  # Latitude for the rivers and dams
 )
-(river_dam_labels <- st_as_sf(river_dam_labels, coords = c("lat", "lon"), 
-    crs = 4326, agr = "constant"))
+# (river_dam_labels <- st_as_sf(river_dam_labels, coords = c("lat", "lon"), 
+#     crs = 4326, agr = "constant"))
 
 
 # Plot only PNW states
@@ -100,6 +101,6 @@ ggplot() +
 
   # labs(title = "Pacific Northwest States Map")
 
-?rnaturalearth()
+
 ```
 
