@@ -79,6 +79,7 @@ mod_dataselect_server <- function(id){
 
       ns <- session$ns
 
+
       if (input$year_display == "Year") {
         pickerInput(
           inputId = ns("select_years"),
@@ -93,15 +94,46 @@ mod_dataselect_server <- function(id){
       }
     })
 
-  reactive({
-      data.pred %>%
-          filter(species %in% c(input$select_spp),
-                 rear_type %in% c(input$select_rear),
-                 covariate %in% c(input$select_cov),
-                 year %in% c(input$select_year)
-                 )
-
+    # Reactive for year_display
+    year_display <- reactive({
+      input$year_display
     })
+
+    filtered_data <- reactive({
+      if (input$year_display == "All Years") {
+        data.pred %>%
+          filter(
+            species %in% c(input$select_spp),
+            rear_type %in% c(input$select_rear),
+            covariate %in% c(input$select_cov)
+          )
+      } else if (input$year_display == "Year" && !is.null(input$select_years)) {
+        data.pred %>%
+          filter(
+            species %in% c(input$select_spp),
+            rear_type %in% c(input$select_rear),
+            covariate %in% c(input$select_cov),
+            year %in% c(input$select_years)
+          )
+      } else {
+        NULL
+      }
+    })
+
+#   Return the filtered data reactive expression
+   return(list(filtered_data = reactive(filtered_data),
+               year_display = reactive(year_display)))
+
+
+  # reactive({
+  #     data.pred %>%
+  #         filter(species %in% c(input$select_spp),
+  #                rear_type %in% c(input$select_rear),
+  #                covariate %in% c(input$select_cov),
+  #                year %in% c(input$select_year)
+  #                )
+  #
+  #   })
   })
 }
 
