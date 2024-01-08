@@ -38,14 +38,23 @@ mod_dataselect_ui <- function(id){
                 width = "200px",
                 multiple = T),
 
-    # select years of interest
-    shinyWidgets::pickerInput(inputId = ns("select_year"),
-                              label = "Select years",
-                              choices = unique(data.pred$year),#1993:2018,
-                              selected = 2000, #1993:2018,
-                              options = list(`actions-box` = TRUE),
-                              width = "200px",
-                              multiple = T)
+    # prompt to select all years or by year
+    selectInput(
+      inputId = ns("year_display"),
+      label = "View by",
+      choices = c("All Years", "Year"),
+      selected = "All Years"
+    ),
+    uiOutput(ns("year_picker"))
+
+    # # select years of interest
+    # shinyWidgets::pickerInput(inputId = ns("select_year"),
+    #                           label = "Select years",
+    #                           choices = unique(data.pred$year),#1993:2018,
+    #                           selected = 2000, #1993:2018,
+    #                           options = list(`actions-box` = TRUE),
+    #                           width = "200px",
+    #                           multiple = T)
 
     # # add button to run after options are selected
     # actionButton(inputId = 'btn_run_selected',
@@ -65,6 +74,25 @@ mod_dataselect_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
+    # Render the UI for the year picker
+    output$year_picker <- renderUI({
+
+      ns <- session$ns
+
+      if (input$year_display == "Year") {
+        pickerInput(
+          inputId = ns("select_years"),
+          label = "Select Year(s)",
+          choices = unique(data.pred$year),
+          selected = 2000,
+          options = list(`actions-box` = TRUE),
+          multiple = TRUE
+        )
+      } else {
+        NULL
+      }
+    })
+
   reactive({
       data.pred %>%
           filter(species %in% c(input$select_spp),
@@ -72,17 +100,7 @@ mod_dataselect_server <- function(id){
                  covariate %in% c(input$select_cov),
                  year %in% c(input$select_year)
                  )
-    # x_var <- switch(input$select_cov,
-    #                 "Day-of-year (DOY)" == "doy",
-    #                 "Temperature (°)" == "temp",
-    #
-    #                 )
-    #
-    #
-    # if (x_var %in% colnames(filtered_data)) {
-    #   filtered_data <- filtered_data %>% select(x_var, species)
-    # }
-    # return(filtered_data)
+
     })
   })
 }
