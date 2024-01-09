@@ -28,13 +28,12 @@ mod_SAR_plot_server <- function(id, data, year_display){
       # Filter data based on user selection
        if (year_display() == "All Years") {
 
-        ggplotly(ggplot(data(), aes(x=doy, y=SAR))+
-          geom_point() + facet_grid(rear_type ~ species))
+         fct_SAR_all_years_plot(data())
 
       } else if (year_display() == "Year") {
 
-        ggplotly(ggplot(data(), aes(x=doy, y=SAR))+
-                   geom_point() + facet_grid(rear_type ~ year + species))
+        fct_SAR_by_year_plot(data())
+
        }
     })
   })

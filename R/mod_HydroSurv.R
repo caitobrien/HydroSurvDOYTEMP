@@ -11,13 +11,12 @@ mod_HydroSurv_ui <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
-
       shinydashboard::box(
         title = "Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries",
-        width = 12, mod_SAR_plot_ui("SAR_plot_1"),
-        br(),
-        "Table output:",
-        mod_SAR_table_ui("SAR_table_1")
+        width = 12, height = "auto", mod_SAR_plot_ui("SAR_plot_1")
+        # br(),
+        # "Table output:",
+        # mod_SAR_table_ui("SAR_table_1")
       ),
 
       shinydashboard::box(

@@ -12,7 +12,7 @@ app_server <- function(input, output, session) {
        year_display <- dataselect_reactives$year_display
 
   mod_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display())
-  mod_SAR_table_server("SAR_table_1", filtered_data())
+ # mod_SAR_table_server("SAR_table_1", filtered_data())
 
   mod_TI_plot_server("TI_plot_1", filtered_data())
 

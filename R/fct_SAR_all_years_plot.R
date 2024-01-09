@@ -91,8 +91,9 @@ fct_SAR_all_years_plot <- function(data) {
     theme_light() +
     facet_grid(rear_type ~ species, scales = "free_y") +
     theme(strip.background = element_rect(fill = "lightgrey")) +
-    theme(strip.text = element_text(colour = "black")) +
-    theme(plot.margin = margin(1, 0, 0, 1.5, "cm"))
+    theme(strip.text = element_text(colour = "black"))
+    # theme(plot.margin = margin(1, 0, 0, 1.5, "cm"),
+    #       panel.spacing = unit(2, "lines"))
 
   # convert to plotly object
   plotly::ggplotly(p)

@@ -13,7 +13,7 @@ fct_SAR_by_year_plot<-function(data, selected_years){
   #data_isolate <- isolate(data)
 
   #wrangle data to plot median per year per grouping
-  data_summarized<- data.pred %>%
+  data_summarized<- data %>%
     #filter(covariate == "Day-of-year (DOY)") %>%
     mutate(x_var = case_when(
       covariate == "Day-of-year (DOY)" ~ doy,
@@ -27,6 +27,9 @@ fct_SAR_by_year_plot<-function(data, selected_years){
       species = as.factor(species),
       species_rear = interaction(species, rear_type)) %>%
     group_by(year)
+
+  # Convert data_summarized to data frame
+  data_summarized <- as.data.frame(data_summarized)
 
   # Extract unique covariate name
   covar_label <- unique(data_summarized$covariate)
@@ -71,7 +74,8 @@ fct_SAR_by_year_plot<-function(data, selected_years){
     facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
     theme(strip.background =element_rect(fill="lightgrey"))+
     theme(strip.text = element_text(colour = 'black')) +
-    theme(plot.margin = margin(1, 0, 0, 1.5, "cm"))
+    theme(panel.spacing = unit(2, "lines")) +
+    theme(aspect.ratio = .4)
 
   plotly::ggplotly(p)
 
