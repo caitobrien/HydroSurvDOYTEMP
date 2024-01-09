@@ -89,14 +89,14 @@ mod_dataselect_server <- function(id) {
     filtered_data <- reactive({
       if (input$year_display == "All Years") {
         data.pred %>%
-          filter(
+          dplyr::filter(
             species %in% c(input$select_spp),
             rear_type %in% c(input$select_rear),
             covariate %in% c(input$select_cov)
           )
       } else if (input$year_display == "Year" && !is.null(input$select_years)) {
         data.pred %>%
-          filter(
+          dplyr::filter(
             species %in% c(input$select_spp),
             rear_type %in% c(input$select_rear),
             covariate %in% c(input$select_cov),

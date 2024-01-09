@@ -7,6 +7,7 @@
 app_server <- function(input, output, session) {
   mod_Dashboard_server("Dashboard_ui_1")
 
+  #retrieve reactive values to use in plots and tables as needed
   dataselect_reactives <- mod_dataselect_server("dataselect_1")
       filtered_data <- dataselect_reactives$filtered_data
        year_display <- dataselect_reactives$year_display
