@@ -11,23 +11,54 @@ mod_HydroSurv_ui <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
+      column(
+        9,
       shinydashboard::box(
+
         title = "Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries",
-        width = 12, height = "auto", mod_SAR_plot_ui("SAR_plot_1")
-        # br(),
-        # "Table output:",
-        # mod_SAR_table_ui("SAR_table_1")
+        width = 12,
+        height = "auto",
+        # fluidRow(
+        #   column(
+        #     "plots")
+        #   ),
+        fluidRow(
+          column(
+            width = 12,
+            "Select tabs below to adjust temporal resolution:"
+          )
+        ),
+        tabsetPanel(
+          id = "plotTabs",
+          tabPanel("SAR",mod_SAR_plot_ui("SAR_plot_1")),
+          tabPanel("T:B", mod_TI_plot_ui("TI_plot_1")),
+          tabPanel("compare")
+        ),
+        # fluidRow(
+        #   column(
+        #     width = 12,
+        #     h4("Additional text after tabs")
+        #   )
+        # ),
+        div(style='height:500;overflow-y: scroll;')
+      )
+
       ),
 
-      shinydashboard::box(
-        title = "Predicted Transport-to-Bypass Ratio (T:B)",
-        width = 12, mod_TI_plot_ui("TI_plot_1")
-      ),
-
+      # shinydashboard::box(
+      #   title = "Predicted Transport-to-Bypass Ratio (T:B)",
+      #   width = 12, mod_TI_plot_ui("TI_plot_1"),
+      #   height = "auto",
+      #   div(style='height:"auto;overflow-y: scroll;')
+      # ),
+column(
+  3,
       shinydashboard::box(
         title = "As you explore this Shiny app, you may notice how:",
         width = 12,
         solidHeader = FALSE,
+        height = "auto",
+        div(style='overflow-y: scroll;'),
         div(
           HTML("<ul>
                   <li>In many years, SAR survival declines through the smolt outmigration season</li>
@@ -55,6 +86,7 @@ mod_HydroSurv_ui <- function(id) {
       )
     )
   )
+)
 }
 
 #' HydroSurv Server Functions

@@ -12,6 +12,7 @@ library(tidyverse)
 library(reactable)
 library(plotly)
 library(modelr)
+library(shinyWidgets)
 
 
 app_ui <- function(request) {

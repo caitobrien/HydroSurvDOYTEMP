@@ -73,10 +73,11 @@ fct_SAR_by_year_plot<-function(data, selected_years){
     theme_light()+
     facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
     theme(strip.background =element_rect(fill="lightgrey"))+
-    theme(strip.text = element_text(colour = 'black')) +
-    theme(panel.spacing = unit(2, "lines")) +
-    theme(aspect.ratio = .4)
-
-  plotly::ggplotly(p)
+    theme(strip.text = element_text(colour = 'black'))
+    theme(panel.spacing = unit(2, "lines"))
+     theme(aspect.ratio = 1)
+p
+ # plotly::ggplotly(p)
 
 }
+theme()

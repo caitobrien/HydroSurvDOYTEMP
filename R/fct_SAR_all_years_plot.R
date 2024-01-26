@@ -94,7 +94,7 @@ fct_SAR_all_years_plot <- function(data) {
     theme(strip.text = element_text(colour = "black"))
     # theme(plot.margin = margin(1, 0, 0, 1.5, "cm"),
     #       panel.spacing = unit(2, "lines"))
-
+p
   # convert to plotly object
-  plotly::ggplotly(p)
+#  plotly::ggplotly(p)
 }

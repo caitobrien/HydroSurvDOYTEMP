@@ -86,6 +86,21 @@ mod_dataselect_server <- function(id) {
       input$year_display
     })
 
+
+    # Reactive for plot height
+    plot_height<- reactive({
+      if (input$year_display == "All Years") {
+        plot_height <-500
+      } else
+
+      req(input$select_years)
+      nyears <- length(input$select_years)
+
+        if (nyears > 3) {
+          plot_height<- 500 + (nyears-3)*120
+          }else plot_height <-500
+    })
+
     filtered_data <- reactive({
       if (input$year_display == "All Years") {
         data.pred %>%
@@ -110,7 +125,8 @@ mod_dataselect_server <- function(id) {
     # Return the filtered data reactive expression
     return(list(
       filtered_data = reactive(filtered_data),
-      year_display = reactive(year_display)
+      year_display = reactive(year_display),
+      plot_height = reactive(plot_height)
     ))
   })
 }
