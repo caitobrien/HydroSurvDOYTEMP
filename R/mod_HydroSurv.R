@@ -32,7 +32,7 @@ mod_HydroSurv_ui <- function(id) {
           id = "plotTabs",
           tabPanel("SAR",mod_SAR_plot_ui("SAR_plot_1")),
           tabPanel("T:B", mod_TI_plot_ui("TI_plot_1")),
-          tabPanel("compare")
+          tabPanel("compare", mod_compare_single_plot_ui("compare_single_plot"))
         ),
         # fluidRow(
         #   column(

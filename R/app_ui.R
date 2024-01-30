@@ -13,6 +13,7 @@ library(reactable)
 library(plotly)
 library(modelr)
 library(shinyWidgets)
+library(ggdist)
 
 
 app_ui <- function(request) {

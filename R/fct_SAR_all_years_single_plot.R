@@ -1,17 +1,19 @@
-#' SAR_by_year_plot
+#' SAR_all_years_single_plot
 #'
-#' @description A function to plot SAR separated by years.
+#' @description A fct function
 #'
-#' @return The return value is a plot with median SAR and 95 CI for each year of data per species, rear type and covariate (DOY, TEMP)
+#' @return The return value, if any, from executing the function.
 #'
 #' @noRd
 
-fct_SAR_by_year_plot<-function(data, selected_years){
 
-  # Use isolate() to avoid reactivity
-  # This prevents infinite loops
-  #data_isolate <- isolate(data)
+fct_SAR_all_years_single_plot<-function(data){
 
+
+
+  # ggplot(data, aes(x = doy, y= SAR))+
+  #   geom_point() +
+  #   facet_grid(species~rear_type)
   #wrangle data to plot median per year per grouping
   data_summarized<- data %>%
     #filter(covariate == "Day-of-year (DOY)") %>%
@@ -24,8 +26,7 @@ fct_SAR_by_year_plot<-function(data, selected_years){
       year = as.factor(year),
       rear_type = as.factor(rear_type),
       covariate = as.factor(covariate),
-      species = as.factor(species),
-      species_rear = interaction(species, rear_type)) %>%
+      species = as.factor(species)) %>%
     group_by(year)
 
   # Convert data_summarized to data frame
@@ -34,10 +35,9 @@ fct_SAR_by_year_plot<-function(data, selected_years){
   # Extract unique covariate name
   covar_label <-  unique(data_summarized$covariate)
 
-
-  p<- ggplot(data_summarized, aes( x= x_var)) +
+  p<- ggplot(data_summarized, aes( x= x_var, group = year)) +
     geom_point(aes(y =SAR, fill =  transport, color = transport))+
-    geom_ribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, color = transport), alpha = .25)+
+    tidybayes::geom_lineribbon( aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, color = transport), alpha = .25)+
     geom_point(aes(y =sar.pit, size = n.obs, shape =  transport, color = transport), alpha = .7)+
     labs( x = covar_label,
           y = "Smolt-to-Adult Ratio\n(SAR)",
@@ -71,13 +71,10 @@ fct_SAR_by_year_plot<-function(data, selected_years){
            fill = guide_legend(order = 3)) +
     # linetype = guide_legend(order = 4)) +
     theme_light()+
-    facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
+    facet_grid(rear_type ~ species, scales = "free_y") +
     theme(strip.background =element_rect(fill="lightgrey"))+
     theme(strip.text = element_text(colour = 'black'))
     theme(panel.spacing = unit(2, "lines"))
-     theme(aspect.ratio = .8)
-p
- # plotly::ggplotly(p)
-
+    theme(aspect.ratio = .8)
+  p
 }
-theme()
