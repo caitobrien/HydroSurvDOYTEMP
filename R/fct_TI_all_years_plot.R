@@ -33,18 +33,21 @@ fct_TI_all_years_plot <- function(data) {
 
   # plot
   p <- ggplot(data_summarized, aes(x = x_var, y = TI)) +
-    geom_point()+
-    #geom_line()+
-    geom_ribbon(aes(y = TI, ymin = .lower, ymax = .upper), alpha = .25) +
-    #stat_summary(geom = "line", alpha =.25) +
+    geom_point(aes(color=.point))+
+    geom_line(aes(color = .point))+
+    tidybayes::geom_lineribbon(aes(y = TI, ymin = .lower, ymax = .upper, fill=.point), alpha = .25) +
     labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
-      title = NULL
+      title = NULL,
+      color = NULL,
+      fill= NULL
     ) +
     geom_hline(yintercept = 1, color = "black" ) +
     scale_color_manual(values =  "black",
-                       labels = "Transported:In-river ratio")+
+                       labels = "Predicted median,\nwith 95% CI")+
+    scale_fill_manual(values =  "black",
+                      labels = "Predicted median,\nwith 95% CI")+
     theme_light()+
     facet_grid(rear_type ~ species, scales = "free_y") +
     theme(strip.background =element_rect(fill="lightgrey"))+

@@ -68,12 +68,12 @@ fct_SAR_all_years_plot <- function(data) {
     scale_color_manual(
       breaks = c("0", "1"),
       values = c("steelblue4", "#b47747"),
-      labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI")
+      labels = c("In-river, \nmedian with 95% CI", "Transported, \nmedian with 95% CI")
     ) +
     scale_fill_manual(
       breaks = c("0", "1"),
       values = c("steelblue4", "#b47747"),
-      labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI")
+      labels = c("In-river, \nmedian with 95% CI", "Transported, \nmedian with 95% CI")
     ) +
     scale_shape_manual(
       values = c(21, 21),

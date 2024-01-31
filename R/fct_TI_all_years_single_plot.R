@@ -11,6 +11,7 @@ fct_TI_all_years_single_plot <- function(data) {
       covariate == "Day-of-year (DOY)" ~ doy,
       TRUE ~ temp
     )) %>%
+    filter( transport == 1) %>% #remove in-river fish for transport:barge ratio plot
     mutate(transport = as.factor(transport),
            rear_type = as.factor(rear_type),
            covariate = as.factor(covariate),
@@ -24,7 +25,8 @@ fct_TI_all_years_single_plot <- function(data) {
   covar_label <- unique(data_summarized$covariate)
 
   p <- ggplot(data_summarized, aes(x= x_var, y= TI)) +
-    geom_point(aes(group = year))+
+    geom_point(aes(color = transport))+
+    geom_line(aes(group = year, color = transport))+
     stat_summary(geom = "line", aes(group = year), alpha =.25) +
     # stat_summary(data = data.pred, aes(y= TI, x = doy),
     #              fun = median,
@@ -47,8 +49,8 @@ fct_TI_all_years_single_plot <- function(data) {
                              max.overlaps = 30
     )+
     coord_cartesian(clip = "off") + #disable clipping labels
-    scale_color_manual(values =  "black",
-                       labels = "Transported:In-river ratio")+
+    scale_color_manual(values =  c("black"),
+                       labels = "Predicted median\nper year")+
     theme_light()+ facet_grid(rear_type ~ species, scales = "free_y") +
     theme(strip.background =element_rect(fill="lightgrey"))+
     theme(strip.text = element_text(colour = 'black'))
