@@ -15,7 +15,7 @@ mod_HydroSurv_ui <- function(id) {
         9,
       shinydashboard::box(
 
-        title = "Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries",
+        title = "Seasonal predictions of Smolt-to-Adult and Transport to Bypass ratios",
         width = 12,
         height = "auto",
         # fluidRow(
@@ -62,6 +62,8 @@ column(
         title = "As you explore this Shiny app, you may notice how:",
         width = 12,
         solidHeader = FALSE,
+        collapsible = TRUE,
+        closable = TRUE,
         height = "auto",
         div(style='overflow-y: scroll;'),
         div(

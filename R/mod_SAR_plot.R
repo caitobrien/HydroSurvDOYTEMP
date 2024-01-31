@@ -13,10 +13,11 @@ mod_SAR_plot_ui <- function(id){
     fluidRow(
         column(
           width = 12,
+          br(),
           h4("Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries"),
           # Adding an HTML output for the title
           htmlOutput(outputId = ns("title_html")),
-
+          br(),
           plotOutput(outputId = ns("SAR_plot"),
                  width = "100%")
                # height = 3000) #controls height of plot, but auto doesn't work. Need to look into getting a reactive based on the length of the years selected to use an ifelse statement to adjust height based on how many years selected.

@@ -13,11 +13,12 @@ mod_TI_plot_ui <- function(id){
     fluidRow(
       column(
         width = 12,
+        br(),
         h4("Predicted Transport to Bypass Ratio (T:B)"),
         # Adding an HTML output for the title
         htmlOutput(outputId = ns("title_html")),
-
-    plotOutput(outputId = ns("TI_plot"),
+        br(),
+        plotOutput(outputId = ns("TI_plot"),
                width = "100%")
       )
     )
