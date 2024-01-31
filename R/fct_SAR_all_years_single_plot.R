@@ -69,7 +69,11 @@ fct_SAR_all_years_single_plot<-function(data){
              order = 2),
            color = guide_legend(order = 3),
            fill = guide_legend(order = 3)) +
-    # linetype = guide_legend(order = 4)) +
+    ggrepel::geom_text_repel(data = . %>% group_by(covariate, species, rear_type,transport, year) %>% filter(SAR == max(SAR)),
+                             aes( y= SAR,
+                                  label = year,
+                                  color = transport),
+                             nudge_y = 0.1) +
     theme_light()+
     facet_grid(rear_type ~ species, scales = "free_y") +
     theme(strip.background =element_rect(fill="lightgrey"))+

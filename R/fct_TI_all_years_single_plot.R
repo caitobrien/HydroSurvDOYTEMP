@@ -38,17 +38,10 @@ fct_TI_all_years_single_plot <- function(data) {
          color = NULL,
          title = NULL) +
     geom_hline(yintercept = 1, color = "black" ) +
-    ggrepel::geom_text_repel(data = . %>% group_by(covariate, species, rear_type, year) %>% filter(x_var == max(x_var)),aes( label = year),
-                             force        = 0.1,
-                             nudge_x      = 0.1,
-                             direction    = "y",
-                             hjust        = -.7,
-                             segment.size = 0.05,
-                             min.segment.length = 0, #draw all line segments
-                             xlim = c(-Inf,Inf), #allow values to extend to edges
-                             max.overlaps = 30
+    ggrepel::geom_text_repel(data = . %>% group_by(covariate, species, rear_type, year) %>% filter(TI == max(TI)),
+                             aes( label = year),
+                             nudge_y = 0.1  # Adjust the nudge in the y-direction
     )+
-    coord_cartesian(clip = "off") + #disable clipping labels
     scale_color_manual(values =  c("black"),
                        labels = "Predicted median\nper year")+
     theme_light()+ facet_grid(rear_type ~ species, scales = "free_y") +
