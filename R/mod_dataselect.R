@@ -86,6 +86,11 @@ mod_dataselect_server <- function(id) {
       input$year_display
     })
 
+    # Reactive for selected_years
+    years_selected <- reactive({
+      input$select_years
+    })
+
 
     # Reactive for plot height
     plot_height<- reactive({
@@ -126,7 +131,8 @@ mod_dataselect_server <- function(id) {
     return(list(
       filtered_data = reactive(filtered_data),
       year_display = reactive(year_display),
-      plot_height = reactive(plot_height)
+      plot_height = reactive(plot_height),
+      years_selected = reactive(years_selected)
     ))
   })
 }

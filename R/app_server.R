@@ -14,10 +14,11 @@ app_server <- function(input, output, session) {
       filtered_data <- dataselect_reactives$filtered_data
        year_display <- dataselect_reactives$year_display
        plot_height <- dataselect_reactives$plot_height
+       years_selected <- dataselect_reactives$years_selected
 
 
-  mod_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height())
-  mod_TI_plot_server("TI_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height())
+  mod_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
+  mod_TI_plot_server("TI_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
   mod_compare_single_plot_server("compare_single_plot", data = filtered_data(), year_display = year_display())
 
   mod_HydroSurv_server("HydroSurv_ui_1")

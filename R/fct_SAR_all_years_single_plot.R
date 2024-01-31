@@ -46,7 +46,8 @@ fct_SAR_all_years_single_plot<-function(data){
           color = "Predicted SAR",
           fill = "Predicted SAR",
           # linetype = "Combined years",
-          title = NULL
+          title = "Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries",
+          subtitle = "Comparison of selected years"
     ) +
     scale_color_manual(breaks = c("0", "1"),
                        values = c("steelblue4", "#b47747"),

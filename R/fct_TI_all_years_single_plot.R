@@ -36,7 +36,8 @@ fct_TI_all_years_single_plot <- function(data) {
     labs(x = covar_label,
          y = "Transport to Bypass Ratio\n(T:B)",
          color = NULL,
-         title = NULL) +
+         title = "Predicted Transport to Bypass Ratio (T:B)",
+         subtitle = "Comparison of selected years") +
     geom_hline(yintercept = 1, color = "black" ) +
     ggrepel::geom_text_repel(data = . %>% group_by(covariate, species, rear_type, year) %>% filter(TI == max(TI)),
                              aes( label = year),
