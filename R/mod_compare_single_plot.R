@@ -10,20 +10,32 @@
 mod_compare_single_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
-    plotOutput(outputId = ns("compare_single_plot"),
-               width = "100%",
-               height = 1000)
+    fluidRow(
+      column(
+        width = 12,
+        align = "center",  # Center the content
+        htmlOutput(outputId = ns("compare_single_plot_message"))  # Message to prompt viewer to select View by: Year
+      )
+    ),
+    fluidRow(
+      column(
+        width = 12,
+        plotOutput(outputId = ns("compare_single_plot"), width = "100%", height = 1000)
+      )
+    )
   )
 }
 
 #' compare_single_plot Server Functions
 #'
 #' @noRd
-mod_compare_single_plot_server <- function(id, data){
+mod_compare_single_plot_server <- function(id, data, year_display){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     output$compare_single_plot <- renderPlot({
+
+      if (year_display() == "Year") {
       # Call the function to generate the SAR plot
       sar_plot<- fct_SAR_all_years_single_plot(data())
 
@@ -39,10 +51,24 @@ mod_compare_single_plot_server <- function(id, data){
       combined_plot<- cowplot::plot_grid(sar_plot, ti_plot, ncol=1)
 
       return(combined_plot)
-      })
+      } else {
+
+        # If "View by Year" is not selected, return NULL to avoid attempting to render the plot
+        return(NULL)
+      }
+    })
+
+    output$compare_single_plot_message <- renderUI({
+      # Check if "View by Year" is not selected
+      if (year_display() == "All Years") {
+        # Show the message
+        HTML("<br>
+             <br>
+             <p>Select 'View by Year' to view comparison plots.</p>")
+      }
+    })
   })
 }
-
 ## To be copied in the UI
 # mod_compare_single_plot_ui("compare_single_plot_1")
 

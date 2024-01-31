@@ -42,7 +42,7 @@ fct_SAR_all_years_single_plot<-function(data){
     labs( x = covar_label,
           y = "Smolt-to-Adult Ratio\n(SAR)",
           shape = "Observed data",
-          size = "Number of fish observed",
+          size = "Number of fish,\nobserved data",
           color = "Predicted SAR",
           fill = "Predicted SAR",
           # linetype = "Combined years",
