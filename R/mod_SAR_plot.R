@@ -10,10 +10,16 @@
 mod_SAR_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
-    plotOutput(outputId = ns("SAR_plot"),
-               width = "100%")
-              # height = 3000) #controls height of plot, but auto doesn't work. Need to look into getting a reactive based on the length of the years selected to use an ifelse statement to adjust height based on how many years selected.
-    )
+    fluidRow(
+      h4("Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries"),
+      # Adding an HTML output for the title
+      htmlOutput(outputId = ns("title_html")),
+
+      plotOutput(outputId = ns("SAR_plot"),
+                 width = "100%")
+               # height = 3000) #controls height of plot, but auto doesn't work. Need to look into getting a reactive based on the length of the years selected to use an ifelse statement to adjust height based on how many years selected.
+      )
+  )
 }
 
 #' SAR_plot Server Functions
@@ -23,7 +29,17 @@ mod_SAR_plot_server <- function(id, data, year_display, plot_height){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
-
+    # Dynamic title based on user selection
+    output$title_html <- renderUI({
+      title_text <- if (year_display() == "All Years") {
+        "Viewing all years: 1993:2018"
+      } else if (year_display() == "Year") {
+        "Viewing by year: update code here"
+      } else {
+        "Default title: update code here"
+      }
+      h5(title_text)
+    })
 
 
     output$SAR_plot <- renderPlot({

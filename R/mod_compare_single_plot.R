@@ -11,7 +11,8 @@ mod_compare_single_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
     plotOutput(outputId = ns("compare_single_plot"),
-               width = "100%")
+               width = "100%",
+               height = 1000)
   )
 }
 
@@ -31,9 +32,9 @@ mod_compare_single_plot_server <- function(id, data){
       ti_plot<-fct_TI_all_years_single_plot(data())
 
       #add margins between plots
-      sar_plot + theme(plot.margin = margin(10, 0, 0, 10, "pt"))
+      sar_plot + theme(plot.margin = margin(10, 0, 0, 100, "pt"))
 
-      ti_plot + theme(plot.margin = margin(10, 0, 0, 10, "pt"))
+      ti_plot + theme(plot.margin = margin(10, 0, 0, 100, "pt"))
 
       combined_plot<- cowplot::plot_grid(sar_plot, ti_plot, ncol=1)
 

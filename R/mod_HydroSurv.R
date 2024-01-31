@@ -25,14 +25,14 @@ mod_HydroSurv_ui <- function(id) {
         fluidRow(
           column(
             width = 12,
-            "Select tabs below to adjust temporal resolution:"
+            "Select tabs below show predicted results:"
           )
         ),
         tabsetPanel(
           id = "plotTabs",
-          tabPanel("SAR",mod_SAR_plot_ui("SAR_plot_1")),
-          tabPanel("T:B", mod_TI_plot_ui("TI_plot_1")),
-          tabPanel("compare", mod_compare_single_plot_ui("compare_single_plot"))
+          tabPanel("Smolt-to-Adult Ratio (SAR)",mod_SAR_plot_ui("SAR_plot_1")),
+          tabPanel("Transport to Bypass Ratio (T:B)", mod_TI_plot_ui("TI_plot_1")),
+          tabPanel("SAR & TB, compare select years", mod_compare_single_plot_ui("compare_single_plot"))
         ),
         # fluidRow(
         #   column(
@@ -40,7 +40,7 @@ mod_HydroSurv_ui <- function(id) {
         #     h4("Additional text after tabs")
         #   )
         # ),
-        div(style='height:500;overflow-y: scroll;')
+        div(style='height:600;overflow-y: scroll;')
       )
 
       ),
