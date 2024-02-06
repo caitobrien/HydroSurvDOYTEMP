@@ -50,8 +50,7 @@ fct_TI_by_years_plot <- function(data) {
     facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
     theme(strip.background =element_rect(fill="lightgrey"),
           strip.text = element_text(colour = 'black'),
-          panel.spacing = unit(2, "lines"),
-          aspect.ratio = .8
+          panel.spacing = unit(2, "lines")
           )
 
   p

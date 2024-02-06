@@ -72,10 +72,12 @@ fct_SAR_by_year_plot<-function(data, selected_years){
     # linetype = guide_legend(order = 4)) +
     theme_light()+
     facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
-    theme(strip.background =element_rect(fill="lightgrey"))+
-    theme(strip.text = element_text(colour = 'black'))
-    theme(panel.spacing = unit(2, "lines"))
-     theme(aspect.ratio = .8)
+    theme(strip.background =element_rect(fill="lightgrey"),
+          strip.text = element_text(colour = 'black'),
+          panel.spacing = unit(2, "lines"))
+
+
+
 p
  # plotly::ggplotly(p)
 
