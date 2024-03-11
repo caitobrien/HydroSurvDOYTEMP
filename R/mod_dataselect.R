@@ -68,7 +68,7 @@ mod_dataselect_server <- function(id) {
 
 
       if (input$year_display == "Year") {
-        pickerInput(
+        shinyWidgets::pickerInput(
           inputId = ns("select_years"),
           label = "Select Year(s)",
           choices = unique(data.pred$year),
