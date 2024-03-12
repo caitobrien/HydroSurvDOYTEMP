@@ -9,3 +9,4 @@ $run_dev.*
 ^Examples$
 ^data/models$
 
+^fct_model_tables\.R$
