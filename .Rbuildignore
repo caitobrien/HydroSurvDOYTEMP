@@ -6,3 +6,6 @@ dev_history.R
 $run_dev.*
 ^.here$
 ^README\.Rmd$
+^Examples$
+^data/models$
+
