@@ -9,6 +9,7 @@ Imports:
     ggplot2,
     golem (>= 0.4.1),
     here,
+    magrittr,
     reactable,
     shinipsum,
     shiny (>= 1.8.0),

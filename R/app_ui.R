@@ -8,12 +8,6 @@
 
 #
 data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
-library(tidyverse)
-#library(reactable)
-#library(plotly)
-library(modelr)
-#library(shinyWidgets)
-library(ggdist)
 
 
 app_ui <- function(request) {
