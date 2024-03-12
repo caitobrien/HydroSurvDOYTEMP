@@ -78,7 +78,6 @@ fct_SAR_all_years_single_plot<-function(data){
     ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
                    strip.text = ggplot2::element_text(colour = 'black'),
-                   panel.spacing = ggplot2::unit(2, "lines"),
-                   aspect.ratio = .8)
+                   panel.spacing = ggplot2::unit(2, "lines"))
   p
 }
