@@ -66,21 +66,25 @@ mod_Background_ui <- function(id){
         tabsetPanel(
           id = "myTabs",
           tabPanel("Natural-origin Chinook",
-                   includeHTML("inst/app/www/table_mod_natural_chinook_doy.html"),
+                   includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
                    br(),
-                   includeHTML("inst/app/www/table_mod_natural_chinook_temp.html")),
+                   includeHTML(here::here("inst/app/www/table_mod_natural_chinook_temp.html"))
+                   ),
           tabPanel("Hatchery-origin Chinook",
-                   includeHTML("inst/app/www/table_mod_hatchery_chinook_doy.html"),
+                   includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_doy.html")),
                    br(),
-                   includeHTML("inst/app/www/table_mod_hatchery_chinook_temp.html")),
+                   includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_temp.html"))
+                   ),
           tabPanel("Natural-origin Steelhead",
-                   includeHTML("inst/app/www/table_mod_natural_steelhead_doy.html"),
+                   includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_doy.html")),
                    br(),
-                   includeHTML("inst/app/www/table_mod_natural_steelhead_temp.html")),
+                   includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_temp.html"))
+                   ),
           tabPanel("Hatchery-origin Steelhead",
-                   includeHTML("inst/app/www/table_mod_hatchery_steelhead_doy.html"),
+                   includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_doy.html")),
                    br(),
-                   includeHTML("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
+                   includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
+                   )
         ),
         fluidRow(
           column(
