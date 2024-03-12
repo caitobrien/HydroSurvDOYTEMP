@@ -44,9 +44,9 @@ mod_compare_single_plot_server <- function(id, data, year_display){
       ti_plot<-fct_TI_all_years_single_plot(data())
 
       #add margins between plots
-      sar_plot + ggplot2::theme(plot.margin = margin(10, 0, 0, 100, "pt"))
+      sar_plot + ggplot2::theme(plot.margin = ggplot2::margin(10, 0, 0, 100, "pt"))
 
-      ti_plot + ggplot2::theme(plot.margin = margin(10, 0, 0, 100, "pt"))
+      ti_plot + ggplot2::theme(plot.margin = ggplot2::margin(10, 0, 0, 100, "pt"))
 
       combined_plot<- cowplot::plot_grid(sar_plot, ti_plot, ncol=1)
 
