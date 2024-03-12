@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 **HydroSurvDOYTEMP** an interactive visualization tool based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018). 
 
-The goal of **HydroSurvDOYTEMP** is to showcases predicted survival for Chinook salmon, *Oncorhynchus tshawytscha*, and Steelhead, *Oncorhynchus mykiss*, influenced by seasonal changes experienced during downstream migration through the Federal Columbia River Power System Hydrosystem (FCRPS), Pacific Northwest, USA.
+The goal of **HydroSurvDOYTEMP** is to showcase predicted survival for Chinook salmon, *Oncorhynchus tshawytscha*, and Steelhead, *Oncorhynchus mykiss*, influenced by seasonal changes experienced during downstream migration through the Federal Columbia River Power System Hydrosystem (FCRPS), Pacific Northwest, USA.
 
 *Please note that this shiny app is currently under development*
 

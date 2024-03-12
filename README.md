@@ -18,7 +18,7 @@ Commit](https://img.shields.io/github/last-commit/caitobrien/HydroSurvSizePred)]
 **HydroSurvDOYTEMP** an interactive visualization tool based on the
 models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018).
 
-The goal of **HydroSurvDOYTEMP** is to showcases predicted survival for
+The goal of **HydroSurvDOYTEMP** is to showcase predicted survival for
 Chinook salmon, *Oncorhynchus tshawytscha*, and Steelhead, *Oncorhynchus
 mykiss*, influenced by seasonal changes experienced during downstream
 migration through the Federal Columbia River Power System Hydrosystem
