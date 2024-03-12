@@ -65,7 +65,6 @@ mod_dataselect_server <- function(id) {
     # Render the UI for the year picker
     output$year_picker <- renderUI({
 
-
       if (input$year_display == "Year") {
         shinyWidgets::pickerInput(
           inputId = ns("select_years"),
