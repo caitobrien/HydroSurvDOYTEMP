@@ -1,6 +1,7 @@
 #' model_tables
 #'
-#' @description A fct function to import models and export summary results in HTML table format for mod_Background.R
+#' @description A fct function to import models results and export summary results in HTML table format for mod_Background.R. Not included in app--move to R markdown?
+#'
 #'
 #' @return A summary table per model in HTML format
 #'
