@@ -6,7 +6,9 @@ Description: PKG_DESC.
 License: What license is it under?
 Imports: 
     config (>= 0.3.2),
+    ggdist,
     ggplot2,
+    ggrepel,
     golem (>= 0.4.1),
     here,
     magrittr,

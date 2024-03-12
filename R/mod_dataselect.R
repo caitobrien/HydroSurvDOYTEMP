@@ -64,7 +64,6 @@ mod_dataselect_server <- function(id) {
 
     # Render the UI for the year picker
     output$year_picker <- renderUI({
-      ns <- session$ns
 
 
       if (input$year_display == "Year") {
