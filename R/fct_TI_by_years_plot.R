@@ -9,13 +9,12 @@ fct_TI_by_years_plot <- function(data) {
 
   # wrangle data to plot median per year per grouping
   data_summarized <- data %>%
-    #filter(covariate == "Day-of-year (DOY)") %>%
-    mutate(x_var = case_when(
+    dplyr::mutate(x_var = dplyr::case_when(
       covariate == "Day-of-year (DOY)" ~ doy,
       TRUE ~ temp
     )) %>%
-    filter( transport == 1) %>% #remove in-river fish for transport:barge ratio
-    mutate(
+    dplyr::filter( transport == 1) %>% #remove in-river fish for transport:barge ratio
+    dplyr::mutate(
       transport = as.factor(transport),
       year = as.factor(year),
       rear_type = as.factor(rear_type),
@@ -23,7 +22,7 @@ fct_TI_by_years_plot <- function(data) {
       species = as.factor(species),
       species_rear = interaction(species, rear_type)
     ) %>%
-    group_by(year)
+    dplyr::group_by(year)
 
   # Convert data_summarized to data frame
   data_summarized <- as.data.frame(data_summarized)
@@ -32,25 +31,24 @@ fct_TI_by_years_plot <- function(data) {
   covar_label <- unique(data_summarized$covariate)
 
   # plot
-  p <- ggplot(data_summarized, aes(x = x_var, y = TI)) +
-    geom_point(aes(color = transport))+
-    geom_line(aes(group = year, color = transport))+
-   # geom_ribbon(aes(y = TI, ymin = .lower, ymax = .upper), alpha = .25) +
-    #stat_summary(geom = "line", alpha =.25) +
-    labs(
+  p <-
+    ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = TI)) +
+    ggplot2::geom_point(ggplot2::aes(color = transport))+
+    ggplot2::geom_line(ggplot2::aes(group = year, color = transport))+
+    ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
       title = NULL,
       color = NULL
     ) +
-    geom_hline(yintercept = 1, color = "black" ) +
-    scale_color_manual(values =  c("black"),
+    ggplot2::geom_hline(yintercept = 1, color = "black" ) +
+    ggplot2::scale_color_manual(values =  c("black"),
                        labels = "Predicted median\nper year")+
-    theme_light()+
-    facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
-    theme(strip.background =element_rect(fill="lightgrey"),
-          strip.text = element_text(colour = 'black'),
-          panel.spacing = unit(2, "lines")
+    ggplot2::theme_light()+
+    ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
+    ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
+          strip.text = ggplot2::element_text(colour = 'black'),
+          panel.spacing = ggplot2::unit(2, "lines")
           )
 
   p

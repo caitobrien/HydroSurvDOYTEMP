@@ -10,19 +10,18 @@ fct_TI_all_years_plot <- function(data) {
 
   # wrangle data to plot median per year per grouping
   data_summarized <- data %>%
-    #filter(covariate == "Day-of-year (DOY)") %>%
-    mutate(x_var = case_when(
+    dplyr::mutate(x_var = dplyr::case_when(
       covariate == "Day-of-year (DOY)" ~ doy,
       TRUE ~ temp
     )) %>%
-    mutate(
+    dplyr::mutate(
       transport = as.factor(transport),
       year = as.factor(year),
       rear_type = as.factor(rear_type),
       covariate = as.factor(covariate),
       species = as.factor(species)
     ) %>%
-    group_by(covariate, x_var, species, rear_type,doy) %>%
+    dplyr::group_by(covariate, x_var, species, rear_type,doy) %>%
     tidybayes::median_qi(TI, na.rm = TRUE)
 
   # Convert data_summarized to data frame
@@ -32,26 +31,27 @@ fct_TI_all_years_plot <- function(data) {
   covar_label <- unique(data_summarized$covariate)
 
   # plot
-  p <- ggplot(data_summarized, aes(x = x_var, y = TI)) +
-    geom_point(aes(color=.point))+
-    geom_line(aes(color = .point))+
-    tidybayes::geom_lineribbon(aes(y = TI, ymin = .lower, ymax = .upper, fill=.point), alpha = .25) +
-    labs(
+  p <-
+    ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = TI)) +
+    ggplot2::geom_point(ggplot2::aes(color=.point))+
+    ggplot2::geom_line(ggplot2::aes(color = .point))+
+    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = .lower, ymax = .upper, fill=.point), alpha = .25) +
+    ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
       title = NULL,
       color = NULL,
       fill= NULL
     ) +
-    geom_hline(yintercept = 1, color = "black" ) +
-    scale_color_manual(values =  "black",
+    ggplot2::geom_hline(yintercept = 1, color = "black" ) +
+    ggplot2::scale_color_manual(values =  "black",
                        labels = "Predicted median,\nwith 95% CI")+
-    scale_fill_manual(values =  "black",
+    ggplot2::scale_fill_manual(values =  "black",
                       labels = "Predicted median,\nwith 95% CI")+
-    theme_light()+
-    facet_grid(rear_type ~ species, scales = "free_y") +
-    theme(strip.background =element_rect(fill="lightgrey"))+
-    theme(strip.text = element_text(colour = 'black'))
+    ggplot2::theme_light()+
+    ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
+    ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
+                   strip.text = ggplot2::element_text(colour = 'black'))
 
   p
 }
