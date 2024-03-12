@@ -66,24 +66,24 @@ mod_Background_ui <- function(id){
         tabsetPanel(
           id = "myTabs",
           tabPanel("Natural-origin Chinook",
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
                    br(),
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_temp.html"))
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_temp.html"))
                    ),
           tabPanel("Hatchery-origin Chinook",
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_doy.html")),
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_doy.html")),
                    br(),
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_temp.html"))
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_temp.html"))
                    ),
           tabPanel("Natural-origin Steelhead",
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_doy.html")),
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_doy.html")),
                    br(),
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_temp.html"))
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_temp.html"))
                    ),
           tabPanel("Hatchery-origin Steelhead",
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_doy.html")),
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_doy.html")),
                    br(),
-                   shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
+                  # shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
                    )
         ),
         fluidRow(
