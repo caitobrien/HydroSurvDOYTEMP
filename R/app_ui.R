@@ -8,8 +8,8 @@
 
 #
 data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
-library(shinyWidgets)
-library(tidyverse)
+#library(shinyWidgets)
+#library(tidyverse)
 
 app_ui <- function(request) {
   tagList(
