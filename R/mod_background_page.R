@@ -1,13 +1,13 @@
 #' Background UI Function
 #'
-#' @description A shiny Module.
+#' @description module for background subpage
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_Background_ui <- function(id){
+mod_background_page_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -101,7 +101,7 @@ mod_Background_ui <- function(id){
 #' Background Server Functions
 #'
 #' @noRd
-mod_Background_server <- function(id){
+mod_background_page_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 

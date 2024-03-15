@@ -1,13 +1,13 @@
 #' Dashboard UI Function
 #'
-#' @description A shiny Module.
+#' @description module for welcome page of app
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_Dashboard_ui <- function(id) {
+mod_welcome_page_ui <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -59,17 +59,12 @@ mod_Dashboard_ui <- function(id) {
   )
 }
 
-#' Dashboard Server Functions
+#' Welcome Server Functions
 #'
 #' @noRd
-mod_Dashboard_server <- function(id) {
+mod_welcome_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
   })
 }
 
-## To be copied in the UI
-# mod_Dashboard_ui("Dashboard_1")
-
-## To be copied in the server
-# mod_Dashboard_server("Dashboard_1")

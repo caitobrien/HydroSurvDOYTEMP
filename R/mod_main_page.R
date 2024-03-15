@@ -1,13 +1,13 @@
-#' HydroSurv UI Function
+#' HydroSurv main page UI Function
 #'
-#' @description A shiny Module.
+#' @description module outlining the UI elements of the hydro surv main page
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_HydroSurv_ui <- function(id) {
+mod_main_page_ui <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -33,7 +33,7 @@ mod_HydroSurv_ui <- function(id) {
           tabPanel("Smolt-to-Adult Ratio (SAR)",
                    tags$div(
                      style = "margin-bottom: 20px;",  # Add margin within this tab
-                     mod_SAR_plot_ui("SAR_plot_1")
+                     mod_main_select_SAR_plot_ui("main_select_SAR_plot_1")
                    )
           ),
           tabPanel("Transport to Bypass Ratio (T:B)", mod_TI_plot_ui("TI_plot_1")),
@@ -96,10 +96,10 @@ column(
 )
 }
 
-#' HydroSurv Server Functions
+#' HydroSurv main page Server Functions
 #'
 #' @noRd
-mod_HydroSurv_server <- function(id) {
+mod_main_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 

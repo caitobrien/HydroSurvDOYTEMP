@@ -1,6 +1,6 @@
 #' dataselect UI Function
 #'
-#' @description A shiny Module.
+#' @description sub module within main page module for the data selection only
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
@@ -8,7 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 
-mod_dataselect_ui <- function(id) {
+mod_main_dataselect_ui <- function(id) {
   ns <- NS(id)
   tagList(
     br(),
@@ -58,7 +58,7 @@ mod_dataselect_ui <- function(id) {
 #' dataselect Server Functions
 #'
 #' @noRd
-mod_dataselect_server <- function(id) {
+mod_main_dataselect_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
