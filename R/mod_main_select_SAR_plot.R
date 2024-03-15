@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_SAR_plot_ui <- function(id){
+mod_main_select_SAR_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -29,7 +29,7 @@ mod_SAR_plot_ui <- function(id){
 #' SAR_plot Server Functions
 #'
 #' @noRd
-mod_SAR_plot_server <- function(id, data, year_display, plot_height, years_selected){
+mod_main_select_SAR_plot_server <- function(id, data, year_display, plot_height, years_selected){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
@@ -74,7 +74,7 @@ mod_SAR_plot_server <- function(id, data, year_display, plot_height, years_selec
 
 
 ## To be copied in the UI
-# mod_SAR_plot_ui("SAR_plot_1")
+# mod_main_select_SAR_plot_ui("SAR_plot_1")
 
 ## To be copied in the server
-# mod_SAR_plot_server("SAR_plot_1")
+# mod_main_select_SAR_plot_server("SAR_plot_1")

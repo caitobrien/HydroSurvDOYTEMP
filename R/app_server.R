@@ -17,7 +17,7 @@ app_server <- function(input, output, session) {
        years_selected <- dataselect_reactives$years_selected
 
 
-  mod_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
+  mod_main_select_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
   mod_TI_plot_server("TI_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
   mod_compare_single_plot_server("compare_single_plot", data = filtered_data(), year_display = year_display())
 
