@@ -66,7 +66,7 @@ mod_background_page_ui <- function(id){
         tabsetPanel(
           id = "myTabs",
           tabPanel("Natural-origin Chinook",
-                  # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
+                  shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
                    br(),
                   # shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_temp.html"))
                    ),
