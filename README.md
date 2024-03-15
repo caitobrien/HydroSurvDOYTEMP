@@ -36,7 +36,7 @@ You can install the development version of HydroSurvDOYTEMP from
 devtools::install_github("caitobrien/HydroSurvDOYTEMP")
 
 # Load the package
-library(HydroSurvSizePred)
+library(HydroSurvDOYTEMP)
 
 # Run the app
 run_app()
