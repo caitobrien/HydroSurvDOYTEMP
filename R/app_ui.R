@@ -27,19 +27,19 @@ app_ui <- function(request) {
           shinydashboard::sidebarMenu(
             # Setting id makes input$tabs give the tabName of currently-selected tab
             id = "tabs",
-            shinydashboard::menuItem("Welcome", tabName = "dashboard", icon = icon("house")),
+            shinydashboard::menuItem("Welcome", tabName = "welcome", icon = icon("house")),
             shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line")),
             div(id = "tabs_filter",
-                conditionalPanel(condition = "input.tabs == 'figs'",  mod_dataselect_ui("dataselect_1"))
+                conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_dataselect_ui("main_dataselect_1"))
             ),
             shinydashboard::menuItem("Background Information", tabName = "bkg", icon = icon("book"))
           )
         ),
         body = shinydashboard::dashboardBody(
           shinydashboard::tabItems(
-            shinydashboard::tabItem(tabName = "dashboard",mod_Dashboard_ui("Dashboard_ui_1")),
-            shinydashboard::tabItem(tabName = "figs",mod_HydroSurv_ui("HydroSurv_ui_1")),
-            shinydashboard::tabItem(tabName = "bkg", mod_Background_ui("Background_ui_1"))
+            shinydashboard::tabItem(tabName = "welcome",mod_welcome_page_ui("welcome_page_ui_1")),
+            shinydashboard::tabItem(tabName = "figs",mod_main_page_ui("main_page_ui_1")),
+            shinydashboard::tabItem(tabName = "bkg", mod_background_page_ui("background_page_ui_1"))
           )
         )
       )
