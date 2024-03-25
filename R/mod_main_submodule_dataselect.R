@@ -11,8 +11,12 @@
 mod_main_submodule_dataselect_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    br(),
-    div("To plot survival predictions:", class = "instructions"),
+
+    # div("To plot survival predictions:", class = "instructions"),
+
+    fluidRow(
+      column(
+        width = 3,
 
     # select covariate
     selectInput(
@@ -22,10 +26,13 @@ mod_main_submodule_dataselect_ui <- function(id) {
       selected = "Day of Year (DOY)",
       width = "200px",
       multiple = F
+    )
     ),
 
-    # select species
+    column(
+      width = 3,
 
+    # select species
     shinyWidgets::prettyCheckboxGroup(
       inputId = ns("select_spp"),
       label = "Select species",
@@ -34,7 +41,11 @@ mod_main_submodule_dataselect_ui <- function(id) {
       choices = c("Chinook", "Steelhead"), # data.pred$species
       selected = unique(data.pred$species),
       width = "200px"
-      ),
+      )
+    ),
+
+    column(
+      width = 3,
 
     # select rear type
     shinyWidgets::prettyCheckboxGroup(
@@ -45,7 +56,11 @@ mod_main_submodule_dataselect_ui <- function(id) {
       choices = c("Natural-origin", "Hatchery-origin"), # data.pred$rear_type,
       selected = unique(data.pred$rear_type),
       width = "200px"
+      )
     ),
+
+    column(
+      width = 3,
 
     # prompt to select all years or by year
     selectInput(
@@ -55,6 +70,8 @@ mod_main_submodule_dataselect_ui <- function(id) {
       selected = "All Years"
     ),
     uiOutput(ns("year_picker"))
+  )
+      )
   )
 }
 

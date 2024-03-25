@@ -18,8 +18,7 @@ app_ui <- function(request) {
     fluidPage(
       shinydashboard::dashboardPage(
         header = shinydashboard::dashboardHeader(
-          title = "Seasonal Predictions Hydrosystem Survival", #Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)
-          titleWidth = 450
+          title = "Columbia Basin Research" #Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)
         ),
 
         ## Sidebar content - used as a navigation menu to each tab
@@ -31,9 +30,9 @@ app_ui <- function(request) {
             id = "tabs",
             shinydashboard::menuItem("Welcome", tabName = "welcome", icon = icon("house")),
             shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line")),
-            div(id = "tabs_filter",
-                conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
-            ),
+            # div(id = "tabs_filter",
+            #     conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
+            # ),
             shinydashboard::menuItem("Background Information", tabName = "bkg", icon = icon("book"))
           )
         ),
