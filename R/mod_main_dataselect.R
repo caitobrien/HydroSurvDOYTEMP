@@ -12,7 +12,7 @@ mod_main_dataselect_ui <- function(id) {
   ns <- NS(id)
   tagList(
     br(),
-    "To plot survival predictions:",
+    div("To plot survival predictions:", class = "instructions"),
 
     # select covariate
     selectInput(

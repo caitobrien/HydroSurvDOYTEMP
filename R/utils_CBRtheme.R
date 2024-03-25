@@ -21,7 +21,8 @@ CBRtheme<- fresh::create_theme(
     dark_submenu_bg = "#F8F8F8",
     dark_submenu_color = "black",
     dark_submenu_hover_color = "lightgrey",
-    light_submenu_color = "black"
+    light_submenu_color = "black",
+    light_submenu_hover_color = "#024c63"
   ),
   fresh::adminlte_global(
     content_bg = "#FFF",
