@@ -32,7 +32,7 @@ app_ui <- function(request) {
             shinydashboard::menuItem("Welcome", tabName = "welcome", icon = icon("house")),
             shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line")),
             div(id = "tabs_filter",
-                conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_dataselect_ui("main_dataselect_1"))
+                conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
             ),
             shinydashboard::menuItem("Background Information", tabName = "bkg", icon = icon("book"))
           )

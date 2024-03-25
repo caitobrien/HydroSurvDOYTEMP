@@ -21,7 +21,7 @@ mod_welcome_page_ui <- function(id) {
     ),
 
     #add leaflet map
-    mod_welcome_page_submodule_leaflet_map_ui("welcome_page_submodule_leaflet_map_1"),
+    mod_welcome_submodule_leaflet_map_ui("leaflet_map_1"),
 
     fluidRow(
         shinydashboard::box(
@@ -60,7 +60,7 @@ mod_welcome_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    mod_welcome_page_submodule_leaflet_map_server("welcome_page_submodule_leaflet_map_1")
+    mod_welcome_submodule_leaflet_map_server("leaflet_map_1")
 
   })
 }

@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_main_select_TI_plot_ui <- function(id){
+mod_main_submodule_select_TI_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -28,7 +28,7 @@ mod_main_select_TI_plot_ui <- function(id){
 #' TI_plot Server Functions
 #'
 #' @noRd
-mod_main_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected){
+mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -68,7 +68,7 @@ mod_main_select_TI_plot_server <- function(id, data, year_display, plot_height, 
 }
 
 ## To be copied in the UI
-# mod_TI_plot_ui("TI_plot_1")
+# mod_main_submodule_TI_plot_ui("TI_plot_1")
 
 ## To be copied in the server
-# mod_TI_plot_server("TI_plot_1")
+# mod_main_submodule_TI_plot_server("TI_plot_1")

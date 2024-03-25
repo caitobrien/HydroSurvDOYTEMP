@@ -1,4 +1,4 @@
-#' dataselect UI Function
+#' submodule_dataselect UI Function
 #'
 #' @description sub module within main page module for the data selection only
 #'
@@ -8,7 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 
-mod_main_dataselect_ui <- function(id) {
+mod_main_submodule_dataselect_ui <- function(id) {
   ns <- NS(id)
   tagList(
     br(),
@@ -61,7 +61,7 @@ mod_main_dataselect_ui <- function(id) {
 #' dataselect Server Functions
 #'
 #' @noRd
-mod_main_dataselect_server <- function(id) {
+mod_main_submodule_dataselect_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -139,7 +139,7 @@ mod_main_dataselect_server <- function(id) {
 }
 
 ## To be copied in the UI
-# mod_dataselect_ui("dataselect_1")
+# mod_main_submodule_dataselect_ui("dataselect_1")
 
 ## To be copied in the server
-# mod_dataselect_server("dataselect_1")
+# mod_main_submodule_dataselect_server("dataselect_1")

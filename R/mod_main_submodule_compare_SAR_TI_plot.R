@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_compare_SAR_TI_plot_ui <- function(id){
+mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
@@ -29,7 +29,7 @@ mod_compare_SAR_TI_plot_ui <- function(id){
 #' compare_single_plot Server Functions
 #'
 #' @noRd
-mod_compare_SAR_TI_plot_server <- function(id, data, year_display){
+mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -70,7 +70,7 @@ mod_compare_SAR_TI_plot_server <- function(id, data, year_display){
   })
 }
 ## To be copied in the UI
-# mod_compare_single_plot_ui("compare_single_plot_1")
+# mod_main_submodule_compare_single_plot_ui("compare_single_plot_1")
 
 ## To be copied in the server
-# mod_compare_single_plot_server("compare_single_plot_1")
+# mod_main_submodule_compare_single_plot_server("compare_single_plot_1")
