@@ -6,6 +6,7 @@ Description: PKG_DESC.
 License: What license is it under?
 Imports: 
     config (>= 0.3.2),
+    fresh,
     ggdist,
     ggplot2,
     ggrepel,

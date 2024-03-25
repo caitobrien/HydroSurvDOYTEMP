@@ -36,6 +36,8 @@ app_ui <- function(request) {
           )
         ),
         body = shinydashboard::dashboardBody(
+          #add CSS CBR global theme
+          fresh::use_theme(CBRtheme),
           shinydashboard::tabItems(
             shinydashboard::tabItem(tabName = "welcome",mod_welcome_page_ui("welcome_page_ui_1")),
             shinydashboard::tabItem(tabName = "figs",mod_main_page_ui("main_page_ui_1")),
