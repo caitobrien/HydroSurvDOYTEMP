@@ -14,6 +14,7 @@ Imports:
     here,
     leaflet,
     magrittr,
+    patchwork,
     reactable,
     shinipsum,
     shiny (>= 1.8.0),
