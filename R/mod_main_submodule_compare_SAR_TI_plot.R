@@ -29,34 +29,63 @@ mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
 #' compare_single_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display){
+mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display, years_selected){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
+    #set reactive for plot heights
+    plot_height<- reactive({
+      req(years_selected())
+      nyears <- length(years_selected())
+
+      if (nyears > 1) {
+        plot_height<- 1000 + (nyears-1)*500
+      }else plot_height <-1000
+    })
 
     output$compare_single_plot <- renderPlot({
 
       if (year_display() == "Year") {
-      # Call the function to generate the SAR plot
-      sar_plot<- fct_SAR_all_years_single_plot(data())
 
+        # Create an empty list to store plots
+        plots_list <- list()
 
-      # Call the function to generate the TI plot
-      ti_plot<-fct_TI_all_years_single_plot(data())
+        # Loop through selected years and create plots
+        for (i in seq_along(years_selected())) {
+          year_selected <- years_selected()[i]
 
-      #add margins between plots
-      sar_plot + ggplot2::theme(plot.margin = ggplot2::margin(10, 0, 0, 100, "pt"))
+          # Filter data for the current year
+          data_filtered_year <- data() %>% dplyr::filter(year == year_selected)
+          # data_pre_risk_year <- data() %>% dplyr::filter(year == year_selected)
+          # data_surv_year <- data() %>% dplyr::filter(year == year_selected)
 
-      ti_plot + ggplot2::theme(plot.margin = ggplot2::margin(10, 0, 0, 100, "pt"))
+          plots_list[[as.character(year_selected)]] <- fct_compare_SAR_TI_plot(
+            data = data_filtered_year
+            # show_legend = i == 1  # Show legend only for the first plot
+          )
+        }
 
-      combined_plot<- cowplot::plot_grid(sar_plot, ti_plot, ncol=1)
+        # Arrange plots using patchwork
+        if (length(plots_list) > 0) {
+          combined_plots <- patchwork::wrap_plots(plots_list, ncol = 1)
+          print(combined_plots)
+        } else {
+          # Handle case when no years are selected
+          plot(NULL, xlim = c(0, 1), ylim = c(0, 1), main = "No data selected")
+        }
 
-      return(combined_plot)
+      return(combined_plots)
+
       } else {
 
         # If "View by Year" is not selected, return NULL to avoid attempting to render the plot
         return(NULL)
       }
-    })
+    },
+     height = function() {
+      plot_height()
+      }
+    )
 
     output$compare_single_plot_message <- renderUI({
       # Check if "View by Year" is not selected
