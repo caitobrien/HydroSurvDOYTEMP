@@ -12,6 +12,7 @@ Imports:
     ggrepel,
     golem (>= 0.4.1),
     here,
+    leaflet,
     magrittr,
     reactable,
     shinipsum,
