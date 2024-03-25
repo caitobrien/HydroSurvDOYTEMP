@@ -24,10 +24,9 @@ mod_welcome_page_ui <- function(id) {
     mod_welcome_page_submodule_leaflet_map_ui("welcome_page_submodule_leaflet_map_1"),
 
     fluidRow(
-        width = 12,
         shinydashboard::box(
           title = "What does this application do?",
-          width = NULL,
+          width = 12,
           solidHeader = TRUE,
           status = "primary",
           div(
@@ -35,12 +34,12 @@ mod_welcome_page_ui <- function(id) {
                  <p>This application allows users to specify whether seasonal changes are represented by day-of-year or temperature and set variables of interest such as passage type, rearing type, and year(s) of interest.
                  </p>")
           )
+        )
         ),
     fluidRow(
-      width = 12,
         shinydashboard::box(
           title = "How to use this application?",
-          width = NULL,
+          width = 12,
           solidHeader = TRUE,
           status = "primary",
           div(
@@ -50,7 +49,6 @@ mod_welcome_page_ui <- function(id) {
                  </p>")
           )
           )
-    )
     )
   )
 }
