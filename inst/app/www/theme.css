@@ -1,0 +1,19 @@
+/*css code to override text color within conditional panel used for dataselection?/*
+
+/*title text in sidepanel to black*/
+.sidebar .instructions {
+  color: black;
+}
+
+/*change select input controls and labels to black*/
+.sidebar .control-label {
+  color: black;
+}
+
+.sidebar .pretty p {
+  color: black;
+}
+
+.sidebar .pretty .state label {
+  color: black;
+}

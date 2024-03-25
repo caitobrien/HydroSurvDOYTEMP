@@ -12,16 +12,19 @@ mod_welcome_page_ui <- function(id) {
   tagList(
     fluidRow(
       shinydashboard::box(
-        title = "Welcome to the HydroSurvDOYTEMP shinyAPP,",
+        title = "Welcome to HydroSurvDOYTEMP,",
         width = 12,
         solidHeader = TRUE,
         status = "primary",
-        em("an interactive visualization tool based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018)")
+        em("a Shiny App based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018)")
       )
     ),
+
+    #add leaflet map
+    mod_welcome_page_submodule_leaflet_map_ui("welcome_page_submodule_leaflet_map_1"),
+
     fluidRow(
-      column(
-        width = 6,
+        width = 12,
         shinydashboard::box(
           title = "What does this application do?",
           width = NULL,
@@ -33,6 +36,8 @@ mod_welcome_page_ui <- function(id) {
                  </p>")
           )
         ),
+    fluidRow(
+      width = 12,
         shinydashboard::box(
           title = "How to use this application?",
           width = NULL,
@@ -44,17 +49,8 @@ mod_welcome_page_ui <- function(id) {
                  <p>To learn more about how this application can fill knowledge-action gaps and the reliability of the research methodologies featured, see the background tab in the left navigation panel.
                  </p>")
           )
-        )
-      ),
-      column(
-        width = 6,
-        shinydashboard::box(
-          width = NULL,
-          shiny::img(src = "www/map.png", style = "max-width:100%; height:auto;"),
-          br(),
-          "Figure 1: Map of the Columbia and Snake River, Pacific Northwest, USA, with major hydroelectric dams denoted (dark circles) along Spring/Summer Chinook salmon and Steelhead migratory routes. HydroSurvDOYTEMP app underlying model predicts the probability of smolt-to-adult survival from outmigrating juveniles at Bonneville Dam (BON) with an adult return detection at Lower Granite Dam (LGR)."
-        )
-      )
+          )
+    )
     )
   )
 }
@@ -65,6 +61,9 @@ mod_welcome_page_ui <- function(id) {
 mod_welcome_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    mod_welcome_page_submodule_leaflet_map_server("welcome_page_submodule_leaflet_map_1")
+
   })
 }
 
