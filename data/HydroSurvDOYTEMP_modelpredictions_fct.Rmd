@@ -1,0 +1,192 @@
+---
+title: "HydroSurvDOYTEMP_modelpredictions_fct"
+output: html_document
+date: "2024-03-26"
+---
+
+```{r}
+# Define a function to import data
+import_data <- function(filename) {
+  df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", filename))
+  return(df)
+}
+
+# Define a function to aggregate data
+aggregate_data <- function(df) {
+  #aggregate each subsetted df
+    df.agg<-df %>%
+    # calculate # of juveniles--used as total trials in binomial model
+    group_by(year, doy, doyz, transport) %>%
+    mutate(
+      doy = as.numeric(doy),
+      n = n()
+    ) %>%
+    arrange(year, doy, doyz) %>%
+    # mutate(year = as.factor(year)) %>%
+    # set reponse as sum of alive per trials
+    summarize(
+      alive = sum(alive),
+      n = mean(n),
+      mean.tempz = mean(BON.tempz),
+      mean.temp = mean(BON.temp)
+    ) %>%
+    ungroup() %>%
+    # include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
+    arrange(year, doy, doyz, transport) %>%
+    mutate(doy.bin = cut(doy, breaks = seq(90, 160, 10), include.lowest = TRUE)) %>%
+    group_by(year, transport, doy.bin) %>%
+    mutate(
+      doy.median = round(median(doy), 0),
+      sar.pit = alive / n
+    ) %>%
+    # sar.pit.se = sd(sar.pit)/sqrt(n),
+    # sar.pit.lower = mean(sar.pit) - 1.96 * sar.pit.se,
+    # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>%
+    ungroup() %>%
+    mutate(date = parse_date_time(x = paste(year, doy), orders = "yj")) %>%
+    mutate(
+      year = as.character(year),
+      transport = as.character(transport)
+    )
+    
+    return(df.agg)
+}
+
+# Define a function to import models
+import_model <- function(filename) {
+ model<- readRDS(here::here("Examples/results", filename))
+ 
+ model_name <- basename(filename)
+ 
+ return(list("model" = model, "model_name" = model_name))
+}
+
+
+
+# Define a function to generate new data
+generate_newdata <- function(df) {
+  ##### doy
+  scale.doy <- scale(as.numeric(df$doy))
+  scale.x.doy <- attr(scale.doy, "scaled:center")
+  scale.sd.doy <- attr(scale.doy, "scaled:scale")
+  
+  scale.temp <- scale(as.numeric(df$BON.temp))
+  scale.x.temp <- attr(scale.temp, "scaled:center")
+  scale.sd.temp <- attr(scale.temp, "scaled:scale")
+  
+  newdata.doy <- expand_grid(
+    doyz = ((90:160) - scale.x.doy) / scale.sd.doy,
+    transport = c(0, 1),
+    year = c(1993:2018),
+    n = 1
+  )
+  
+  newdata.temp <- expand_grid(
+    mean.tempz = seq_range(df$BON.tempz, n = 71), # to match DOY
+    transport = c(0, 1),
+    year = c(1993:2018),
+    n = 1
+  )
+  
+  newdata <- bind_cols(newdata.doy, newdata.temp[, 1])
+  
+  return(list(newdata = newdata, 
+              scale.sd.doy = scale.sd.doy, 
+              scale.x.doy = scale.x.doy, 
+              scale.sd.temp = scale.sd.temp, 
+              scale.x.temp = scale.x.temp))
+}
+
+# Define a function to add predictions
+add_predictions <- function(newdata, model, scale.sd.doy, scale.x.doy, scale.sd.temp, scale.x.temp) {
+  df.pred <- newdata %>%
+    tidybayes::add_linpred_draws(model, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform = TRUE) %>%
+    tidybayes::median_qi() %>%
+    rename(
+      SAR = .linpred,
+      SAR.lo = .lower,
+      SAR.hi = .upper
+    ) %>%
+    group_by(year, doyz) %>%
+    mutate(
+      transport = as.factor(transport),
+      TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
+      TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
+      TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
+    ) %>%
+    ungroup() %>%
+    mutate(
+      doy = (doyz * scale.sd.doy) + scale.x.doy,
+      date = parse_date_time(x = paste(year, doy), orders = "yj"),
+      temp = (mean.tempz * scale.sd.temp) + scale.x.temp
+    )
+  
+  return(df.pred)
+  
+}
+
+# Define a function to append observed data to predictions
+append_obsdata_to_predictions <- function(df_pred, df_agg, model_name) {
+  rear_type <- ifelse(grepl("natural", model_name, ignore.case = TRUE), "Natural-origin", "Hatchery-origin")
+  covariate <- ifelse(grepl("doy", model_name, ignore.case = TRUE), "Day-of-year (DOY)", "Temperature (°C)")
+  species <- ifelse(grepl("chinook", model_name, ignore.case = TRUE), "Steelhead", "Chinook")
+  
+  df.pred<- df.pred %>%
+    mutate(
+      year = as.character(year),
+      transport = as.character(transport)
+    ) %>%
+    left_join(select(df.agg, "transport", "year", "doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>%
+    mutate(
+      rear_type = rear_type,
+      covariate = covariate,
+      species = species,
+      transport = as.factor(transport),
+      year = as.factor(year)
+    ) %>%
+    rename(n.obs = n.y)
+  
+  return(df.pred)
+}
+
+# # Define your data files, models, and other parameters
+data_files <- c("natural_spsu_chinook_data_subset.csv", "hatchery_spsu_chinook_data_subset.csv", "natural_steelhead_data_subset.csv", "hatchery_steelhead_data_subset.csv")
+
+# Define the model files associated with each data file
+model_files <- list(
+  "hatchery_spsu_chinook_data_suset.csv" = c("mod_hatchery_chinook_doy.rds", "mod_hatchery_chinook_temp.rds"),
+  "natural_spsu_chinook_data_subset.csv" = c("mod_natural_chinook_doy.rds","mod_natural_chinook_temp.rds"),
+  "hatchery_steelhead_data_subset.csv" = c("mod_hatchery_steelhead_doy.rds", "mod_hatchery_steelhead_temp.rds"),
+  "natural_steelhead_data_subset.csv" = c("mod_natural_steelhead_doy.rds", "mod_natural_steelhead_temp.rds") 
+)
+
+# Loop over data files and models
+all <- data.frame() # Initialize 'all' as an empty data frame
+
+for (data_file in data_files) {
+  df <- import_data(data_file)
+  df_agg <- aggregate_data(df)
+  # Get the models associated with this data file
+  models <- model_files[[data_file]]
+  for (model_file in models) {
+    model_info <- import_model(model_file)
+    newdata_info <- generate_newdata(df)
+    df.pred <- add_predictions(newdata_info$newdata, 
+                               model_info$model, 
+                               newdata_info$scale.sd.doy, 
+                               newdata_info$scale.x.doy, 
+                               newdata_info$scale.sd.temp, 
+                               newdata_info$scale.x.temp)
+    df.pred <- append_obsdata_to_predictions(df.pred, 
+                                             df.agg, 
+                                             model_info$model_name)
+    all <- rbind(all,df.pred)
+  }
+}
+
+return(all)
+
+# Export predictions
+write.csv(all, row.names = F, here("data", "df_mod_predict_fct.csv"))
+```
+
