@@ -1,8 +1,8 @@
 #' TI_all_years_plot
 #'
-#' @description A function to plot SAR with all years combined.
+#' @description A function to plot SAR with all years combined--plot called within submodule mod_main_submodule_select_TI_plot.R
 #'
-#' @return The return value is a plot with median TI (and 95 CI ?) for all years of data per species, rear type and covariate (DOY, TEMP)
+#' @return The return value is a plot with median TI (and 95 CI ?) for all years of data per species, rear type and covariate (DOY, TEMP)--included on first tab within mod_main_page.R
 #'
 #' @noRd
 #'

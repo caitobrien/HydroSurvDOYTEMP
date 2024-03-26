@@ -67,7 +67,7 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display
 
         # Arrange plots using patchwork
         if (length(plots_list) > 0) {
-          combined_plots <- patchwork::wrap_plots(plots_list, ncol = 1)
+          combined_plots <- patchwork::wrap_plots(plots_list, ncol = 1 )
           print(combined_plots)
         } else {
           # Handle case when no years are selected

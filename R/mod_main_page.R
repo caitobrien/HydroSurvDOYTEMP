@@ -30,36 +30,27 @@ mod_main_page_ui <- function(id) {
         status = "info",
         collapsible = TRUE,
         collapsed = FALSE,
-        title = "Select to plot survival predictions:",
+        title = "To plot survival predictions:",
         mod_main_submodule_dataselect_ui("main_dataselect_2")
       )
     ),
 
     fluidRow(
       shinydashboard::box(
+        id = ns("box_plots"),
         title = "Select tabs below show predicted results:",
         width = 12,
         status = "info",
         height = "auto",
+        collapsible = TRUE,
+        collapsed = FALSE,
 
         tabsetPanel(
-          id = "plotTabs",
-          tabPanel("Smolt-to-Adult Ratio (SAR)",
-                   tags$div(
-                     style = "margin-bottom: 20px;",  # Add margin within this tab
-                     mod_main_submodule_select_SAR_plot_ui("SAR_plot_1")
-                   )
-          ),
+          id = ns("plotTabs"),
+          tabPanel("Smolt-to-Adult Ratio (SAR)", mod_main_submodule_select_SAR_plot_ui("SAR_plot_1")),
           tabPanel("Transport to Bypass Ratio (T:B)", mod_main_submodule_select_TI_plot_ui("TI_plot_1")),
           tabPanel("SAR & TB, compare select years", mod_main_submodule_compare_SAR_TI_plot_ui("compare_single_plot"))
-        ),
-        # fluidRow(
-        #   column(
-        #     width = 12,
-        #     h4("Additional text after tabs")
-        #   )
-        # ),
-        div(style='height:600;overflow-y: scroll;')
+        )
       )
     )
 # column(
@@ -107,7 +98,6 @@ mod_main_page_ui <- function(id) {
 mod_main_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
 
   })
 }

@@ -14,13 +14,12 @@ mod_main_submodule_select_SAR_plot_ui <- function(id){
         column(
           width = 12,
           br(),
-          h4("Predicted Smolt-to-Adult Ratio (SAR) versus observed SAR from PIT tag recoveries"),
+          h4("Predicted versus observed SAR from PIT tag recoveries"),
           # Adding an HTML output for the title
           htmlOutput(outputId = ns("title_html")),
           br(),
           plotOutput(outputId = ns("SAR_plot"),
                  width = "100%")
-               # height = 3000) #controls height of plot, but auto doesn't work. Need to look into getting a reactive based on the length of the years selected to use an ifelse statement to adjust height based on how many years selected.
           )
     )
   )
@@ -42,7 +41,9 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, year_display, pl
         # Check if any years are selected
         if (length(years_selected()) > 0) {
           # Create the title based on selected years
-          title_text <- paste("Viewing by year:", paste(sort(years_selected()), collapse = ", "))
+          # title_text <- paste("Viewing by year:", paste(sort(years_selected()), collapse = ", "))
+          title_text <- paste("Viewing by year:", condense_years(years_selected()))
+
         } else {
           title_text <- "No year selected"
         }
@@ -60,10 +61,10 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, year_display, pl
 
       } else if (year_display() == "Year") {
 
-        fct_SAR_by_year_plot(data())
+        fct_SAR_by_year_plot(data =data(), selected_years = years_selected())
 
        }
-      }, height = plot_height() #this works--might try putting reactive lenth here as if-else instead?
+      }, height = plot_height()
     )
   })
 }

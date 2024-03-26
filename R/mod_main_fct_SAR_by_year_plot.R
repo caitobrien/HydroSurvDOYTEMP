@@ -31,6 +31,7 @@ fct_SAR_by_year_plot<-function(data, selected_years){
   covar_label <-  unique(data_summarized$covariate)
 
 
+
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes( x= x_var)) +
     ggplot2::geom_point(ggplot2::aes(y =SAR, fill =  transport, color = transport))+
@@ -62,7 +63,8 @@ fct_SAR_by_year_plot<-function(data, selected_years){
     ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
                                 order = 1),
            size = ggplot2::guide_legend(override.aes = list(
-             label = list(size = 8)),
+             label = list(size = 8),
+             shape = 21),
              order = 2),
            color = ggplot2::guide_legend(order = 3),
            fill = ggplot2::guide_legend(order = 3)) +
@@ -71,7 +73,8 @@ fct_SAR_by_year_plot<-function(data, selected_years){
     ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
           strip.text = ggplot2::element_text(colour = 'black'),
-          panel.spacing = ggplot2::unit(2, "lines"))
+          panel.spacing = ggplot2::unit(2, "lines"),
+          panel.grid.minor = ggplot2::element_blank())
 
 p
 

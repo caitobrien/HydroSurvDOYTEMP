@@ -48,7 +48,8 @@ fct_TI_by_years_plot <- function(data) {
     ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
           strip.text = ggplot2::element_text(colour = 'black'),
-          panel.spacing = ggplot2::unit(2, "lines")
+          panel.spacing = ggplot2::unit(2, "lines"),
+          panel.grid.minor = ggplot2::element_blank()
           )
 
   p

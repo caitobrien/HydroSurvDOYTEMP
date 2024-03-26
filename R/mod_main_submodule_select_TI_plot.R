@@ -41,7 +41,7 @@ mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plo
         # Check if any years are selected
         if (length(years_selected()) > 0) {
           # Create the title based on selected years
-          title_text <- paste("Viewing by year:", paste(sort(years_selected()), collapse = ", "))
+          title_text <- paste("Viewing by year:", condense_years(years_selected()))
         } else {
           title_text <- "No year selected"
         }
