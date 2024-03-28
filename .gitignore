@@ -4,3 +4,6 @@
 .httr-oauth
 .DS_Store
 .quarto
+"Examples/"
+"data/models/"
+"data/df_mod_predict_fct.csv"
