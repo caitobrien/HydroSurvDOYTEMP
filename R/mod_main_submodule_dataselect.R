@@ -90,7 +90,7 @@ mod_main_submodule_dataselect_server <- function(id) {
           inputId = ns("select_years"),
           label = "Select Year(s)",
           choices = unique(data.pred$year),
-          selected = 2019,
+          selected = 2018,
           options = list(`actions-box` = TRUE),
           multiple = TRUE
         )
