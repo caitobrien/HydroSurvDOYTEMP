@@ -66,24 +66,24 @@ mod_background_page_ui <- function(id){
         tabsetPanel(
           id = "myTabs",
           tabPanel("Natural-origin Chinook",
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_doy.html")),
+                  shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_doy.html", package = "HydroSurvDOYTEMP")),
                    br(),
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_natural_chinook_temp.html"))
+                  shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_temp.html", package = "HydroSurvDOYTEMP"))
                    ),
           tabPanel("Hatchery-origin Chinook",
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_doy.html")),
+                  shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_doy.html", package = "HydroSurvDOYTEMP")),
                    br(),
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_chinook_temp.html"))
+                  shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_temp.html", package = "HydroSurvDOYTEMP"))
                    ),
           tabPanel("Natural-origin Steelhead",
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_doy.html")),
+                  shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
                    br(),
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_natural_steelhead_temp.html"))
+                  shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
                    ),
           tabPanel("Hatchery-origin Steelhead",
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_doy.html")),
+                  shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
                    br(),
-                  shiny::includeHTML(here::here("inst/app/www/table_mod_hatchery_steelhead_temp.html"))
+                  shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
                    )
         ),
         fluidRow(
