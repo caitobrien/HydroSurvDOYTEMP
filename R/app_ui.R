@@ -24,7 +24,7 @@ app_ui <- function(request) {
         ## Sidebar content - used as a navigation menu to each tab
         sidebar = shinydashboard::dashboardSidebar(
           #override theme for sidepanel selectInput color
-          shiny::includeCSS(path =  "inst/app/www/theme.css"),
+          shiny::includeCSS(system.file("app/www/theme.css", package = "HydroSurvDOYTEMP")),
           shinydashboard::sidebarMenu(
             # Setting id makes input$tabs give the tabName of currently-selected tab
             id = "tabs",
