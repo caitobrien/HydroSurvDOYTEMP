@@ -43,7 +43,7 @@ fct_SAR_all_years_plot <- function(data) {
 
 
   data_summarized <- data_median %>%
-    left_join(data_n.obs, by = c("covariate", "species", "rear_type", "transport", "doy"))
+    dplyr::left_join(data_n.obs, by = c("covariate", "species", "rear_type", "transport", "doy"))
 
   # Convert data_summarized to data frame
   data_summarized <- as.data.frame(data_summarized)
