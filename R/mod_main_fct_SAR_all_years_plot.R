@@ -65,7 +65,7 @@ fct_SAR_all_years_plot <- function(data) {
     ggplot2::geom_line(ggplot2::aes(y = SAR)) +
     ggplot2::geom_ribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport), alpha = .25) +
     ggdist::geom_pointinterval(ggplot2::aes(
-      y = sar.pit, #ifelse(n.sar.pit > 7, sar.pit, NA),
+      y = ifelse(n.sar.pit > 7, sar.pit, NA),
       ymin = sar.pit.lower,
       ymax = sar.pit.upper,
       shape = transport,
