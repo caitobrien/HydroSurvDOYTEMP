@@ -12,22 +12,9 @@ mod_welcome_submodule_leaflet_map_ui <- function(id){
   tagList(
 
     fluidRow(
-      column(width = 2),  # Empty column to center map
-      column(
-        width = 8,
-        shinydashboard::box(
-          width = NULL,
-          solidHeader = FALSE,
-          status = "primary",
-          title = "Pacific Northwest Map with Columbia River and Dams",
-          # shiny::img(src = "www/map.png", style = "max-width:100%; height:auto;"),
-          leaflet::leafletOutput(ns("map")),
-          br(),
-          "Figure 1: Map of the Columbia and Snake River, Pacific Northwest, USA, with major hydroelectric dams denoted (dark circles) along Spring/Summer Chinook salmon and Steelhead migratory routes. HydroSurvDOYTEMP app underlying model predicts the probability of smolt-to-adult survival from outmigrating juveniles at Bonneville Dam (BON) with an adult return detection at Lower Granite Dam (LGR)."
-        )
-      ),
-      column(width = 2),  # Empty column to center map
-    ),
+          leaflet::leafletOutput(ns("map"))
+
+    )
 
   )
 }
