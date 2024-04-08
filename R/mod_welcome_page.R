@@ -13,10 +13,13 @@ mod_welcome_page_ui <- function(id) {
 
     #header image
     fluidRow(
-      tags$img(src="www/welcomebanner_DOYTEMP.svg",  width = "100%")
+      div(
+      tags$img(src="www/welcomebanner_DOYTEMP.svg",  width = "100%"),
+      br(),
+      br()
+      )
     ),
-    br(),
-    br(),
+
 
     # fluidRow(
     #   shinydashboard::box(
@@ -28,16 +31,6 @@ mod_welcome_page_ui <- function(id) {
     #   )
     # ),
 
-    # leaflet map
-    fluidRow(
-      column(width = 2),  # Empty column to center map
-      column(
-        width = 8,
-        mod_welcome_submodule_leaflet_map_ui("leaflet_map_1")
-        ),
-      column(width = 2) # Empty column to center map
-    ),
-
     # Info boxes
     fluidRow(
 
@@ -48,16 +41,9 @@ mod_welcome_page_ui <- function(id) {
         status = "primary",
         collapsible = TRUE,
         collapsed = TRUE,
-        div(
-          HTML("<p>This application showcases predicted survival for Chinook salmon, <em>Oncorhynchus tshawytscha</em>, and Steelhead, <em>Oncorhynchus mykiss</em>,
-                 influenced by seasonal changes experienced during downstream migration through the Federal Columbia River Power System Hydrosystem (FCRPS) (Figure 1).</p>
-                 <p>This application allows users to explore two metrics of interests used to determine the effectiveness of FCRPS transportation program:</p>
-                 <ul>
-                   <li>Smolt-to-Adult Return survival (SAR),</li>
-                   <li>and Transported to Bypassed fish survival ratio (T:B).</li>
-                   </ul>
-                 ")
-        )
+        shiny::includeHTML(system.file("app/www/mod_welcome_Q1_text.html", package = "HydroSurvDOYTEMP")),
+       # br() #add to make Q1/Q2 boxes even on expansion--remove as needed
+
       ),
 
       shinydashboard::box(
@@ -67,25 +53,33 @@ mod_welcome_page_ui <- function(id) {
         status = "primary",
         collapsible = TRUE,
         collapsed = TRUE,
-        div(
-          HTML("<ol>
-               <li>To start, select the <b>Hydrosystem Survival</b> tab in the left navigation panel. </li>
-               <li>To view specific predicted survival estimates, select:
-               <ul>
-               <li>species,</li>
-               <li>rearing type,</li>
-               <li>seasonal covariate,</li>
-               <li>and years of interest.</li>
-               </ul>
-               </li>
-               <li>Once selected, figures will update to provide predicted SAR and T:B estimates based on variables of interest.</li>
-               </ol>
-                 <p>To learn more about how this application can fill knowledge-action gaps and the reliability of the research methodologies featured, see the <b>background tab</b> in the left navigation panel.
-                 </p>")
-        )
+        shiny::includeHTML(system.file("app/www/mod_welcome_Q2_text.html", package = "HydroSurvDOYTEMP"))
+      )
+      ),
+
+      # leaflet map
+      fluidRow(
+        column(width = 2),  # Empty column to center map
+        column(
+          width = 8,
+          mod_welcome_submodule_leaflet_map_ui("leaflet_map_1")
+        ),
+        column(width = 2) # Empty column to center map
+      ),
+
+      #overview
+      fluidRow(
+      shinydashboard::box(
+        width = 12,
+        solidHeader = FALSE,
+        collapsible = TRUE,
+        collapsed = TRUE,
+        title = "Overview",
+        status = "primary",
+        shiny::includeHTML(system.file("app/www/mod_welcome_overview_text.html", package = "HydroSurvDOYTEMP"))
+      )
       )
     )
-  )
 }
 
 #' Welcome Server Functions
