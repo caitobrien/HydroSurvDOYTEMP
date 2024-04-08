@@ -1,0 +1,151 @@
+---
+title: "Subset original data and append river temperature data"
+output: html_notebook
+---
+
+This code is was used to produce the subsetted dataset used for each model which can be found in the data-raw/ folder. 
+
+This data is not necessary to run, but kept for reference.
+
+
+```{r load_libraries, eval=FALSE}
+library(data.table)
+library(here)
+library(tidyverse)
+library(zoo)
+```
+
+
+# Original dataset
+
+Original data sets were shared by JG via baloo link  - included in folder as zip file for reference. Using code below a subset of .csv per species and rear type was created and saved in the data-raw/HydroSurvDOYTEMP_data_subset.zip folder. 
+
+```{r wrangle_orig_data,  eval=FALSE}
+
+
+# DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.spsu.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+# 
+# DATA <- read.csv(file = here("Examples/data", "dsynth_2021-03-02.stl.subset.csv"), stringsAsFactors = FALSE, na.strings = c("", "NA"))
+
+DATA <- read.csv(file = file.choose(), stringsAsFactors = FALSE, na.strings = c("", "NA")) #select either spsu  ch or stl subset file
+
+df<- DATA %>%
+  # filter to include wild all run types, with a transport code released from LGR
+  filter(
+    t_rear_type == "W",
+    !is.na(pass_type),
+    str_detect(rel_site, "LGR")
+  ) %>%
+  # extract year/doy and filter to include 80 to 160 doy from 1993 to 2018
+  mutate(
+    year = lubridate::year(rel_time),
+    doy = lubridate::yday(rel_time),
+  ) %>%
+  
+  filter(
+    between(year, 1993, 2018),
+    between(doy, 80, 160)
+  ) %>%
+  # redesignate tranportation codes--double check on -S and -T at other locations 
+  mutate(pass_type_T_R = case_when(
+    str_detect(pass_type, "-S") & str_length(pass_type) == 5 ~ "remove",
+    str_detect(pass_type, "-S") & str_length(pass_type) > 5 ~ "ROR",
+    str_detect(pass_type, "-TB") ~ "ROR",
+    str_detect(pass_type, "-TD") ~ "ROR",
+    str_detect(pass_type, "ROR") ~ "ROR",
+    str_detect(pass_type, "LWG-T") ~ "T",
+    .default = "remove"
+  )) %>%
+  filter(pass_type_T_R != "remove") %>% 
+  # # adding filters to match JG shared code for transport --- check this still stands
+  # filter(if_else(pass_type_T_R == "ROR", 
+  #                str_length(pass_type) %in% c(3, 7),
+  #                str_detect(pass_type, "LWG-T")
+  #                )
+  #        ) %>%
+  # add binary codes
+  mutate(
+    transport = if_else(pass_type_T_R == "T", 1, 0),
+    alive = if_else(!is.na(adu_lgr_first), 1, 0),
+    doyz = scale(doy, center = TRUE, scale = TRUE)
+  ) 
+
+#save subset output to data-raw/ folder --rerun and update naming for each subsetted dataset
+#write.csv(df, row.names = F, here("data-raw", "wild_spsu_chinook_data_subset.csv"))
+
+```
+
+# River data
+
+This code is used to import BON river temperature data and calculate 7-day rolling averages for the years 1993-2018. The data is then merged with a larger dataset for further analysis. 
+
+
+```{r setup, eval=FALSE}
+BON.temp.raw<-read_csv(here::here("Examples/data", "rivermg_1704223998_133.csv"))
+
+BON.temp.data <- BON.temp.raw %>%
+  # mutate(across(everything(), ~ifelse(.=="", NA, as.character(.)))) %>%
+    filter(!row_number() %in% c(367:370)) %>% 
+  pivot_longer(
+    cols = c(2:27),
+    names_to = "ID",
+    values_to = "value"
+  ) %>%
+  separate(ID, c("CY", "BON", "ID")) %>%
+  pivot_wider(
+    names_from = "ID",
+    values_from = "value"
+  ) %>%
+  mutate_at(c("tempc"), as.numeric) %>%
+  separate(1, c("mm", "dd")) %>%
+  mutate(
+    CY = as.numeric(CY),
+    mm = as.numeric(mm),
+    dd = as.numeric(dd)
+  ) %>%
+  arrange(CY) %>% # sort data to use rollmean
+  group_by(CY) %>%
+  filter(complete.cases(tempc)) %>% #remove any days without temp (following JG's code) -update for age of return?
+  mutate(
+    BON.temp = rollmean(tempc, k = 7, fill = NA, align = "right"), #same as JG code, returns NA for 7 day average with NA's present
+    BON.temp.apply = rollapply(tempc, width = 7, FUN = function(x) mean(x, na.rm = TRUE), by = 1, by.column = TRUE, partial = TRUE, fill = NA, align = "right") #adjusts for NA's within d7 averages
+  ) %>%
+  mutate(YMD = lubridate::ymd(paste(CY, mm, dd, sep = "-"))) %>%
+  mutate(DOY = lubridate::yday(YMD)) %>%
+ # select("CY","mm", "DOY", "BON.temp") %>%
+  mutate(
+    CY = as.character(CY),
+    DOY = as.character(DOY)
+  )
+
+
+
+
+df %>% 
+  left_join(BON.temp.data, by = c("year" = "CY", "doy" = "DOY")) 
+
+  #write_csv(here::here("data-raw", "X_X_data_subset.csv"))
+
+
+```
+
+```{r bind_temp_data, eval=FALSE}
+
+#merge with subset dataset and save to data-raw/ folder
+df<-file.choose() #choose the subsetted dataset to merge with river temperature data
+
+
+df<- df%>% 
+  mutate(
+    year = as.character(year),
+    doy = as.character(doy)
+  ) %>% 
+  left_join(y= select(BON.temp.data, BON.temp, BON.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
+  mutate ( BON.tempz = scale(BON.temp, center = TRUE, scale = TRUE)
+  ) %>% 
+  select(!c( BON.temp.apply))
+
+# save subset output to data-raw/ folder and update naming
+#write.csv(df, row.names = F, here("data-raw/HydroSurvDOYTEMP_data_subset", "wild_steelhead_data_subset.csv"))
+```
+
