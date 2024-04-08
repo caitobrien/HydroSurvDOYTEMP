@@ -33,7 +33,7 @@ app_ui <- function(request) {
             # div(id = "tabs_filter",
             #     conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
             # ),
-            shinydashboard::menuItem("Background Information", tabName = "bkg", icon = icon("book"))
+            shinydashboard::menuItem("Supplementary Information", tabName = "supp", icon = icon("book"))
           )
         ),
         body = shinydashboard::dashboardBody(
@@ -42,7 +42,7 @@ app_ui <- function(request) {
           shinydashboard::tabItems(
             shinydashboard::tabItem(tabName = "welcome",mod_welcome_page_ui("welcome_page_ui_1")),
             shinydashboard::tabItem(tabName = "figs",mod_main_page_ui("main_page_ui_1")),
-            shinydashboard::tabItem(tabName = "bkg", mod_background_page_ui("background_page_ui_1"))
+            shinydashboard::tabItem(tabName = "supp", mod_background_page_ui("background_page_ui_1"))
           )
         )
       )

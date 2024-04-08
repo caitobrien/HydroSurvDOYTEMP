@@ -7,6 +7,8 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+
+
 mod_main_submodule_walkthrough_ui <- function(id){
   ns <- NS(id)
   tagList(
@@ -20,51 +22,85 @@ mod_main_submodule_walkthrough_ui <- function(id){
     )
     ),
 
-    shinydashboard::box(
-      title = "Methods",
-      status = "info",
-      width = 12,
-      collapsible = TRUE,
-      collapsed = TRUE,
-      fluidRow(
-        column(
+    #information to add
+    fluidRow(
+          shinydashboard::box(
+            title = "As you explore this Shiny app, you may notice how:",
+            width = 12,
+            solidHeader = FALSE,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            div(
+              HTML("<ul>
+                      <li>In many years, SAR survival declines through the smolt outmigration season</li>
+                      <li>In many years, SAR survival declines through the smolt outmigration season.</li>
+                      <li>Often, SAR survival is higher in in-river migration smolts early in the migration season, whereas later in the season transported smolts have higher SAR survival.</li>
+                      <li>In some years, SAR survival was relatively flat through the season. You can zoom in with the plot.ly tool to see the patterns better.</li>
+                      <li>When comparing between species, you may notice that there are more years with bell-shaped curved patterns of SAR in Steelhead than in Chinook Salmon.</li>
+                    </ul>")
+            )
+          )
+          ),
+
+    fluidRow(
+          shinydashboard::box(
+            title = "In addition, some questions you may want to ask yourself as you explore the Shiny app:",
+            width = 12,
+            solidHeader = FALSE,
+            collapsible = TRUE,
+            collapsed = TRUE,
+            div(
+              HTML("<ul>
+                      <li>Why are SAR survival patterns different year to year?</li>
+                      <li>What other freshwater, estuarine and marine conditions may be affecting their survival?</li>
+                      <li>How much confidence do we have in differences in SAR survival between transported and in-river migrating fish?</li>
+                      <li>And, would you consider these improvements to survival sufficient?</li>
+                      <li>How does the T:B index differ between Chinook Salmon and Steelhead?</li>
+                    </ul>")
+            )
+          )
+        ),
+
+    fluidRow(
+        shinydashboard::box(
           width = 12,
-          shiny::includeHTML(system.file("app/www/mod_main_submodule_walkthrough_methods_text.html", package = "HydroSurvDOYTEMP")),
-          br(),
+          solidHeader = FALSE,
+          collapsible = TRUE,
+          collapsed = TRUE,
+          title = "Model parameter estimates",
           "Tabs below show the estimated coefficients for each model output:",
-        )
-      ),
-      tabsetPanel(
-        id = "myTabs",
-        tabPanel("Natural-origin Chinook",
-                 shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_doy.html", package = "HydroSurvDOYTEMP")),
-                 br(),
-                 shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_temp.html", package = "HydroSurvDOYTEMP"))
-        ),
-        tabPanel("Hatchery-origin Chinook",
-                 shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_doy.html", package = "HydroSurvDOYTEMP")),
-                 br(),
-                 shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_temp.html", package = "HydroSurvDOYTEMP"))
-        ),
-        tabPanel("Natural-origin Steelhead",
-                 shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
-                 br(),
-                 shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
-        ),
-        tabPanel("Hatchery-origin Steelhead",
-                 shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
-                 br(),
-                 shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
-        )
-      ),
-      fluidRow(
-        column(
-          width = 12,
-          h4("Additional text after tabs")
+          br(),
+          tabsetPanel(
+            id = ns("modelTabs"),
+            tabPanel("Natural-origin Chinook",
+                     shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_doy.html", package = "HydroSurvDOYTEMP")),
+                     br(),
+                     shiny::includeHTML(system.file("app/www/table_mod_natural_chinook_temp.html", package = "HydroSurvDOYTEMP"))
+            ),
+            tabPanel("Hatchery-origin Chinook",
+                     shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_doy.html", package = "HydroSurvDOYTEMP")),
+                     br(),
+                     shiny::includeHTML(system.file("app/www/table_mod_hatchery_chinook_temp.html", package = "HydroSurvDOYTEMP"))
+            ),
+            tabPanel("Natural-origin Steelhead",
+                     shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
+                     br(),
+                     shiny::includeHTML(system.file("app/www/table_mod_natural_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
+            ),
+            tabPanel("Hatchery-origin Steelhead",
+                     shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_doy.html", package = "HydroSurvDOYTEMP")),
+                     br(),
+                     shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
+            )
+          ),
+          fluidRow(
+            column(
+              width = 12,
+              h4("Additional text after tabs")
+            )
+          )
         )
       )
-    )
-
   )
 }
 
