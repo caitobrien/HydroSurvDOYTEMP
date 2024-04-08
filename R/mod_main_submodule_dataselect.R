@@ -39,7 +39,7 @@ mod_main_submodule_dataselect_ui <- function(id) {
       shape = "curve",
       outline = TRUE,
       choices = c("Chinook", "Steelhead"), # data.pred$species
-      selected = unique(data.pred$species),
+      selected = unique((df_mod_predict$species)),
       width = "200px"
       )
     ),
@@ -54,7 +54,7 @@ mod_main_submodule_dataselect_ui <- function(id) {
       shape = "curve",
       outline = TRUE,
       choices = c("Natural-origin", "Hatchery-origin"), # data.pred$rear_type,
-      selected = unique(data.pred$rear_type),
+      selected = unique((df_mod_predict$rear_type)),
       width = "200px"
       )
     ),
@@ -89,7 +89,7 @@ mod_main_submodule_dataselect_server <- function(id) {
         shinyWidgets::pickerInput(
           inputId = ns("select_years"),
           label = "Select Year(s)",
-          choices = unique(data.pred$year),
+          choices = unique(df_mod_predict$year),
           selected = 2018,
           options = list(`actions-box` = TRUE),
           multiple = TRUE
@@ -126,14 +126,14 @@ mod_main_submodule_dataselect_server <- function(id) {
 
     filtered_data <- reactive({
       if (input$year_display == "All Years") {
-        data.pred %>%
+        df_mod_predict %>%
           dplyr::filter(
             species %in% c(input$select_spp),
             rear_type %in% c(input$select_rear),
             covariate %in% c(input$select_cov)
           )
       } else if (input$year_display == "Year" && !is.null(input$select_years)) {
-        data.pred %>%
+        df_mod_predict %>%
           dplyr::filter(
             species %in% c(input$select_spp),
             rear_type %in% c(input$select_rear),

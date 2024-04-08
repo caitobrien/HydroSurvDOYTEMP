@@ -5,12 +5,6 @@
 #' @import shiny
 #' @noRd
 #'
-
-#
-data.pred<-read.csv(here::here("data", "df_mod_predict.csv"))
-#library(shinyWidgets)
-#library(tidyverse)
-
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
