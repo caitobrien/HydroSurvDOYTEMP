@@ -119,7 +119,7 @@ fct_compare_SAR_TI_plot <- function(data) {
     )
 
   # set title for plot being showed
-  SAR_plot <- SAR_plot + ggplot2::ggtitle(paste0("Year of interest: ", data_summarized_sar$year)) +
+  SAR_plot <- SAR_plot + ggplot2::ggtitle(paste0("SAR & T:B, year of interest: ", data_summarized_sar$year)) +
                          ggplot2::theme(plot.title = ggplot2::element_text(face = "bold"))
 
 
@@ -136,11 +136,11 @@ fct_compare_SAR_TI_plot <- function(data) {
       title = NULL
     ) +
     ggplot2::geom_hline(yintercept = 1, color = "black") +
-    ggrepel::geom_text_repel(
-      data = . %>% dplyr::group_by(covariate, species, rear_type, year) %>% dplyr::filter(TI == max(TI)),
-      ggplot2::aes(label = year),
-      nudge_y = 0.1 # Adjust the nudge in the y-direction
-    ) +
+    # ggrepel::geom_text_repel(
+    #   data = . %>% dplyr::group_by(covariate, species, rear_type, year) %>% dplyr::filter(TI == max(TI)),
+    #   ggplot2::aes(label = year),
+    #   nudge_y = 0.1 # Adjust the nudge in the y-direction
+    # ) +
     ggplot2::scale_color_manual(
       values = c("black"),
       labels = "Predicted median\nper year"

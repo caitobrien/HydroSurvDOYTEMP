@@ -49,7 +49,7 @@ mod_main_page_ui <- function(id) {
           id = ns("plotTabs"),
           tabPanel("Smolt-to-Adult Ratio (SAR)", mod_main_submodule_select_SAR_plot_ui("SAR_plot_1")),
           tabPanel("Transport to Bypass Ratio (T:B)", mod_main_submodule_select_TI_plot_ui("TI_plot_1")),
-          tabPanel("SAR & TB, compare select years", mod_main_submodule_compare_SAR_TI_plot_ui("compare_single_plot"))
+          tabPanel("SAR & T:B, compare select years", mod_main_submodule_compare_SAR_TI_plot_ui("compare_single_plot"))
         )
       )
     )

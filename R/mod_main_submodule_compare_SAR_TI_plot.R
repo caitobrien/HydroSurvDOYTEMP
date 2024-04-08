@@ -56,12 +56,11 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display
 
           # Filter data for the current year
           data_filtered_year <- data() %>% dplyr::filter(year == year_selected)
-          # data_pre_risk_year <- data() %>% dplyr::filter(year == year_selected)
-          # data_surv_year <- data() %>% dplyr::filter(year == year_selected)
+
 
           plots_list[[as.character(year_selected)]] <- fct_compare_SAR_TI_plot(
             data = data_filtered_year
-            # show_legend = i == 1  # Show legend only for the first plot
+
           )
         }
 

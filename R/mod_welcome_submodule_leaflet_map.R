@@ -11,10 +11,20 @@ mod_welcome_submodule_leaflet_map_ui <- function(id){
   ns <- NS(id)
   tagList(
 
-    fluidRow(
-          leaflet::leafletOutput(ns("map"))
-
+    shinydashboard::box(
+      width = NULL,
+      solidHeader = FALSE,
+      status = "primary",
+      title = "Map of study system: Pacific Northwest, USA ",
+      collapsible = TRUE,
+      collapsed = TRUE,
+      leaflet::leafletOutput(ns("map"),
+                             height = "350px"),
+      br(),
+      "Figure 1: Map of the Columbia and Snake River, Pacific Northwest, USA, with major hydroelectric dams denoted (dark circles) along Spring/Summer Chinook salmon and Steelhead migratory routes. HydroSurvDOYTEMP app underlying model predicts the probability of smolt-to-adult survival from outmigrating juveniles at Bonneville Dam (BON) with an adult return detection at Lower Granite Dam (LGR)."
     )
+
+
 
   )
 }
@@ -35,7 +45,7 @@ mod_welcome_submodule_leaflet_map_server <- function(id){
 
     output$map <- leaflet::renderLeaflet({
       leaflet::leaflet() %>%
-        leaflet::setView(lng = -120, lat = 45, zoom = 5) %>%
+        leaflet::setView(lng = -120, lat = 45, zoom = 6) %>%
         leaflet::addTiles(urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                           attribution = 'Tiles &copy; <a href="https://www.carto.com/">Carto</a>') %>%
         leaflet::addAwesomeMarkers(

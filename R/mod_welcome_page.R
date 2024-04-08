@@ -10,31 +10,46 @@
 mod_welcome_page_ui <- function(id) {
   ns <- NS(id)
   tagList(
+
+    #header image
     fluidRow(
-      shinydashboard::box(
-        title = "Welcome to HydroSurvDOYTEMP,",
-        width = 12,
-        solidHeader = TRUE,
-        status = "primary",
-        em("a Shiny App based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018) predicting seasonal survival of Chinook salmon and Steelhead through the hydrosystem")
-      )
+      tags$img(src="www/welcomebanner_DOYTEMP.svg",  width = "100%")
+    ),
+    br(),
+    br(),
+
+    # fluidRow(
+    #   shinydashboard::box(
+    #     title = "Welcome to HydroSurvDOYTEMP,",
+    #     width = 12,
+    #     solidHeader = TRUE,
+    #     status = "primary",
+    #     em("a Shiny App based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018) predicting seasonal survival of Chinook salmon and Steelhead through the hydrosystem")
+    #   )
+    # ),
+
+    # leaflet map
+    fluidRow(
+      column(width = 2),  # Empty column to center map
+      column(
+        width = 8,
+        mod_welcome_submodule_leaflet_map_ui("leaflet_map_1")
+        ),
+      column(width = 2) # Empty column to center map
     ),
 
-
+    # Info boxes
     fluidRow(
 
-
-      column(
-        width = 5,
-        shinydashboard::box(
-          title = "What does this application do?",
-          width = 12,
-          solidHeader = TRUE,
-          status = "primary",
-          collapsible = TRUE,
-          collapsed = TRUE,
-          div(
-            HTML("<p>This application showcases predicted survival for Chinook salmon, <em>Oncorhynchus tshawytscha</em>, and Steelhead, <em>Oncorhynchus mykiss</em>,
+      shinydashboard::box(
+        title = "What does this application do?",
+        width = 6,
+        solidHeader = TRUE,
+        status = "primary",
+        collapsible = TRUE,
+        collapsed = TRUE,
+        div(
+          HTML("<p>This application showcases predicted survival for Chinook salmon, <em>Oncorhynchus tshawytscha</em>, and Steelhead, <em>Oncorhynchus mykiss</em>,
                  influenced by seasonal changes experienced during downstream migration through the Federal Columbia River Power System Hydrosystem (FCRPS) (Figure 1).</p>
                  <p>This application allows users to explore two metrics of interests used to determine the effectiveness of FCRPS transportation program:</p>
                  <ul>
@@ -42,17 +57,18 @@ mod_welcome_page_ui <- function(id) {
                    <li>and Transported to Bypassed fish survival ratio (T:B).</li>
                    </ul>
                  ")
-          )
-        ),
-        shinydashboard::box(
-          title = "How to use this application?",
-          width = 12,
-          solidHeader = TRUE,
-          status = "primary",
-          collapsible = TRUE,
-          collapsed = TRUE,
-          div(
-            HTML("<ol>
+        )
+      ),
+
+      shinydashboard::box(
+        title = "How to use this application?",
+        width = 6,
+        solidHeader = TRUE,
+        status = "primary",
+        collapsible = TRUE,
+        collapsed = TRUE,
+        div(
+          HTML("<ol>
                <li>To start, select the <b>Hydrosystem Survival</b> tab in the left navigation panel. </li>
                <li>To view specific predicted survival estimates, select:
                <ul>
@@ -66,28 +82,6 @@ mod_welcome_page_ui <- function(id) {
                </ol>
                  <p>To learn more about how this application can fill knowledge-action gaps and the reliability of the research methodologies featured, see the <b>background tab</b> in the left navigation panel.
                  </p>")
-          )
-        )
-    ),
-
-    column(
-      width = 7,
-      fluidRow(
-        column(width = 2),  # Empty column to center map
-        column(
-          width = 8,
-          shinydashboard::box(
-            width = NULL,
-            solidHeader = FALSE,
-            status = "primary",
-            title = "Map of study system: Pacific Northwest, USA ",
-            #add leaflet map
-            mod_welcome_submodule_leaflet_map_ui("leaflet_map_1"),
-            br(),
-            "Figure 1: Map of the Columbia and Snake River, Pacific Northwest, USA, with major hydroelectric dams denoted (dark circles) along Spring/Summer Chinook salmon and Steelhead migratory routes. HydroSurvDOYTEMP app underlying model predicts the probability of smolt-to-adult survival from outmigrating juveniles at Bonneville Dam (BON) with an adult return detection at Lower Granite Dam (LGR)."
-            )
-          ),
-          column(width = 2) # Empty column to center map
         )
       )
     )
