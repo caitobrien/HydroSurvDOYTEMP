@@ -57,11 +57,11 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, year_display, pl
       # Filter data based on user selection
        if (year_display() == "All Years") {
 
-         fct_SAR_all_years_plot(data())
+         fct_SAR_all_years_plot(data(), observed = "yes")
 
       } else if (year_display() == "Year") {
 
-        fct_SAR_by_year_plot(data =data(), selected_years = years_selected())
+        fct_SAR_by_year_plot(data =data(), selected_years = years_selected(), observed = "yes")
 
        }
       }, height = plot_height()

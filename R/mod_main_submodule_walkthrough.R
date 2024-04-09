@@ -24,23 +24,56 @@ mod_main_submodule_walkthrough_ui <- function(id){
 
     #information to add
     fluidRow(
-          shinydashboard::box(
-            title = "As you explore this Shiny app, you may notice how:",
-            width = 12,
-            solidHeader = FALSE,
-            collapsible = TRUE,
-            collapsed = TRUE,
-            div(
-              HTML("<ul>
+      shinydashboard::box(
+        title = "As you explore this Shiny app, you may notice how:",
+        width = 12,
+        solidHeader = FALSE,
+        collapsible = TRUE,
+        collapsed = TRUE,
+          HTML("<ul>
                       <li>In many years, SAR survival declines through the smolt outmigration season</li>
                       <li>In many years, SAR survival declines through the smolt outmigration season.</li>
-                      <li>Often, SAR survival is higher in in-river migration smolts early in the migration season, whereas later in the season transported smolts have higher SAR survival.</li>
-                      <li>In some years, SAR survival was relatively flat through the season. You can zoom in with the plot.ly tool to see the patterns better.</li>
-                      <li>When comparing between species, you may notice that there are more years with bell-shaped curved patterns of SAR in Steelhead than in Chinook Salmon.</li>
-                    </ul>")
-            )
-          )
+               <li>Often, SAR survival is higher in in-river migration smolts early in the migration season, whereas later in the season transported smolts have higher SAR survival.</li>
+               </ul>"),
+        #SAR example1 plot
+        fluidRow(
+          width = 12,
+          column(width = 2),
+          column(width = 8,
+                 plotOutput(outputId = ns("SAR_example1_plot"))
           ),
+          column(width = 2)
+        ),
+        br(),
+
+        HTML("<ul>
+                      <li>In some years, SAR survival was relatively flat through the season. You can zoom in with the plot.ly tool to see the patterns better.</li>
+             </ul>"),
+        #SAR example2 plot
+        fluidRow(
+          width = 12,
+          column(width = 2),
+          column(width = 8,
+                 plotOutput(outputId = ns("SAR_example2_plot"))
+          ),
+          column(width = 2)
+        ),
+        br(),
+
+        HTML("<ul>
+              <li>When comparing between species, you may notice that there are more years with bell-shaped curved patterns of SAR in Steelhead than in Chinook Salmon.</li>
+              </ul>"),
+        #SAR example3 plot
+        fluidRow(
+          width = 12,
+          column(width = 2),
+          column(width = 8,
+                 plotOutput(outputId = ns("SAR_example3_plot"))
+          ),
+          column(width = 2)
+        )
+        )
+      ),
 
     fluidRow(
           shinydashboard::box(
@@ -110,6 +143,43 @@ mod_main_submodule_walkthrough_ui <- function(id){
 mod_main_submodule_walkthrough_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+
+    output$SAR_example1_plot <- renderPlot({
+
+     filtered_data<-df_mod_predict %>%
+        dplyr::filter(covariate == "Day-of-year (DOY)",
+                      species == "Chinook",
+                      rear_type == "Natural-origin")
+
+      fct_SAR_all_years_plot(data = filtered_data, observed = "no") +
+        ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season, natural-origin Chinook salmon",
+                         subtitle = "Years: 1993 to 2018")
+      })
+
+    output$SAR_example2_plot <- renderPlot({
+
+      filtered_data<-df_mod_predict %>%
+        dplyr::filter(covariate == "Day-of-year (DOY)",
+                      species == "Chinook",
+                      rear_type == "Natural-origin",
+                      year %in% c(1994, 1997, 2004))
+
+      fct_SAR_by_year_plot(data = filtered_data, observed = "no") +
+        ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season, natural-origin Chinook salmon",
+                         subtitle = "Years: 1994, 1997, 2004")
+    })
+
+    output$SAR_example3_plot <- renderPlot({
+
+      filtered_data<-df_mod_predict %>%
+        dplyr::filter(covariate == "Day-of-year (DOY)",
+                      rear_type == "Natural-origin",
+                      year == 2018)
+
+      fct_SAR_by_year_plot(data = filtered_data, observed = "no") +
+        ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season, natural-origin Chinook salmon",
+                         subtitle = "Years: 2018")
+    })
 
   })
 }

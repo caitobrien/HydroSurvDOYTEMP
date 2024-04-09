@@ -8,7 +8,7 @@
 
 
 
-fct_SAR_all_years_plot <- function(data) {
+fct_SAR_all_years_plot <- function(data, observed = "no") {
 
   # wrangle data to plot median per year per grouping
   data_n.obs<- data %>%
@@ -56,7 +56,6 @@ fct_SAR_all_years_plot <- function(data) {
     ggplot2::labs(
       x = covar_label,
       y = "Smolt-to-Adult Ratio\n(SAR)",
-      shape = "Observed data",
       color = "Predicted SAR",
       fill = "Predicted SAR",
       title = NULL
@@ -64,14 +63,14 @@ fct_SAR_all_years_plot <- function(data) {
     ggplot2::geom_point(ggplot2::aes(y = SAR, fill = transport)) +
     ggplot2::geom_line(ggplot2::aes(y = SAR)) +
     ggplot2::geom_ribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport), alpha = .25) +
-    ggdist::geom_pointinterval(ggplot2::aes(
-      y = ifelse(n.sar.pit > 7, sar.pit, NA),
-      ymin = sar.pit.lower,
-      ymax = sar.pit.upper,
-      shape = transport,
-      color = transport),
-      alpha = .25
-    ) +
+    # ggdist::geom_pointinterval(ggplot2::aes(
+    #   y = ifelse(n.sar.pit > 7, sar.pit, NA),
+    #   ymin = sar.pit.lower,
+    #   ymax = sar.pit.upper,
+    #   shape = transport,
+    #   color = transport),
+    #   alpha = .25
+    # ) +
     ggplot2::scale_color_manual(
       breaks = c("0", "1"),
       values = c("steelblue4", "#b47747"),
@@ -82,16 +81,32 @@ fct_SAR_all_years_plot <- function(data) {
       values = c("steelblue4", "#b47747"),
       labels = c("In-river, \nmedian with 95% CI", "Transported, \nmedian with 95% CI")
     ) +
-    ggplot2::scale_shape_manual(
-      values = c(21, 21),
-      breaks = c("0", "1"),
-      labels = c("In-river,\nmedian per year", "Transported,\nmedian per year")
-    ) +
     ggplot2::theme_light() +
     ggplot2::facet_grid(rear_type ~ species, scales = "free") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill = "lightgrey"),
                    strip.text = ggplot2::element_text(colour = "black"),
                    panel.grid.minor = ggplot2::element_blank())
 
-  p
+  #functionality to include obs data or not in plot
+  if (observed == "yes") {
+    p.obs <- p + ggdist::geom_pointinterval( data = data_summarized, ggplot2::aes(
+      y = ifelse(n.sar.pit > 7, sar.pit, NA),
+      ymin = sar.pit.lower,
+      ymax = sar.pit.upper,
+      shape = transport,
+      color = transport),
+      alpha = .25
+    ) +
+      ggplot2::labs(shape = "Observed data") +
+      ggplot2::scale_shape_manual(
+        values = c(21, 21),
+        breaks = c("0", "1"),
+        labels = c("In-river,\nmedian per year", "Transported,\nmedian per year"))
+
+    return(p.obs)
+
+    } else {
+      return(p)
+      }
+
 }

@@ -13,10 +13,10 @@ mod_background_page_ui <- function(id){
 
     fluidRow(
       shinydashboard::box(
+        title = "Supplementary infomation for  HydroSurvDOYTEMP shinyAPP.",
         width = 12,
         solidHeader = TRUE,
-        status = "primary",
-        title = "Supplementary infomation for  HydroSurvDOYTEMP shinyAPP."
+        status = "primary"
       )
       ),
 
@@ -24,13 +24,10 @@ mod_background_page_ui <- function(id){
       shinydashboard::box(
         title = "Methods",
         status = "info",
+        collapsible = TRUE,
+        collapsed = FALSE,
         width = 12,
-            HTML("
-                 <div style='text-align: left;'>
-                 <p>The data used per species, rear type, and covariate model include fish that were tagged with passive-integrated transponders (PIT) tags, data publicly available via ptagis.org. Data includes juveniles detected from 1993 to 2018 at Bonneville Dam (BON), the last dam prior to ocean entry. All fish (Steelhead and spring/summer Chinook) originated upstream of Lower Granite Dam (LGR), with a portion transported via barges from LGR to a release site below BON. Transportation designation was sourced via the DART transportation filter as described by Columbia Basin Research,  https://www.cbr.washington.edu/dart/metadata/pit. Juvenile-to-adult survival in this model is characterized as successful adult detection at LGR to best capture any straying that may have occurred during upstream migration.</p>
-                 <p>For the model covariates, the day-of-year (DOY) covariate was assigned based on outmigration detection at BON and represented the migration timing to the estuary and, subsequently, ocean entry. Similarly, river temperature WQM (℃) was assigned based on passage detection at BON using a 7-day right-aligned rolling mean. Each covariate modeled included the linear term (doy, temp) and a quadratic term (i.e., doy2 and temp2 ) to account for non-linear patterns.</p>
-                 </div>"
-                 )
+        shiny::includeHTML(system.file("app/www/mod_background_methods_text.html", package = "HydroSurvDOYTEMP"))
           )
         ),
 
@@ -39,17 +36,33 @@ mod_background_page_ui <- function(id){
           title = "Additional Information",
           status = "info",
           width = 12,
+          collapsible = TRUE,
+          collapsed = FALSE,
           HTML("fill in additional information here"
           )
         )
       ),
 
+    fluidRow(
+      shinydashboard::box(
+        title = "References",
+        status = "info",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = FALSE,
+        shiny::includeHTML(system.file("app/www/mod_background_references_text.html", package = "HydroSurvDOYTEMP"))
+      )
+    ),
+
       fluidRow(
         shinydashboard::box(
           title = "Contact Information",
           status = "info",
+          collapsible = TRUE,
+          collapsed = FALSE,
           width = 12,
-          HTML("fill in additional information here"
+          HTML("<p>This ShinyApp is a product of Columbia Basin Reasearch, School of Aquatic and Fishery Sciences, College of the Environment, University of Washington.</p>
+               <p>Please direct general questions to: <a href='mailto:web@cbr.washington.edu'>web@cbr.washington.edu</a></p>"
           )
         )
       )
