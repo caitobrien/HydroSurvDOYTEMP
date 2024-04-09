@@ -14,7 +14,7 @@ mod_welcome_page_ui <- function(id) {
     #header image
     fluidRow(
       div(
-      tags$img(src="www/welcomebanner_DOYTEMP.svg",  width = "100%"),
+      tags$img(src="www/welcomebanner_DOYTEMP.svg",  style = "width: 100%; height: auto; max-height: 400px; object-fit: cover;"),
       br(),
       br()
       )
