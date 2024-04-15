@@ -113,15 +113,15 @@ mod_main_submodule_dataselect_server <- function(id) {
     # Reactive for plot height
     plot_height<- reactive({
       if (input$year_display == "All Years") {
-        plot_height <-500
+        plot_height <-375
       } else
 
       req(input$select_years)
       nyears <- length(input$select_years)
 
-        if (nyears > 3) {
-          plot_height<- 500 + (nyears-3)*120
-          }else plot_height <-500
+        if (nyears > 2) {
+          plot_height<- 375 + (nyears-2)*150
+          }else plot_height <-375
     })
 
     filtered_data <- reactive({
