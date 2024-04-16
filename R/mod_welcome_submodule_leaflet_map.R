@@ -55,16 +55,16 @@ mod_welcome_submodule_leaflet_map_server <- function(id){
         leaflet::addTiles(urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                           attribution = 'Tiles &copy; <a href="https://www.carto.com/">Carto</a>') %>%
         #base- in-river with
-        leaflet::addCircleMarkers(
-          data = dplyr::filter(rivers_data, direction %in% c("1", "0")),
-          lng = ~Lon,
-          lat = ~Lat+.1,
-          # label = ~Name,
-          color = 'grey',
-          fill = TRUE,
-          fillOpacity = 1,
-          radius = 5
-        ) %>%
+        # leaflet::addCircleMarkers(
+        #   data = dplyr::filter(rivers_data, direction %in% c("1", "0")),
+        #   lng = ~Lon,
+        #   lat = ~Lat+.1,
+        #   # label = ~Name,
+        #   color = 'grey',
+        #   fill = TRUE,
+        #   fillOpacity = 1,
+        #   radius = 5
+        # ) %>%
         #highlight detection sites for outgoing
         leaflet::addCircleMarkers(
           data = dplyr::filter(rivers_data, direction %in% c("1", "0") & detection == 1),
@@ -124,16 +124,16 @@ mod_welcome_submodule_leaflet_map_server <- function(id){
           radius = 4
         ) %>%
         #incoming
-        leaflet::addCircleMarkers(
-          data = dplyr::filter(rivers_data,  passtype == 0 & direction %in% c("1", "0") & direction == 0),
-          lng = ~Lon,
-          lat = ~Lat-.10,
-          # label = ~Name,
-          color = 'black',
-          fill = TRUE,
-          fillOpacity = 1,
-          radius = 5
-        ) %>%
+        # leaflet::addCircleMarkers(
+        #   data = dplyr::filter(rivers_data,  passtype == 0 & direction %in% c("1", "0") & direction == 0),
+        #   lng = ~Lon,
+        #   lat = ~Lat-.10,
+        #   # label = ~Name,
+        #   color = 'black',
+        #   fill = TRUE,
+        #   fillOpacity = 1,
+        #   radius = 5
+        # ) %>%
         #highlight detection sites
         leaflet::addCircleMarkers(
           data = dplyr::filter(rivers_data, passtype == 0 & direction == 2 & detection == 1),
