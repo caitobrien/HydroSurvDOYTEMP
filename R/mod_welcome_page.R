@@ -14,13 +14,11 @@ mod_welcome_page_ui <- function(id) {
     #header image
     fluidRow(
       div(
-      tags$img(src="www/welcomebanner_DOYTEMP.svg",  style = "width: 100%; height: auto; max-height: 400px; object-fit: cover;"),
+      tags$img(src="www/welcomebanner_DOYTEMP_2.svg",  style = "width: 100%; height: auto"),#; max-height: 500px; object-fit: contain;
       br(),
       br()
       )
     ),
-
-
     # fluidRow(
     #   shinydashboard::box(
     #     title = "Welcome to HydroSurvDOYTEMP,",
