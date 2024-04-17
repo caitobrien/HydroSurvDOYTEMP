@@ -91,7 +91,10 @@ mod_main_submodule_walkthrough_ui <- function(id) {
         collapsible = TRUE,
         collapsed = TRUE,
         title = "Model parameter estimates",
-        "Tabs below show the estimated coefficients for each model output:",
+        "Using a Bayesian binomial model, we estimated survival for each species and rear type based on the covariates: day-of-year or temperature.
+        The parameter estimates below provide insight into the relationship between survival
+        and each variable within the model. Similarly to Scheuerell et al 2009, we included a quadratic term for each covariate to allow for a non-linear relationship.",
+        br(),
         br(),
         "Tabs below show the estimated coefficients for each model output:",
         br(),
@@ -122,8 +125,13 @@ mod_main_submodule_walkthrough_ui <- function(id) {
             shiny::includeHTML(system.file("app/www/table_mod_hatchery_steelhead_temp.html", package = "HydroSurvDOYTEMP"))
           )
         ),
+        br(),
+        br(),
+        "Conditional effects highlight the individual covariates included within each model if all other variables are held constant.",
+        "To plot conditional effects, select a covariate and species below:",
+        br(),
+
         fluidRow(
-          h4("To plot conditional effects, select a covariate and species to see output"),
           column(
             width = 4,
             selectInput(
