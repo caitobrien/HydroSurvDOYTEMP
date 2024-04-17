@@ -28,12 +28,45 @@ df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_d
 df<-read_csv(file.choose())
 ```
 
+## aggregate subset data
+
+```{r data_aggregate}
+#for binomial left hand trial 
+df.agg <- df%>% 
+  #calculate # of juveniles--used as total trials in binomial model
+  group_by(year, doy, doyz, transport) %>% 
+  mutate(doy = as.numeric(doy),
+         n = n()) %>% 
+  arrange(year, doy, doyz) %>% 
+ # mutate(year = as.factor(year)) %>% 
+  #set reponse as sum of alive per trials 
+  summarize(alive = sum(alive),
+            n = mean(n),
+            mean.tempz = mean(BON.tempz),
+            mean.temp = mean(BON.temp)) %>% 
+  ungroup() %>% 
+  #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
+  arrange(year, doy, doyz, transport) %>% 
+  mutate(doy.bin = cut(doy, breaks = seq(90, 160, 10), include.lowest = TRUE)) %>% 
+  group_by(year, transport, doy.bin) %>% 
+  mutate(doy.median = round(median(doy), 0),
+         sar.pit = alive/n) %>% 
+         # sar.pit.se = sd(sar.pit)/sqrt(n),
+         # sar.pit.lower = mean(sar.pit) - 1.96 * sar.pit.se,
+         # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>% 
+  ungroup() %>% 
+  mutate( date = parse_date_time(x = paste(year, doy), orders = "yj")) %>% 
+  mutate(year = as.character(year),
+         transport = as.character(transport))
+
+```
+
 
 Based on which species and rear type, update the naming for saving files
 
 ```{r mod_DOY_binomial}
 #rm(mod.1)
-mod.wild_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+mod_natural_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
@@ -42,7 +75,7 @@ mod.wild_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + d
                    )
 
 #check summary
-summary(mod.wild_chinook_doy)
+summary(mod_natural_chinook_doy)
 ```
 
 ```{r mod_TEMP_binomial}

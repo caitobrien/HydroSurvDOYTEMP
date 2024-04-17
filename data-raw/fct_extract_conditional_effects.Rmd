@@ -1,0 +1,58 @@
+---
+title: "working_coeff plots"
+output: html_document
+date: "2024-04-17"
+---
+
+```{r}
+#import model
+m <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
+#extract conditional effects
+c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
+
+# Extract data frames from c_eff
+data_list <- lapply(c_eff,as.data.frame)
+
+
+```
+
+```{r}
+# Define model name
+model_name <- "mod_natural_chinook_doy.rds"
+
+# Extract information from model name
+info <- strsplit(model_name, "_")[[1]]
+rear_type <- info[2]
+species <- info[3]
+covariate <- gsub(".rds", "", info[4])
+
+# Add columns to data frames
+data_list <- lapply(data_list, function(df) {
+  df$rear_type <- rear_type
+  df$species <- species
+  df$covariate <- covariate
+  df
+})
+```
+
+```{r}
+# Calculate conditional effects
+c_eff <- conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA)
+
+# Extract data frames from c_eff
+data_list <- lapply(c_eff, function(x) {
+  df <- x$data
+  df
+})
+
+# Combine all data frames into one
+df_cond_effects <- do.call(rbind, data_list)
+
+# Combine all data frames into one
+df_cond_effects <- do.call(rbind, data_list)
+
+# Add species and covariate information
+df_cond_effects$species <- "natural_steelhead"
+df_cond_effects$covariate <- ifelse(df_cond_effects$term == "doyz", "DOY", "Temperature")
+```
+

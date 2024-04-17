@@ -27,10 +27,10 @@ Current code below is setup to manually run each df of choice through to extract
 
 ```{r data_import}
 #import saved subset file 
-df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "natural_spsu_chinook_data_subset.csv"))
-df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
-df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
-df<-read_csv(here("Examples/data/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
 
 df<-read_csv(file.choose())
 ```

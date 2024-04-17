@@ -16,10 +16,19 @@ import_models <- function(models_folder) {
 }
 
 #define model folder path
-models_folder<- here::here("data/models")
+models_folder<- here::here("data-raw/models")
+
+# Create a named vector that specifies the desired order of the models
+model_order <- c("mod_natural_chinook_doy" = 1, "mod_natural_chinook_temp" = 2,
+                 "mod_hatchery_chinook_doy" = 3, "mod_hatchery_chinook_temp" = 4,
+                 "mod_natural_steelhead_doy" = 5, "mod_natural_steelhead_temp" = 6,
+                 "mod_hatchery_steelhead_doy" = 7, "mod_hatchery_steelhead_temp" = 8)
 
 #import models from the designated folder path
 model_list <- import_models(models_folder)
+
+# Reorder model_list according to model_order
+model_list <- model_list[order(model_order[names(model_list)])]
 
 
 #function to generate and save tables from imported models
@@ -32,9 +41,9 @@ create_model_tables <- function(model_list, output_directory) {
 
     # Conditional row names based on model name
     if (grepl("doy", model_name, ignore.case = TRUE)) {
-      row_names <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "doyz2:transport")
+      row_names <- c("Intercept", "Day-of-years (DOY)", "DOY^2", "Transport", "DOY:Transport", "DOY_z^2:Transport")
     } else {
-      row_names <- c("Intercept", "Temperature", "Temp^2", "Transport", "Temperature:Transport", "tempz2:transport")
+      row_names <- c("Intercept", "Temperature", "Temp^2", "Transport", "Temperature:Transport", "Temp_z^2:Transport")
     }
 
     rownames(tbl) <- row_names
@@ -43,15 +52,16 @@ create_model_tables <- function(model_list, output_directory) {
     model_vars <- strsplit(model_name, "_")[[1]][2:4]  # Extracts species, rear_type, and covariate
 
     # Creating the table header
-    header <-  paste("Table", i, "Covariates of model for",
+    header <-  paste("Table", i, ". Parameter estimates for",
                      paste(paste0(tools::toTitleCase(model_vars[1]),"-origin"), tools::toTitleCase(model_vars[2]), collapse = " "),
                      "including the covariate",
-                     ifelse(tolower(model_vars[3]) == "doy", "day-of-year (DOY)", "temperature (C)"))
+                     ifelse(tolower(model_vars[3]) == "doy", "day-of-year (DOY) passage at BON ", "river temperature (°C) at BON"),
+                     " during juvenile outmigration.")
 
 
     #create table
     table <- tbl %>%
-      mutate_if(is.numeric, round, digits = 2) %>%
+      dplyr::mutate_if(is.numeric, round, digits = 2) %>%
       knitr::kable("html", caption = paste0(header)) %>%
       kableExtra::kable_styling(c("striped", "hover"), full_width = TRUE)
 
