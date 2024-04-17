@@ -4,7 +4,8 @@ output: html_document
 date: "2024-04-17"
 ---
 
-```{r}
+```{r onecall}
+
 #import model
 m <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
 #extract conditional effects
@@ -14,26 +15,80 @@ c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = 
 data_list <- lapply(c_eff,as.data.frame)
 
 
-```
-
-```{r}
 # Define model name
 model_name <- "mod_natural_chinook_doy.rds"
 
 # Extract information from model name
 info <- strsplit(model_name, "_")[[1]]
-rear_type <- info[2]
-species <- info[3]
-covariate <- gsub(".rds", "", info[4])
+rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
+species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
+covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
 
 # Add columns to data frames
 data_list <- lapply(data_list, function(df) {
+  # Rename column headers
+  names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
+  names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
+    
   df$rear_type <- rear_type
   df$species <- species
   df$covariate <- covariate
   df
 })
+
+
+
 ```
+
+```{r}
+# Get list of model files
+model_files <- list.files(path = here::here("data-raw/models"), pattern = "*.rds", full.names = TRUE)
+
+# Initialize empty list to store data frames
+all_data <- list()
+
+# Loop over model files
+for (model_file in model_files) {
+  # Import model
+  m <- readRDS(model_file)
+
+  # Extract conditional effects
+  c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
+
+  # Extract data frames from c_eff
+  data_list <- lapply(c_eff, as.data.frame)
+
+  # Extract information from model name
+  model_name <- basename(model_file)
+  info <- strsplit(model_name, "_")[[1]]
+  rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
+  species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
+  covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
+
+  # Add columns to data frames
+  data_list <- lapply(data_list, function(df) {
+    # Rename column headers
+    names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
+    names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
+    
+    df$rear_type <- rear_type
+    df$species <- species
+    df$covariate <- covariate
+    
+    df$year <-as.character(df$year)
+    df
+  })
+
+  # Append data frames to all_data
+  all_data <- c(all_data, data_list)
+}
+
+
+
+# Combine all data frames into one
+df_all <- do.call(rbind, all_data)
+```
+
 
 ```{r}
 # Calculate conditional effects
@@ -54,5 +109,149 @@ df_cond_effects <- do.call(rbind, data_list)
 # Add species and covariate information
 df_cond_effects$species <- "natural_steelhead"
 df_cond_effects$covariate <- ifelse(df_cond_effects$term == "doyz", "DOY", "Temperature")
+```
+```{r saveplotsand call}
+#  model_files <- list.files(path = here::here("data-raw/models"), pattern = "*.rds", full.names = TRUE)
+# Get list of data subsets
+data_subsets <- list.files(path = here::here("data-raw/HydroSurvDOYTEMP_data_subset"), pattern = "*.csv", full.names = TRUE)
+
+# Loop over data subsets
+for (data_subset in data_subsets) {
+  # Load data
+  df <- read.csv(data_subset)
+
+  # Extract information from data subset name
+  data_subset_name <- basename(data_subset)
+  info <- strsplit(data_subset_name, "_")[[1]]
+  rear_type <- info[1]
+  species <- info[2]
+  
+#   print(paste0("rear_type: ", rear_type))
+# print(paste0("species: ", species))
+# print(paste0("pattern: ", "mod_", rear_type, "_", species, "_*.rds"))
+
+# Get list of associated model files for DOY
+model_files_doy <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_doy.rds"), full.names = TRUE)
+
+# Get list of associated model files for temp
+model_files_temp <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_temp.rds"), full.names = TRUE)
+
+# Combine the two lists
+model_files <- c(model_files_doy, model_files_temp)
+
+  # Loop over model files
+  for (model_file in model_files) {
+    # Import model
+    m <- readRDS(model_file)
+
+    # Extract conditional effects
+    c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA)
+
+    # Determine if model is for DOY or temperature
+    is_doy <- grepl("doy", model_file)
+
+    # Create plots
+    if (is_doy) {
+      # DOY
+      DOYz_xaxis <- (seq(90, 160, 10) - mean(df$doy)) / sd(df$doy)
+      DOY_lab <- as.character(seq(90, 160, 10))
+
+      p_DOY <- plot(c_eff, plot = FALSE)[[1]] +
+        labs(x = "Day of year", y = "Probability of survival", title = "Day of year passage at BON") +
+        theme_minimal() +
+        theme(
+          panel.background = element_rect(color = "white"),
+          plot.background = element_rect( color = "white"),
+          text = element_text(size = 20),
+          legend.position = "bottom",
+          axis.line.x = element_line(linewidth = 0.2),
+          axis.ticks = element_line(linewidth = 0.2),
+          axis.line.y = element_line(linewidth = 0.2),
+          plot.title = element_text(size = 20),
+          axis.title = element_text(size = 15),
+          axis.text.x = element_text(size =14),
+          legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 12),
+          plot.margin = unit(c(0.3, 0.3, 0.6, 0.3), "cm")
+        )  +
+        scale_x_continuous(breaks = DOYz_xaxis, labels = DOY_lab)
+
+      p_transport <- plot(c_eff, plot = FALSE)[[2]] +
+        labs(x = "Transport", y = NULL, title = "Passage type", subtitle = "[0, In-river; 1, Barge Transported]") +
+        theme_minimal() +
+        theme(
+          panel.background = element_rect(color = "white"),
+          plot.background = element_rect( color = "white"),
+          text = element_text(size = 20),
+          legend.position = "bottom",
+          axis.line.x = element_line(linewidth = 0.2),
+          axis.ticks = element_line(linewidth = 0.2),
+          axis.line.y = element_line(linewidth = 0.2),
+          plot.title = element_text(size = 20),
+          axis.title = element_text(size = 15),
+          axis.text.x = element_text(size =14),
+          legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 12),
+          plot.margin = unit(c(0.3, 0.3, 0.6, 0.3), "cm")
+        )
+
+      plot <- p_DOY + p_transport + patchwork::plot_layout(guides = "collect")
+    } else {
+      # Temperature
+      # temp rescale
+      tempz_xaxis <- (seq(6, 20, 2) - mean(df$BON.temp, na.rm = TRUE)) / sd(df$BON.temp, na.rm = TRUE)
+      temp_lab <- as.character(seq(6, 20, 2))
+
+      p_temp <- plot(c_eff, plot = FALSE)[[1]] +
+        labs(x = "Temperature", y = "Probability of survival", title = "Temperature at BON") +
+        theme_minimal() +
+        theme(
+          panel.background = element_rect(color = "white"),
+          plot.background = element_rect( color = "white"),
+          text = element_text(size = 20),
+          legend.position = "bottom",
+          axis.line.x = element_line(linewidth = 0.2),
+          axis.ticks = element_line(linewidth = 0.2),
+          axis.line.y = element_line(linewidth = 0.2),
+          plot.title = element_text(size = 20),
+          axis.title = element_text(size = 15),
+          axis.text.x = element_text(size =14),
+          legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 12),
+          plot.margin = unit(c(0.3, 0.3, 0.6, 0.3), "cm")
+        )  +
+        scale_x_continuous(breaks = tempz_xaxis, labels = temp_lab)
+
+      p_transport <- plot(c_eff, plot = FALSE)[[2]] +
+        labs(x = "Transport", y = "Probability of survival", title = "Passage type", subtitle = "[0, In-river; 1, Barge Transported]") + #update later
+        theme_minimal() +
+        theme(
+          panel.background = element_rect(color = "white"),
+          plot.background = element_rect( color = "white"),
+          text = element_text(size = 20),
+          legend.position = "bottom",
+          axis.line.x = element_line(linewidth = 0.2),
+          axis.ticks = element_line(linewidth = 0.2),
+          axis.line.y = element_line(linewidth = 0.2),
+          plot.title = element_text(size = 20),
+          axis.title = element_text(size = 15),
+          axis.text.x = element_text(size =14),
+          legend.key.size = unit(0.2, "cm"),
+          legend.text = element_text(size = 12),
+          plot.margin = unit(c(0.3, 0.3, 0.6, 0.3), "cm")
+        )
+
+      plot <- p_temp + p_transport + patchwork::plot_layout(guides = "collect")
+    }
+
+    # Save plot
+    ggsave(filename = here::here("inst/app/www/cond_eff_plots/",paste0(sub(".rds","",basename(model_file)), ".png")), 
+           plot = plot, 
+           width = 900/96, 
+           height = 400/96, 
+           dpi = 96)
+  }
+}
+
 ```
 
