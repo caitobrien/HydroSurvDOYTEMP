@@ -25,7 +25,8 @@ mod_main_submodule_walkthrough_ui <- function(id) {
       shinydashboard::box(
         title = "Exploring predicted survival, you may notice how:",
         width = 12,
-        solidHeader = FALSE,
+        status = "primary",
+        solidHeader = TRUE,
         collapsible = TRUE,
         collapsed = TRUE,
         HTML("<ul>
@@ -87,7 +88,8 @@ mod_main_submodule_walkthrough_ui <- function(id) {
     fluidRow(
       shinydashboard::box(
         width = 12,
-        solidHeader = FALSE,
+        status = "primary",
+        solidHeader = TRUE,
         collapsible = TRUE,
         collapsed = TRUE,
         title = "Model parameter estimates",
@@ -162,14 +164,14 @@ mod_main_submodule_walkthrough_ui <- function(id) {
               multiple = FALSE
             )
           ),
-          fluidRow(
-            column(width = 2), # Empty column
+
+           fluidRow(
             column(
-              width = 8,
-              imageOutput(outputId = ns("condeff_plot"), width = "100%", height = "100%")
-            ),
-            column(width = 2) # Empty column
+              width = 12,
+              offset = 1,
+              imageOutput(outputId = ns("condeff_plot"), width = "100%", height = "auto")
           )
+           )
         )
       )
     )
@@ -244,6 +246,7 @@ mod_main_submodule_walkthrough_server <- function(id) {
         deleteFile = FALSE
       )
     })
+
   })
 }
 
