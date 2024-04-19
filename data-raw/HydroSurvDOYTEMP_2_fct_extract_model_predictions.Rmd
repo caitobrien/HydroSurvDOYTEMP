@@ -5,7 +5,6 @@ date: "2024-03-26"
 ---
 
 ```{r load_libraries}
-
 library(tidyverse)
 library(here)
 library(tidybayes)
@@ -111,7 +110,7 @@ generate_newdata <- function(df) {
 # Define a function to add predictions
 add_predictions <- function(newdata, model, scale.sd.doy, scale.x.doy, scale.sd.temp, scale.x.temp) {
   df.pred <- newdata %>%
-    tidybayes::add_linpred_draws(model, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform = TRUE) %>%
+    tidybayes::add_linpred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
     tidybayes::median_qi() %>%
     rename(
       SAR = .linpred,
@@ -161,16 +160,43 @@ append_obsdata_to_predictions <- function(df_pred, df_agg, model_name) {
 }
 
 # # Define your data files, models, and other parameters
-data_files <- c("natural_spsu_chinook_data_subset.csv", "hatchery_spsu_chinook_data_subset.csv", "natural_steelhead_data_subset.csv", "hatchery_steelhead_data_subset.csv")
+data_files <- c("natural_chinook_data_subset.csv", "hatchery_chinook_data_subset.csv", "natural_steelhead_data_subset.csv", "hatchery_steelhead_data_subset.csv")
 
 # Define the model files associated with each data file
 model_files <- list(
-  "hatchery_spsu_chinook_data_suset.csv" = c("mod_hatchery_chinook_doy.rds", "mod_hatchery_chinook_temp.rds"),
-  "natural_spsu_chinook_data_subset.csv" = c("mod_natural_chinook_doy.rds","mod_natural_chinook_temp.rds"),
+  "hatchery_chinook_data_subset.csv" = c("mod_hatchery_chinook_doy.rds", "mod_hatchery_chinook_temp.rds"),
+  "natural_chinook_data_subset.csv" = c("mod_natural_chinook_doy.rds","mod_natural_chinook_temp.rds"),
   "hatchery_steelhead_data_subset.csv" = c("mod_hatchery_steelhead_doy.rds", "mod_hatchery_steelhead_temp.rds"),
   "natural_steelhead_data_subset.csv" = c("mod_natural_steelhead_doy.rds", "mod_natural_steelhead_temp.rds") 
 )
 
+# # Initialize 'all' as an empty list
+# all <- list()
+# 
+# for (data_file in data_files) {
+#   df <- import_data(data_file)
+#   df.agg <- aggregate_data(df)
+#   # Get the models associated with this data file
+#   models <- model_files[[data_file]]
+#   for (model_file in models) {
+#     model_info <- import_model(model_file)
+#     newdata_info <- generate_newdata(df)
+#     df.pred <- add_predictions(newdata_info$newdata, 
+#                                model_info$model, 
+#                                newdata_info$scale.sd.doy, 
+#                                newdata_info$scale.x.doy, 
+#                                newdata_info$scale.sd.temp, 
+#                                newdata_info$scale.x.temp)
+#     df.pred <- append_obsdata_to_predictions(df.pred, 
+#                                              df.agg, 
+#                                              model_info$model_name)
+#     
+#     # Save each df.pred as a separate element in the 'all' list
+#     all[[paste(data_file, model_file, sep = "_")]] <- df.pred
+#   }
+# }
+# 
+# return(all)
 # Loop over data files and models
 all <- data.frame() # Initialize 'all' as an empty data frame
 
@@ -182,40 +208,32 @@ for (data_file in data_files) {
   for (model_file in models) {
     model_info <- import_model(model_file)
     newdata_info <- generate_newdata(df)
-    df.pred <- add_predictions(newdata_info$newdata, 
-                               model_info$model, 
-                               newdata_info$scale.sd.doy, 
-                               newdata_info$scale.x.doy, 
-                               newdata_info$scale.sd.temp, 
+    df.pred <- add_predictions(newdata_info$newdata,
+                               model_info$model,
+                               newdata_info$scale.sd.doy,
+                               newdata_info$scale.x.doy,
+                               newdata_info$scale.sd.temp,
                                newdata_info$scale.x.temp)
-    df.pred <- append_obsdata_to_predictions(df.pred, 
-                                             df.agg, 
+    df.pred <- append_obsdata_to_predictions(df.pred,
+                                             df.agg,
                                              model_info$model_name)
-    
-    #issue seems to be with the loop function--why dropping one of the models? Seems to be related to naming and then how the data is saved, then appended. adding print made duplicates, but of the same naming. Look into print then append outside function?
-    print(model_info$model_name)
-    print(df.pred$species) 
-    print(df.pred$rear_type)
-    print(df.pred$covariate)
-    print(head(df.pred))
-    
+
     all <- rbind(all,df.pred)
-    print(head(all))
+
   }
 }
 
 return(all)
 
+
+
 # Export predictions
 write.csv(all, row.names = F, here("data", "df_mod_predict_fct.csv"))
 ```
+
+
+
 ```{r}
-df_mod_predict %>% 
-  group_by(species, covariate) %>% 
-  summarise(n_distinct(rear_type), 
-            n_distinct(transport), 
-            n_distinct(year), 
-            n_distinct(doy))
 
 all %>% 
   group_by(species, rear_type, covariate) %>% 
@@ -224,25 +242,6 @@ all %>%
             n_distinct(year), 
             n_distinct(doy), n())
 
-```
-
-```{r}
-df <- read_csv(here::here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
-
-df.agg<-aggregate_data(df)
-
-newdata_info<-generate_newdata(df)
-
-model <- readRDS(here("data-raw/models","mod_hatchery_steelhead_doy.rds"))
-
-df.pred<-add_predictions(newdata_info$newdata, model, newdata_info$scale.sd.doy, newdata_info$scale.x.doy, newdata_info$scale.sd.temp, newdata_info$scale.x.temp)
-
-df.pred_2<-append_obsdata_to_predictions(df.pred,df.agg, "mod_hatchery_steelhead_doy.rds")
-
-
-  rear_type <- ifelse(grepl("natural", "mod_hatchery_steelhead_doy.rds", ignore.case = TRUE), "Natural-origin", "Hatchery-origin")
-  covariate <- ifelse(grepl("doy",  "mod_hatchery_steelhead_temp.rds", ignore.case = TRUE), "Day-of-year (DOY)", "Temperature (°C)")
-  species <- ifelse(grepl("chinook",  "mod_hatchery_chinook_doy.rds", ignore.case = TRUE), "Chinook",  "Steelhead")
 ```
 
 

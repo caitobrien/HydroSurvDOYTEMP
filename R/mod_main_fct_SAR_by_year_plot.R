@@ -35,7 +35,11 @@ fct_SAR_by_year_plot<-function(data, selected_years, observed = "no"){
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes( x= x_var)) +
     ggplot2::geom_point(ggplot2::aes(y =SAR, fill =  transport, color = transport))+
-    ggplot2::geom_ribbon( ggplot2::aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, color = transport), alpha = .25)+
+    # ggplot2::geom_line(ggplot2::aes(y = SAR)) +
+    # ggplot2::geom_ribbon( ggplot2::aes(y = SAR, ymin =SAR.lo, ymax = SAR.hi, fill =  transport, color = transport), alpha = .25)+
+    tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = SAR.lo, ymax = SAR.hi, fill = transport, color = transport),
+                               alpha = .25
+    ) +
     ggplot2::labs( x = covar_label,
           y = "Smolt-to-Adult Ratio\n(SAR)",
           size = "Number of fish observed",

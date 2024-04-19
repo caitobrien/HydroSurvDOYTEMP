@@ -9,6 +9,7 @@ Below outlines code used to run each model save in data-raw/models/ folder.
 ```{r packages}
 library(brms)
 library(here)
+library(tidyverse)
 ```
 
 
@@ -20,8 +21,8 @@ Import each subsetted file and run model for doy and temp. Save to data-raw/mode
 
 ```{r data_import}
 #import saved subset file 
-df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_spsu_chinook_data_subset.csv"))
-df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_chinook_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
 
@@ -65,13 +66,13 @@ df.agg <- df%>%
 Based on which species and rear type, update the naming for saving files
 
 ```{r mod_DOY_binomial}
-#rm(mod.1)
-mod_natural_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+rm(mod_natural_chinook_doy)
+mod_natural_steelhead_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("data-raw/models", "mod_natural_chinook_doy")
+                   file = here("data-raw/models", "mod_natural_steelhead_doy")
                    )
 
 #check summary
@@ -80,12 +81,12 @@ summary(mod_natural_chinook_doy)
 
 ```{r mod_TEMP_binomial}
 
-mod_hatchery_chinook_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + mean.tempz:transport + I(mean.tempz^2):transport + (1 + mean.tempz + I(mean.tempz^2) + transport | year), 
+mod_natural_steelhead_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + mean.tempz:transport + I(mean.tempz^2):transport + (1 + mean.tempz + I(mean.tempz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("data-raw/models", "mod_hatchery_chinook_temp")
+                   file = here("data-raw/models", "mod_natural_steelhead_temp")
                    )
 
 #check summary

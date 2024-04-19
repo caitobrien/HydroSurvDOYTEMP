@@ -129,6 +129,10 @@ fct_compare_SAR_TI_plot <- function(data) {
     ggplot2::geom_point(ggplot2::aes(color = transport)) +
     ggplot2::geom_line(ggplot2::aes(group = year, color = transport)) +
     ggplot2::stat_summary(geom = "line", ggplot2::aes(group = year), alpha = .25) +
+    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = TI.lo, ymax = TI.hi),
+                               alpha = .25,
+                               fill = "darkgrey"
+    ) +
     ggplot2::labs(
       x = covar_label_TI,
       y = "Transport to Bypass Ratio\n(T:B)",
@@ -136,11 +140,6 @@ fct_compare_SAR_TI_plot <- function(data) {
       title = NULL
     ) +
     ggplot2::geom_hline(yintercept = 1, color = "black") +
-    # ggrepel::geom_text_repel(
-    #   data = . %>% dplyr::group_by(covariate, species, rear_type, year) %>% dplyr::filter(TI == max(TI)),
-    #   ggplot2::aes(label = year),
-    #   nudge_y = 0.1 # Adjust the nudge in the y-direction
-    # ) +
     ggplot2::scale_color_manual(
       values = c("black"),
       labels = "Predicted median\nper year"

@@ -27,7 +27,7 @@ Current code below is setup to manually run each df of choice through to extract
 
 ```{r data_import}
 #import saved subset file 
-df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_chinook_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
@@ -72,8 +72,8 @@ df.agg <- df%>%
 
 ```{r import_models}
 
-mod_natural_chinook_doy <- readRDS(here::here("Examples/results", "mod_natural_chinook_doy.rds"))
-mod_natural_chinook_temp<- readRDS(here::here("Examples/results", "mod_natural_chinook_temp.rds"))
+mod_natural_chinook_doy <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
+mod_natural_chinook_temp<- readRDS(here::here("data-raw/models", "mod_natural_chinook_temp.rds"))
 mod_natural_steelhead_doy<- readRDS(here::here("Examples/results", "mod_natural_steelhead_doy.rds"))
 mod_natural_steelhead_temp<- readRDS(here::here("Examples/results", "mod_natural_steelhead_temp.rds"))
 
@@ -114,7 +114,7 @@ newdata<-bind_cols(newdata.doy,newdata.temp[,1])
 
 ```{r add_predictions_SAR_TI}
 df.pred<-newdata %>% 
-  tidybayes::add_linpred_draws(mod_natural_steelhead_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
+  tidybayes::add_linpred_draws(mod_natural_chinook_doy, re_formula = NULL, allow_new_levels = TRUE, ndraws = 10, transform =TRUE) %>% 
   tidybayes::median_qi() %>% 
   rename(SAR = .linpred,
          SAR.lo = .lower,
@@ -134,13 +134,13 @@ df.pred<-newdata %>%
 
 ```{r append_obsdata_to_predictions}
 #repeat code for each to get prediction
-df.pred.w.stl.doy<-df.pred %>% 
+df.pred.w.ch.doy<-df.pred %>% 
   mutate(year = as.character(year),
          transport = as.character(transport)) %>% 
   left_join(select(df.agg, "transport", "year","doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>% 
   mutate( rear_type =    "Natural-origin", #"Hatchery-origin",#
           covariate =    "Day-of-year (DOY)" , # "Temperature (°C)",#
-          species =    "Steelhead", #"Chinook", #
+          species =    "Chinook", #"Steelhead", #
           transport = as.factor(transport),
           year = as.factor(year)) %>% 
   rename( n.obs = n.y)

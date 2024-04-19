@@ -34,8 +34,8 @@ fct_TI_all_years_plot <- function(data) {
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = TI)) +
     ggplot2::geom_point(ggplot2::aes(color=.point))+
-    ggplot2::geom_line(ggplot2::aes(color = .point))+
-    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = .lower, ymax = .upper, fill=.point), alpha = .25) +
+    # ggplot2::geom_line(ggplot2::aes(color = .point))+
+    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = .lower, ymax = .upper), alpha = .25, fill = "darkgrey") +
     ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
@@ -46,8 +46,6 @@ fct_TI_all_years_plot <- function(data) {
     ggplot2::geom_hline(yintercept = 1, color = "black" ) +
     ggplot2::scale_color_manual(values =  "black",
                        labels = "Predicted median,\nwith 95% CI")+
-    ggplot2::scale_fill_manual(values =  "black",
-                      labels = "Predicted median,\nwith 95% CI")+
     ggplot2::theme_light()+
     ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),

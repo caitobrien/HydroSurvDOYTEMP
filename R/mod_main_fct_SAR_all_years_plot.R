@@ -53,16 +53,12 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
 
   # plot
   p <- ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, color = transport)) +
-    ggplot2::labs(
-      x = covar_label,
-      y = "Smolt-to-Adult Ratio\n(SAR)",
-      color = "Predicted SAR",
-      fill = "Predicted SAR",
-      title = NULL
-    ) +
     ggplot2::geom_point(ggplot2::aes(y = SAR, fill = transport)) +
-    ggplot2::geom_line(ggplot2::aes(y = SAR)) +
-    ggplot2::geom_ribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport), alpha = .25) +
+    # ggplot2::geom_line(ggplot2::aes(y = SAR)) +
+    # ggplot2::geom_ribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport), alpha = .25) +
+    tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport),
+                               alpha = .25
+    ) +
     # ggdist::geom_pointinterval(ggplot2::aes(
     #   y = ifelse(n.sar.pit > 7, sar.pit, NA),
     #   ymin = sar.pit.lower,
@@ -80,6 +76,13 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
       breaks = c("0", "1"),
       values = c("steelblue4", "#b47747"),
       labels = c("In-river, \nmedian with 95% CI", "Transported, \nmedian with 95% CI")
+    ) +
+    ggplot2::labs(
+      x = covar_label,
+      y = "Smolt-to-Adult Ratio\n(SAR)",
+      color = "Predicted SAR",
+      fill = "Predicted SAR",
+      title = NULL
     ) +
     ggplot2::theme_light() +
     ggplot2::facet_grid(rear_type ~ species, scales = "free") +
