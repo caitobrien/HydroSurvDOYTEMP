@@ -115,7 +115,8 @@ fct_compare_SAR_TI_plot <- function(data) {
       strip.background = ggplot2::element_rect(fill = "lightgrey"),
       strip.text = ggplot2::element_text(colour = "black"),
       panel.spacing = ggplot2::unit(2, "lines"),
-      panel.grid.minor = ggplot2::element_blank()
+      panel.grid.minor = ggplot2::element_blank(),
+      text = ggplot2::element_text(size = 15)
     )
 
   # set title for plot being showed
@@ -149,7 +150,8 @@ fct_compare_SAR_TI_plot <- function(data) {
     ggplot2::theme(
       strip.background = ggplot2::element_rect(fill = "lightgrey"),
       strip.text = ggplot2::element_text(colour = "black"),
-      panel.grid.minor = ggplot2::element_blank()
+      panel.grid.minor = ggplot2::element_blank(),
+      text = ggplot2::element_text(size = 15)
     )
 
 

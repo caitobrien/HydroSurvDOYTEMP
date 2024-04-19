@@ -49,7 +49,8 @@ fct_TI_all_years_plot <- function(data) {
     ggplot2::theme_light()+
     ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
-                   strip.text = ggplot2::element_text(colour = 'black'))
+                   strip.text = ggplot2::element_text(colour = 'black'),
+                   text = ggplot2::element_text(size = 15))
 
   p
 }

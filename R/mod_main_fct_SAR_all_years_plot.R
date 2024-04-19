@@ -88,7 +88,8 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
     ggplot2::facet_grid(rear_type ~ species, scales = "free") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill = "lightgrey"),
                    strip.text = ggplot2::element_text(colour = "black"),
-                   panel.grid.minor = ggplot2::element_blank())
+                   panel.grid.minor = ggplot2::element_blank(),
+                   text = ggplot2::element_text(size = 15))
 
   #functionality to include obs data or not in plot
   if (observed == "yes") {
