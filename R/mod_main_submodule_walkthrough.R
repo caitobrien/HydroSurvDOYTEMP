@@ -95,7 +95,7 @@ mod_main_submodule_walkthrough_ui <- function(id) {
         title = "Model parameter estimates",
         "Using a Bayesian binomial model, we estimated survival for each species and rear type based on the covariates: day-of-year or temperature.
         The parameter estimates below provide insight into the relationship between survival
-        and each variable within the model. Similarly to Scheuerell et al 2009, we included a quadratic term for each covariate to allow for a non-linear relationship.",
+        and each variable within the model. Similar to Scheuerell et al. (2009), we included a quadratic term for each covariate to allow for a non-linear relationship.",
         br(),
         br(),
         "Tabs below show the estimated coefficients for each model output:",

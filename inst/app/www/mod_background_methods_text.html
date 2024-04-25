@@ -1,5 +1,27 @@
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
 
 <div style='text-align: left;'>
+<i>Study fish</i>
 <p>The data used per species, rear type, and covariate model include fish that were tagged with passive-integrated transponders (PIT) tags, data publicly available via ptagis.org. Data includes juveniles detected from 1993 to 2018 at Bonneville Dam (BON), the last dam prior to ocean entry. All fish (Steelhead and spring/summer Chinook) originated upstream of Lower Granite Dam (LGR), with a portion transported via barges from LGR to a release site below BON. Transportation designation was sourced via the DART transportation filter as described by Columbia Basin Research,  https://www.cbr.washington.edu/dart/metadata/pit. Juvenile-to-adult survival in this model is characterized as successful adult detection at LGR to best capture any straying that may have occurred during upstream migration.</p>
+<i>Covariates</i>
 <p>For the model covariates, the day-of-year (DOY) covariate was assigned based on outmigration detection at BON and represented the migration timing to the estuary and, subsequently, ocean entry. Similarly, river temperature WQM (℃) was assigned based on passage detection at BON using a 7-day right-aligned rolling mean. Each covariate modeled included the linear term (doy, temp) and a quadratic term (i.e., doy2 and temp2 ) to account for non-linear patterns.</p>
+
+<i>Model</i>
+
+<body>
+  <p>Here's an example of a LaTeX equation:</p>
+  \[ y = mx + b \]
+</body>
+\[
+\begin{align}
+(\#eq:dlm-lmVec)
+y_i &= \begin{bmatrix}1&f_i\end{bmatrix}
+\begin{bmatrix}\alpha\\ \beta\end{bmatrix} + v_i \nonumber\\
+&= \mathbf{F}_i^{\top}\boldsymbol{\theta} + v_i,
+\end{align}
+\]
+
 </div>

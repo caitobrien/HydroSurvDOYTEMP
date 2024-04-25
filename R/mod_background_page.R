@@ -13,7 +13,7 @@ mod_background_page_ui <- function(id){
 
     fluidRow(
       shinydashboard::box(
-        title = "Supplementary infomation for  HydroSurvDOYTEMP shinyAPP.",
+        title = "Supplementary infomation for  HydroSurvDOYTEMP shinyAPP",
         width = 12,
         solidHeader = TRUE,
         status = "primary"
@@ -31,18 +31,6 @@ mod_background_page_ui <- function(id){
           )
         ),
 
-      fluidRow(
-        shinydashboard::box(
-          title = "Additional Information",
-          status = "info",
-          width = 12,
-          collapsible = TRUE,
-          collapsed = FALSE,
-          HTML("fill in additional information here"
-          )
-        )
-      ),
-
     fluidRow(
       shinydashboard::box(
         title = "References",
@@ -53,6 +41,18 @@ mod_background_page_ui <- function(id){
         shiny::includeHTML(system.file("app/www/mod_background_references_text.html", package = "HydroSurvDOYTEMP"))
       )
     ),
+
+    fluidRow(
+      shinydashboard::box(
+        title = "Additional Information",
+        status = "info",
+        width = 12,
+        collapsible = TRUE,
+        collapsed = FALSE,
+        HTML("All code featured in this Shiny application is made publically available through our organizations GitHub repository: <a href='https://github.com/Columbia-Basin-Research-CBR'><i class='fab fa-github'></i> Columbia-Basin-Research-CBR</a>")
+      )
+    ),
+
 
       fluidRow(
         shinydashboard::box(

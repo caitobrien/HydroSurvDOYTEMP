@@ -3,7 +3,7 @@ title: "Subset original data and append river temperature data"
 output: html_notebook
 ---
 
-This code is was used to produce the subsetted dataset used for each model which can be found in the data-raw/ folder. 
+This code is was used to produce the subset dataset used for each model which can be found in the data-raw/ folder. 
 
 This data is not necessary to run, but kept for reference.
 
@@ -77,11 +77,11 @@ df<- DATA %>%
 
 # River data
 
-This code is used to import BON river temperature data and calculate 7-day rolling averages for the years 1993-2018. The data is then merged with a larger dataset for further analysis. 
+This code is used to import BON river temperature data and calculate 7-day rolling averages for the years 1993-2018. The data is then merged into a larger dataset for further analysis. 
 
 
 ```{r setup, eval=FALSE}
-BON.temp.raw<-read_csv(here::here("Examples/data", "rivermg_1704223998_133.csv"))
+BON.temp.raw<-read_csv(here::here("Examples/data", "rivermg_1704223998_133.csv")) #update to pull from CBR link
 
 BON.temp.data <- BON.temp.raw %>%
   # mutate(across(everything(), ~ifelse(.=="", NA, as.character(.)))) %>%

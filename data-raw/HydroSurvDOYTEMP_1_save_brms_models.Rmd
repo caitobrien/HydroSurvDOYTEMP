@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 
-Below outlines code used to run each model save in data-raw/models/ folder.
+Below outlines code used to run each model save in data-raw/models/ folder. Not necessary to run application, but kept for reference
 
 ```{r packages}
 library(brms)
@@ -17,7 +17,7 @@ library(tidyverse)
 
 # Model
 
-Import each subsetted file and run model for doy and temp. Save to data-raw/models folder
+Import each subset file and run model for doy and temp. Save to data-raw/models folder
 
 ```{r data_import}
 #import saved subset file 
@@ -65,18 +65,55 @@ df.agg <- df%>%
 
 Based on which species and rear type, update the naming for saving files
 
+
+```{r data_explore}
+ 
+
+df.agg %>% 
+  group_by(doy)
+
+hist(df.agg$doy)
+hist(df.agg$mean.temp)
+hist(df.agg$n)
+hist(df.agg$alive)
+
+```
+
+
+```{r, set_prior}
+default_prior(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+                   data = df.agg, 
+                   family = binomial(link = "logit"), prior = bprior)
+
+bprior <- c(prior(normal(0, 5), class = b), 
+            prior(normal(0, 5), class = sd),
+            prior(normal(0, 2), class = sd, group = year))
+
+
+```
+
+
+
 ```{r mod_DOY_binomial}
 rm(mod_natural_chinook_doy)
-mod_natural_steelhead_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+mod_natural_chinook_doy_prior <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
-                   file = here("data-raw/models", "mod_natural_steelhead_doy")
+                   prior = bprior,
+                   file = here("data-raw/models", "mod_natural_chinook_doy_prior5")
                    )
 
 #check summary
+summary(mod_natural_chinook_doy_prior)
 summary(mod_natural_chinook_doy)
+
+loo(mod_natural_chinook_doy, mod_natural_chinook_doy_prior)
+
+shinystan::launch_shinystan(mod_natural_chinook_doy_prior)
+pp_check(mod_natural_chinook_doy)
+prior_summary(mod_natural_chinook_doy)
 ```
 
 ```{r mod_TEMP_binomial}
@@ -93,3 +130,77 @@ mod_natural_steelhead_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^
 summary(mod_hatchery_chinook_temp)
 
 ```
+
+
+```{r}
+run_models<- function(filename){
+  
+#import saved subset file 
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", filename))
+
+#for binomial left hand trial 
+df.agg <- df%>% 
+  #calculate # of juveniles--used as total trials in binomial model
+  group_by(year, doy, doyz, transport) %>% 
+  mutate(doy = as.numeric(doy),
+         n = n()) %>% 
+  arrange(year, doy, doyz) %>% 
+ # mutate(year = as.factor(year)) %>% 
+  #set reponse as sum of alive per trials 
+  summarize(alive = sum(alive),
+            n = mean(n),
+            mean.tempz = mean(BON.tempz),
+            mean.temp = mean(BON.temp)) %>% 
+  ungroup() %>% 
+  #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
+  arrange(year, doy, doyz, transport) %>% 
+  mutate(doy.bin = cut(doy, breaks = seq(90, 160, 10), include.lowest = TRUE)) %>% 
+  group_by(year, transport, doy.bin) %>% 
+  mutate(doy.median = round(median(doy), 0),
+         sar.pit = alive/n) %>% 
+         # sar.pit.se = sd(sar.pit)/sqrt(n),
+         # sar.pit.lower = mean(sar.pit) - 1.96 * sar.pit.se,
+         # sar.pit.upper = mean(sar.pit) + 1.96 * sar.pit.se) %>% 
+  ungroup() %>% 
+  mutate( date = parse_date_time(x = paste(year, doy), orders = "yj")) %>% 
+  mutate(year = as.character(year),
+         transport = as.character(transport))
+
+bprior <- c(prior(normal(0, 5), class = b), 
+            prior(normal(0, 5), class = sd),
+            prior(normal(0, 2), class = sd, group = year))
+
+mod_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+                   data = df.agg, 
+                   family = binomial(link = "logit"), 
+                   chains = 3,
+                   cores = 3,
+                   prior = bprior
+                   )
+
+mod_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + mean.tempz:transport + I(mean.tempz^2):transport + (1 + mean.tempz + I(mean.tempz^2) + transport | year), 
+                   data = df.agg, 
+                   family = binomial(link = "logit"), 
+                   chains = 3,
+                   cores = 3,
+                  prior = bprior
+                   )
+
+#save models
+saveRDS(mod_doy, file = here::here("data-raw/HydoSurvDOYTEMP/models/prior", paste0("mod_", gsub("_data_subset.csv", "_doy.rds", filename))))
+saveRDS(mod_temp, file = here::here("data-raw/HydoSurvDOYTEMP/models/prior", paste0("mod_", gsub("_data_subset.csv", "_temp.rds", filename))))
+}
+
+# List of filenames
+filenames <- c("natural_chinook_data_subset.csv", "hatchery_chinook_data_subset.csv", "natural_steelhead_data_subset.csv", "hatchery_steelhead_data_subset.csv")
+
+# Loop over the filenames and call the function for each one
+for (filename in filenames) {
+  run_models(filename)
+}
+
+```
+
+
+
+
