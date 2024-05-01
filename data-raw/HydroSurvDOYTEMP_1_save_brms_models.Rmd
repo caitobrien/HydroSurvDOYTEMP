@@ -53,10 +53,10 @@ df.agg <- df%>%
   mutate(year = as.character(year),
          transport = as.character(transport))
 
-bprior <- c(prior(normal(0, 10), class = b), 
-            prior(normal(0, 10), class = Intercept),
-            prior(normal(0, 2), class = sd),
-            prior(normal(0, 2), class = sd, group = year))
+bprior <- c(prior(normal(0, 5), class = b), 
+            prior(normal(0, 5), class = Intercept),
+            prior(normal(0, 1), class = sd),
+            prior(normal(0, 1), class = sd, group = year))
 
 mod_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
@@ -68,7 +68,7 @@ mod_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport
                    thin = 1,
                    prior = bprior, 
                    seed = 123, 
-                   inits = "0"
+                   init = "0"
                    )
 
 mod_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + mean.tempz:transport + I(mean.tempz^2):transport + (1 + mean.tempz + I(mean.tempz^2) + transport | year), 
@@ -81,7 +81,7 @@ mod_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + m
                    thin = 1,
                    prior = bprior, 
                    seed = 123, 
-                   inits = "0"
+                   init = "0"
                    )
 
 #save models

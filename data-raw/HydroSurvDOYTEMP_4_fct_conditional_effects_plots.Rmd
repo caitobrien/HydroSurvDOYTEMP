@@ -1,115 +1,11 @@
 ---
-title: "working_coeff plots"
+title: "HydroSurvDOYTEMP_fct_conditionaleffects_plots"
 output: html_document
 date: "2024-04-17"
 ---
 
-```{r onecall}
+Use this code to generate conditional effects plots for all models found in the models>prior> folder. Save generated plots as .png in inst/app/www/cond_eff_plots. Adjust ggsave code to manipulate image resolution. 
 
-#import model
-m <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
-#extract conditional effects
-c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
-
-# Extract data frames from c_eff
-data_list <- lapply(c_eff,as.data.frame)
-
-
-# Define model name
-model_name <- "mod_natural_chinook_doy.rds"
-
-# Extract information from model name
-info <- strsplit(model_name, "_")[[1]]
-rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
-species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
-covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
-
-# Add columns to data frames
-data_list <- lapply(data_list, function(df) {
-  # Rename column headers
-  names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
-  names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
-    
-  df$rear_type <- rear_type
-  df$species <- species
-  df$covariate <- covariate
-  df
-})
-
-
-
-```
-
-```{r}
-# Get list of model files
-model_files <- list.files(path = here::here("data-raw/models"), pattern = "*.rds", full.names = TRUE)
-
-# Initialize empty list to store data frames
-all_data <- list()
-
-# Loop over model files
-for (model_file in model_files) {
-  # Import model
-  m <- readRDS(model_file)
-
-  # Extract conditional effects
-  c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
-
-  # Extract data frames from c_eff
-  data_list <- lapply(c_eff, as.data.frame)
-
-  # Extract information from model name
-  model_name <- basename(model_file)
-  info <- strsplit(model_name, "_")[[1]]
-  rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
-  species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
-  covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
-
-  # Add columns to data frames
-  data_list <- lapply(data_list, function(df) {
-    # Rename column headers
-    names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
-    names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
-    
-    df$rear_type <- rear_type
-    df$species <- species
-    df$covariate <- covariate
-    
-    df$year <-as.character(df$year)
-    df
-  })
-
-  # Append data frames to all_data
-  all_data <- c(all_data, data_list)
-}
-
-
-
-# Combine all data frames into one
-df_all <- do.call(rbind, all_data)
-```
-
-
-```{r}
-# Calculate conditional effects
-c_eff <- conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA)
-
-# Extract data frames from c_eff
-data_list <- lapply(c_eff, function(x) {
-  df <- x$data
-  df
-})
-
-# Combine all data frames into one
-df_cond_effects <- do.call(rbind, data_list)
-
-# Combine all data frames into one
-df_cond_effects <- do.call(rbind, data_list)
-
-# Add species and covariate information
-df_cond_effects$species <- "natural_steelhead"
-df_cond_effects$covariate <- ifelse(df_cond_effects$term == "doyz", "DOY", "Temperature")
-```
 ```{r saveplotsand call}
 #  model_files <- list.files(path = here::here("data-raw/models"), pattern = "*.rds", full.names = TRUE)
 # Get list of data subsets
@@ -131,10 +27,10 @@ for (data_subset in data_subsets) {
 # print(paste0("pattern: ", "mod_", rear_type, "_", species, "_*.rds"))
 
 # Get list of associated model files for DOY
-model_files_doy <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_doy.rds"), full.names = TRUE)
+model_files_doy <- list.files(path = here::here("data-raw/models/prior"), pattern = paste0("mod_", rear_type, "_", species, "_doy.rds"), full.names = TRUE)
 
 # Get list of associated model files for temp
-model_files_temp <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_temp.rds"), full.names = TRUE)
+model_files_temp <- list.files(path = here::here("data-raw/models/prior"), pattern = paste0("mod_", rear_type, "_", species, "_temp.rds"), full.names = TRUE)
 
 # Combine the two lists
 model_files <- c(model_files_doy, model_files_temp)
@@ -239,3 +135,110 @@ model_files <- c(model_files_doy, model_files_temp)
 
 ```
 
+### extra?
+```{r onecall}
+
+#import model
+m <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
+#extract conditional effects
+c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
+
+# Extract data frames from c_eff
+data_list <- lapply(c_eff,as.data.frame)
+
+
+# Define model name
+model_name <- "mod_natural_chinook_doy.rds"
+
+# Extract information from model name
+info <- strsplit(model_name, "_")[[1]]
+rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
+species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
+covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
+
+# Add columns to data frames
+data_list <- lapply(data_list, function(df) {
+  # Rename column headers
+  names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
+  names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
+    
+  df$rear_type <- rear_type
+  df$species <- species
+  df$covariate <- covariate
+  df
+})
+
+
+
+```
+
+```{r}
+# Get list of model files
+model_files <- list.files(path = here::here("data-raw/models/prior"), pattern = "*.rds", full.names = TRUE)
+
+# Initialize empty list to store data frames
+all_data <- list()
+
+# Loop over model files
+for (model_file in model_files) {
+  # Import model
+  m <- readRDS(model_file)
+
+  # Extract conditional effects
+  c_eff <- brms::conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA) 
+
+  # Extract data frames from c_eff
+  data_list <- lapply(c_eff, as.data.frame)
+
+  # Extract information from model name
+  model_name <- basename(model_file)
+  info <- strsplit(model_name, "_")[[1]]
+  rear_type <- ifelse(info[2] == "natural", "Natural-origin", "Hatchery-origin")
+  species <- ifelse(info[3] == "chinook", "Chinook", "Steelhead")
+  covariate <- ifelse(gsub(".rds", "", info[4]) == "doy", "Day-of-year (DOY)", "Temperature")
+
+  # Add columns to data frames
+  data_list <- lapply(data_list, function(df) {
+    # Rename column headers
+    names(df)[names(df) %in% c("doyz", "mean.tempz")] <- "value"
+    names(df)[names(df) %in% c("I(doyz^2)", "I(mean.tempz^2)")] <- "value_sq"
+    
+    df$rear_type <- rear_type
+    df$species <- species
+    df$covariate <- covariate
+    
+    df$year <-as.character(df$year)
+    df
+  })
+
+  # Append data frames to all_data
+  all_data <- c(all_data, data_list)
+}
+
+
+
+# Combine all data frames into one
+df_all <- do.call(rbind, all_data)
+```
+
+
+```{r}
+# Calculate conditional effects
+c_eff <- conditional_effects(m, prob = .95, categorical = FALSE, method = "posterior_epred", re_formula = NA)
+
+# Extract data frames from c_eff
+data_list <- lapply(c_eff, function(x) {
+  df <- x$data
+  df
+})
+
+# Combine all data frames into one
+df_cond_effects <- do.call(rbind, data_list)
+
+# Combine all data frames into one
+df_cond_effects <- do.call(rbind, data_list)
+
+# Add species and covariate information
+df_cond_effects$species <- "natural_steelhead"
+df_cond_effects$covariate <- ifelse(df_cond_effects$term == "doyz", "DOY", "Temperature")
+```

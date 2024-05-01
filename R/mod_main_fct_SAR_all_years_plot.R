@@ -105,7 +105,8 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
       ggplot2::scale_shape_manual(
         values = c(21, 21),
         breaks = c("0", "1"),
-        labels = c("In-river,\nmedian per year", "Transported,\nmedian per year"))
+        labels = c("In-river,\nmedian per year", "Transported,\nmedian per year")) +
+      ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747")))) # change predator legend to squares
 
     return(p.obs)
 

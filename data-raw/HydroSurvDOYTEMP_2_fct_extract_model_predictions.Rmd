@@ -225,7 +225,9 @@ for (data_file in data_files) {
 
 return(all)
 
-
+# #add as rds file for golem framework
+# df_mod_predict<-all
+# usethis::use_data(df_mod_predict)
 
 # Export predictions
 write.csv(all, row.names = F, here("data", "df_mod_predict_fct.csv"))

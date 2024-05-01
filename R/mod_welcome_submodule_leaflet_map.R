@@ -23,7 +23,7 @@ mod_welcome_submodule_leaflet_map_ui <- function(id){
       br(),
       "Figure 1. Map of the Columbia and Snake River, Pacific Northwest, USA,
       with major hydroelectric dams denoted (black circles) along Spring/Summer Chinook salmon
-      and Steelhead migratory routes (grey lines: outmigration of in-river and barge transported juveniles; black line: adult return migration).
+      and Steelhead migratory routes (grey lines: outmigration of in-river (solid) and barge transported (dashed) juveniles; black line: adult return migration).
       HydroSurvDOYTEMP app underlying model predicts the probability of
       smolt-to-adult survival from outmigrating juveniles at Bonneville Dam (BON)
       with an adult return detection at Lower Granite Dam (LGR) (red circles, juvenile and adult detection sites)."
@@ -83,7 +83,7 @@ mod_welcome_submodule_leaflet_map_server <- function(id){
         # #outgoing - in-river
         leaflet::addPolylines(data = dplyr::filter(rivers_data, passtype == 0 & direction %in% c("1", "0")), lng = ~Lon, lat = ~Lat+.1, color = "grey") %>%
         # outgoing - transport
-        leaflet::addPolylines(data = dplyr::filter(rivers_data, passtype == 1), lng = ~Lon, lat = ~Lat+.1, color = "grey") %>%
+        leaflet::addPolylines(data = dplyr::filter(rivers_data, passtype == 1), lng = ~Lon, lat = ~Lat+.1, color = "grey", dashArray = "5, 5") %>%
         #add specific labels for icons (outgoing)
         ##LGR
         leaflet::addAwesomeMarkers(

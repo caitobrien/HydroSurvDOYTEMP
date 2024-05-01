@@ -16,7 +16,7 @@ import_models <- function(models_folder) {
 }
 
 #define model folder path
-models_folder<- here::here("data-raw/models")
+models_folder<- here::here("data-raw/models/prior")
 
 # Create a named vector that specifies the desired order of the models
 model_order <- c("mod_natural_chinook_doy" = 1, "mod_natural_chinook_temp" = 2,
