@@ -230,7 +230,7 @@ return(all)
 # usethis::use_data(df_mod_predict)
 
 # Export predictions
-write.csv(all, row.names = F, here("data", "df_mod_predict_fct.csv"))
+write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 ```
 
 

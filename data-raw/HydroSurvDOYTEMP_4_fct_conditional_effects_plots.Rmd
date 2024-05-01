@@ -27,10 +27,10 @@ for (data_subset in data_subsets) {
 # print(paste0("pattern: ", "mod_", rear_type, "_", species, "_*.rds"))
 
 # Get list of associated model files for DOY
-model_files_doy <- list.files(path = here::here("data-raw/models/prior"), pattern = paste0("mod_", rear_type, "_", species, "_doy.rds"), full.names = TRUE)
+model_files_doy <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_doy.rds"), full.names = TRUE)
 
 # Get list of associated model files for temp
-model_files_temp <- list.files(path = here::here("data-raw/models/prior"), pattern = paste0("mod_", rear_type, "_", species, "_temp.rds"), full.names = TRUE)
+model_files_temp <- list.files(path = here::here("data-raw/models"), pattern = paste0("mod_", rear_type, "_", species, "_temp.rds"), full.names = TRUE)
 
 # Combine the two lists
 model_files <- c(model_files_doy, model_files_temp)

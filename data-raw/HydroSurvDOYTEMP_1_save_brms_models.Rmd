@@ -85,8 +85,8 @@ mod_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^2) + transport + m
                    )
 
 #save models
-saveRDS(mod_doy, file = here::here("data-raw/models/prior", paste0("mod_", gsub("_data_subset.csv", "_doy.rds", filename))))
-saveRDS(mod_temp, file = here::here("data-raw/models/prior", paste0("mod_", gsub("_data_subset.csv", "_temp.rds", filename))))
+saveRDS(mod_doy, file = here::here("data-raw/models", paste0("mod_", gsub("_data_subset.csv", "_doy.rds", filename))))
+saveRDS(mod_temp, file = here::here("data-raw/models", paste0("mod_", gsub("_data_subset.csv", "_temp.rds", filename))))
 }
 
 # List of filenames
