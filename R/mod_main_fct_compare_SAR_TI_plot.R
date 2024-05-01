@@ -157,7 +157,7 @@ fct_compare_SAR_TI_plot <- function(data) {
 
   # arrange plots with patchwork
   combine_plot <- (
-    (SAR_plot / TI_plot) +
+    patchwork::wrap_plots(SAR_plot, TI_plot,ncol = 1 ) +
       patchwork::plot_layout(guides = "keep")
   )
 
