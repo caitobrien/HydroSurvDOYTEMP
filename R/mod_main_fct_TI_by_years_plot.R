@@ -34,11 +34,11 @@ fct_TI_by_years_plot <- function(data) {
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = TI)) +
     ggplot2::geom_point(ggplot2::aes(color = transport))+
-    # ggplot2::geom_line(ggplot2::aes(group = year, color = transport))+
-    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = TI.lo, ymax = TI.hi, color = transport),
-                               alpha = .25,
-                               fill = "darkgrey"
-    ) +
+    ggplot2::geom_line(ggplot2::aes(group = year, color = transport))+
+    # tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = TI.lo, ymax = TI.hi, color = transport),
+    #                            alpha = .25,
+    #                            fill = "darkgrey"
+    # ) +
     ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",

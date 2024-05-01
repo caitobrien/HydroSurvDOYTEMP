@@ -130,10 +130,10 @@ fct_compare_SAR_TI_plot <- function(data) {
     ggplot2::geom_point(ggplot2::aes(color = transport)) +
     ggplot2::geom_line(ggplot2::aes(group = year, color = transport)) +
     ggplot2::stat_summary(geom = "line", ggplot2::aes(group = year), alpha = .25) +
-    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = TI.lo, ymax = TI.hi),
-                               alpha = .25,
-                               fill = "darkgrey"
-    ) +
+    # tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = TI.lo, ymax = TI.hi),
+    #                            alpha = .25,
+    #                            fill = "darkgrey"
+    # ) +
     ggplot2::labs(
       x = covar_label_TI,
       y = "Transport to Bypass Ratio\n(T:B)",
