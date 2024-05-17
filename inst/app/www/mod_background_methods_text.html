@@ -1,3 +1,4 @@
+
 <head>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -30,7 +31,7 @@ logit(p_i) & =\alpha + temp_i + temp_i^2 + transport_i + temp_i \cdot transport_
 \sigma_{\text{year}} &\sim N(0,1) \nonumber
 \end{align}
 
-where \(y_i\) represents the number of successful adult returns, such that alive corresponds to a single trial when \(n\) = 1. \(p_i\) represents the probability of juvenile-to-adult-survival for the ith observation. \(doy\), \(temp\), the accompanying quadratic terms, and \(transport\) represent the fixed effects with random intercepts that vary by year per covariate equation. Normally distributed priors were included for the intercept and beta parameters, represented as \(N(0,5)\),  and for \(\sigma\) and the grouping level, \(\sigma_{\text{year}}\), represented as \(N(0,1)\). The priors, N(0,5) and N(0,1), are normal distributions with means 0 and standard deviations of 5 and 1, respectively. The model was fit using `brms` package in R Version 2023.12.1+402. We simulated 2000 iterations for each of the three chains intiated, with 1000 draws discarded per chain, resulting in 3000 draws saved.
+where \(y_i\) represents the number of successful adult returns, such that alive corresponds to a single trial when \(n\) = 1. \(P_i\) is the probability of juvenile-to-adult-survival for the \(i\)th observation. \(Doy\), \(temp\), the accompanying quadratic terms, and \(transport\) represent the fixed effects with random intercepts that vary by year per covariate equation. Normally distributed priors were included for the intercept and beta parameters, \(N(0,1)\), and for \(\sigma\) and the grouping level, \(\sigma_{\text{year}}\), \(N(0,1)\). The model was fit using `brms` package in R Version 2023.12.1+402. We simulated 2000 iterations for each of the three chains intiated, with 1000 draws discarded per chain, resulting in 3000 draws saved.
 
 </body>
 
