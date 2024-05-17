@@ -1,9 +1,12 @@
+<div style='text-align: left;'>
+<div style="display: flex; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 300px; padding: 10px;">
 <head>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
-<div style='text-align: left;'>
+
 <i>Study fish</i>
 <p>Study fish included were natural and hatchery- origin spring/summer Chinook salmon and Steelhead Salmon spawning in the Snake River, Washington, USA. Fish data per species and rear type include fish tagged with passive-integrated transponders (PIT) tags, data publicly available via <a href = 'https://www.ptagis.org/'>ptagis.org</a>. Data includes juveniles detected from 1993 to 2018 at Bonneville Dam (BON), the last dam prior to ocean entry. Only fish with smolt outmigration detections at BON between 80 and 160 day-of-year (DOY) were included in the analysis.  All fish (Steelhead and spring/summer Chinook) originated upstream of Lower Granite Dam (LGR), with a portion transported via barges from LGR to a release site below BON. Transportation designation was sourced via the DART transportation filter as described by <a href = 'https://www.cbr.washington.edu/dart/metadata/pit'>Columbia Basin Research</a>.</p>
 
@@ -12,25 +15,31 @@
 
 <i>Covariates</i>
 <p>For the model covariates, the day-of-year (DOY) covariate was assigned based on outmigration detection at BON and represented the migration timing to the estuary and, subsequently, ocean entry. Similarly, river temperature WQM (℃) was assigned based on passage detection at BON using a 7-day right-aligned rolling mean. River temperature data was sourced from <a href = 'https://www.cbr.washington.edu/dart/query/river_graph_text'>Columbia Basin Research DART (Data Access in Real Time) </a> courtesy of U.S. Army Corps of Engineers. Each covariate modeled included the linear term (DOY, river temperature) and a quadratic term (i.e., doy<sup>2</sup> and temp<sup>2</sup>) to account for non-linear patterns. Continuous covariates (DOY or temperature) were standardized (mean = 0, SD=1) and transport was coded as [0,1] with 0 representing in-river and 1 representing transport. </p>
-
+</div>
+<div style="flex: 1; min-width: 300px; padding: 10px;">
 <i>Model</i>
 
 <p>A Bayesian binomial logistic regression model was used to model the probability of juvenile-to-adult survival per species and rear type. Each individual fish was treated as an experimental unit in the model analysis. Each covariate model (Eq.1 and Eq. 2), included fixed season covariate (doy or temp), transport, interaction between the the seasonal covariate and transport, matching quadratic terms, and random slopes for the fixed effects that varying by year:</p>
-</div>
+
 
 <body>
-\begin{align}
+\begin{flalign}
 y_i & \sim \text{Binomial}(N_i, p_i) \nonumber \\
 \text{alive} | \text{trials} (n) & \sim \text{Binomial}(N_i, p_i) \\
-logit(p_i) & =\alpha + doy_i + doy_i^2 + transport_i + doy_i \cdot transport_i + doy_i^2 \cdot transport_i + (1 + doy_i + doy^2 + transport_i | year_i) \tag{Eq. 1} \\
-logit(p_i) & =\alpha + temp_i + temp_i^2 + transport_i + temp_i \cdot transport_i + temp_i^2 \cdot transport_i + (1 + temp_i + temp_i^2 + transport_i | year_i) \tag{Eq. 2} \\
+& \begin{aligned} \text{logit}(p_i) = & \alpha + doy_i + doy_i^2 + transport_i + doy_i \cdot transport_i \\
+& + doy_i^2 \cdot transport_i + (1 + doy_i + doy^2 + transport_i | year_i) \end{aligned} & \tag{Eq. 1} \\
+& \begin{aligned} \text{logit}(p_i) = & \alpha + temp_i + temp_i^2 + transport_i + temp_i \cdot transport_i \\
+& + temp_i^2 \cdot transport_i + (1 + temp_i + temp_i^2 + transport_i | year_i) \end{aligned} & \tag{Eq. 2} \\
 \alpha &\sim N(0,5) \nonumber \\
 \beta &\sim N(0,5) \nonumber \\
 \sigma &\sim N(0,1) \nonumber \\
 \sigma_{\text{year}} &\sim N(0,1) \nonumber
-\end{align}
+\end{flalign}
+</body>
 
 where \(y_i\) represents the number of successful adult returns, such that alive corresponds to a single trial when \(n\) = 1. \(p_i\) represents the probability of juvenile-to-adult-survival for the ith observation. \(doy\), \(temp\), the accompanying quadratic terms, and \(transport\) represent the fixed effects with random intercepts that vary by year per covariate equation. Normally distributed priors were included for the intercept and beta parameters, represented as \(N(0,5)\),  and for \(\sigma\) and the grouping level, \(\sigma_{\text{year}}\), represented as \(N(0,1)\). The priors, N(0,5) and N(0,1), represent normal distributions with means 0 and standard deviations of 5 and 1, respectively. The model was fit using `brms` package in R Version 2023.12.1+402. We simulated 2000 iterations for each of the three chains intiated, with 1000 draws discarded per chain, resulting in 3000 draws saved.
 
-</body>
 
+</div>
+</div>
+</div>
