@@ -10,6 +10,7 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     fluidPage(
+
       shinydashboard::dashboardPage(
         header = shinydashboard::dashboardHeader(
           title = "Columbia Basin Research" #Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)
@@ -27,12 +28,26 @@ app_ui <- function(request) {
             # div(id = "tabs_filter",
             #     conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
             # ),
-            shinydashboard::menuItem("Supplementary Information", tabName = "supp", icon = icon("book"))
+            shinydashboard::menuItem("Supplementary Information", tabName = "supp", icon = icon("book")),
+            br(),
+            br(),
+            # add zoom to sidebar
+            tags$div(class = "zoom-controls",
+                     tags$li(tags$a(id = "zoom_in", class = "btn btn-default zoom-btn", "Zoom In", icon("search-plus"))),
+                     tags$li(tags$a(id = "zoom_out", class = "btn btn-default zoom-btn", "Zoom Out", icon("search-minus")))
+            )
           )
         ),
         body = shinydashboard::dashboardBody(
           #add CSS CBR global theme
           fresh::use_theme(CBRtheme),
+
+          #add optional zoom
+          tags$head(
+            shiny::includeScript(system.file("app/www/zoom_functions.js", package = "HydroSurvDOYTEMP"))
+          ),
+
+          #add tabItems
           shinydashboard::tabItems(
             shinydashboard::tabItem(tabName = "welcome",mod_welcome_page_ui("welcome_page_ui_1")),
             shinydashboard::tabItem(tabName = "figs",mod_main_page_ui("main_page_ui_1")),

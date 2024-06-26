@@ -17,3 +17,14 @@
 .sidebar .pretty .state label {
   color: black;
 }
+
+/*css code to assign position of zoom controls in sidebar*/
+.zoom-controls {
+  position: relative;
+  padding: 10px;
+  text-align: left;
+}
+.zoom-btn {
+  display: inline-block;
+  margin: 0 5px;
+}
