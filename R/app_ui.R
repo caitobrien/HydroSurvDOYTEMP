@@ -16,18 +16,14 @@ app_ui <- function(request) {
           title = "Columbia Basin Research" #Seasonal Predictions of Smolt-to-Adult Survival and the Transported to Bypassed fish survival ratio (T:B)
         ),
 
-        ## Sidebar content - used as a navigation menu to each tab
+        ## Sidebar content
         sidebar = shinydashboard::dashboardSidebar(
           #override theme for sidepanel selectInput color
           shiny::includeCSS(system.file("app/www/theme.css", package = "HydroSurvDOYTEMP")),
           shinydashboard::sidebarMenu(
-            # Setting id makes input$tabs give the tabName of currently-selected tab
             id = "tabs",
-            shinydashboard::menuItem("Welcome", tabName = "welcome", icon = icon("house")),
-            shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line")),
-            # div(id = "tabs_filter",
-            #     conditionalPanel(condition = "input.tabs == 'figs'",  mod_main_submodule_dataselect_ui("main_dataselect_1"))
-            # ),
+            shinydashboard::menuItem("About", tabName = "about", icon = icon("house")),
+            shinydashboard::menuItem("Hydrosystem Survival", tabName = "figs", icon = icon("chart-line"), selected = TRUE),
             shinydashboard::menuItem("Supplementary Information", tabName = "supp", icon = icon("book")),
             br(),
             br(),
@@ -49,7 +45,7 @@ app_ui <- function(request) {
 
           #add tabItems
           shinydashboard::tabItems(
-            shinydashboard::tabItem(tabName = "welcome",mod_welcome_page_ui("welcome_page_ui_1")),
+            shinydashboard::tabItem(tabName = "about",mod_about_page_ui("about_page_ui_1")),
             shinydashboard::tabItem(tabName = "figs",mod_main_page_ui("main_page_ui_1")),
             shinydashboard::tabItem(tabName = "supp", mod_background_page_ui("background_page_ui_1"))
           )

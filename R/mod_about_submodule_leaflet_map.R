@@ -1,4 +1,4 @@
-#' welcome_page_submodule_leaflet_map UI Function
+#' about_page_submodule_leaflet_map UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_welcome_submodule_leaflet_map_ui <- function(id){
+mod_about_submodule_leaflet_map_ui <- function(id){
   ns <- NS(id)
   tagList(
 
@@ -34,10 +34,10 @@ mod_welcome_submodule_leaflet_map_ui <- function(id){
   )
 }
 
-#' welcome_page_submodule_leaflet_map Server Functions
+#' about_page_submodule_leaflet_map Server Functions
 #'
 #' @noRd
-mod_welcome_submodule_leaflet_map_server <- function(id){
+mod_about_submodule_leaflet_map_server <- function(id){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -184,7 +184,7 @@ mod_welcome_submodule_leaflet_map_server <- function(id){
 }
 
 ## To be copied in the UI
-# mod_welcome_submodule_leaflet_map_ui("welcome_page_submodule_leaflet_map_1")
+# mod_about_submodule_leaflet_map_ui("about_page_submodule_leaflet_map_1")
 
 ## To be copied in the server
-# mod_welcome_submodule_leaflet_map_server("welcome_page_submodule_leaflet_map_1")
+# mod_about_submodule_leaflet_map_server("about_page_submodule_leaflet_map_1")

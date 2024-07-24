@@ -1,13 +1,13 @@
 #' Dashboard UI Function
 #'
-#' @description module for welcome page of app
+#' @description module for about page of app
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-mod_welcome_page_ui <- function(id) {
+mod_about_page_ui <- function(id) {
   ns <- NS(id)
   tagList(
 
@@ -39,7 +39,7 @@ mod_welcome_page_ui <- function(id) {
         status = "primary",
         collapsible = TRUE,
         collapsed = TRUE,
-        shiny::includeHTML(system.file("app/www/mod_welcome_Q1_text.html", package = "HydroSurvDOYTEMP")),
+        shiny::includeHTML(system.file("app/www/mod_about_Q1_text.html", package = "HydroSurvDOYTEMP")),
        # br() #add to make Q1/Q2 boxes even on expansion--remove as needed
 
       ),
@@ -51,7 +51,7 @@ mod_welcome_page_ui <- function(id) {
         status = "primary",
         collapsible = TRUE,
         collapsed = TRUE,
-        shiny::includeHTML(system.file("app/www/mod_welcome_Q2_text.html", package = "HydroSurvDOYTEMP"))
+        shiny::includeHTML(system.file("app/www/mod_about_Q2_text.html", package = "HydroSurvDOYTEMP"))
       )
       ),
 
@@ -60,7 +60,7 @@ mod_welcome_page_ui <- function(id) {
         column(width = 2),  # Empty column to center map
         column(
           width = 8,
-          mod_welcome_submodule_leaflet_map_ui("leaflet_map_1")
+          mod_about_submodule_leaflet_map_ui("leaflet_map_1")
         ),
         column(width = 2) # Empty column to center map
       ),
@@ -74,20 +74,20 @@ mod_welcome_page_ui <- function(id) {
         collapsed = TRUE,
         title = "Overview",
         status = "primary",
-        shiny::includeHTML(system.file("app/www/mod_welcome_overview_text.html", package = "HydroSurvDOYTEMP"))
+        shiny::includeHTML(system.file("app/www/mod_about_overview_text.html", package = "HydroSurvDOYTEMP"))
       )
       )
     )
 }
 
-#' Welcome Server Functions
+#' about Server Functions
 #'
 #' @noRd
-mod_welcome_page_server <- function(id) {
+mod_about_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    mod_welcome_submodule_leaflet_map_server("leaflet_map_1")
+    mod_about_submodule_leaflet_map_server("leaflet_map_1")
 
   })
 }
