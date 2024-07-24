@@ -38,8 +38,8 @@ mod_main_submodule_dataselect_ui <- function(id) {
       label = "Select species",
       shape = "curve",
       outline = TRUE,
-      choices = c("Chinook", "Steelhead"), # data.pred$species
-      selected = unique((df_mod_predict$species)),
+      choices = c("Chinook", "Steelhead"),
+      selected = "Chinook",
       width = "200px"
       )
     ),
@@ -53,8 +53,8 @@ mod_main_submodule_dataselect_ui <- function(id) {
       label = "Select rearing type",
       shape = "curve",
       outline = TRUE,
-      choices = c("Natural-origin", "Hatchery-origin"), # data.pred$rear_type,
-      selected = unique((df_mod_predict$rear_type)),
+      choices = c("Natural-origin", "Hatchery-origin"),
+      selected = "Natural-origin",
       width = "200px"
       )
     ),
