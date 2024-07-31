@@ -1,0 +1,10 @@
+name: hydrosurvdoytemp
+title: HydroSurvDOYTEMP
+username: csobrien
+account: csobrien
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12391610
+bundleId: 8930250
+url: https://csobrien.shinyapps.io/hydrosurvdoytemp/
+version: 1

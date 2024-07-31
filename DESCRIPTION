@@ -13,6 +13,7 @@ Imports:
     leaflet,
     magrittr,
     patchwork,
+    pkgload,
     shiny (>= 1.8.0),
     shinydashboard,
     shinyWidgets,

@@ -10,3 +10,5 @@ $run_dev.*
 ^data/models$
 
 ^fct_model_tables\.R$
+^app\.R$
+^rsconnect$
