@@ -49,7 +49,8 @@ mod_background_page_ui <- function(id){
         width = 12,
         collapsible = TRUE,
         collapsed = FALSE,
-        HTML("All code featured in this Shiny application is made publically available through our organizations GitHub repository: <a href='https://github.com/Columbia-Basin-Research-CBR'><i class='fab fa-github'></i> Columbia-Basin-Research-CBR</a>")
+        # update when app is transfered to CBR org, Columbia-Basin-Research-CBR
+        HTML("All code featured in this Shiny application is made publically available through our organizations GitHub repository: <a href='https://github.com/caitobrien'><i class='fab fa-github'></i> Columbia-Basin-Research-CBR</a>")
       )
     ),
 

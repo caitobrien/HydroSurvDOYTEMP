@@ -20,7 +20,7 @@ mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
     fluidRow(
       column(
         width = 12,
-        plotOutput(outputId = ns("compare_single_plot"), width = "100%", height = 1000)
+        plotOutput(outputId = ns("compare_single_plot"), width = "80%", height = 700)
       )
     )
   )
@@ -39,8 +39,8 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display
       nyears <- length(years_selected())
 
       if (nyears > 1) {
-        plot_height<- 1000 + (nyears-1)*500
-      }else plot_height <-1000
+        plot_height<- 700 + (nyears-1)*500
+      }else plot_height <-700
     })
 
     output$compare_single_plot <- renderPlot({
