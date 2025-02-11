@@ -107,8 +107,8 @@ BON.temp.data <- BON.temp.raw %>%
   group_by(CY) %>%
   filter(complete.cases(tempc)) %>% #remove any days without temp (following JG's code) -update for age of return?
   mutate(
-    BON.temp = rollmean(tempc, k = 7, fill = NA, align = "right"), #same as JG code, returns NA for 7 day average with NA's present
-    BON.temp.apply = rollapply(tempc, width = 7, FUN = function(x) mean(x, na.rm = TRUE), by = 1, by.column = TRUE, partial = TRUE, fill = NA, align = "right") #adjusts for NA's within d7 averages
+    BON.temp = rollmean(tempc, k = 7, fill = NA, align = "right") #same as JG code, returns NA for 7 day average with NA's present
+    # BON.temp.apply = rollapply(tempc, width = 7, FUN = function(x) mean(x, na.rm = TRUE), by = 1, by.column = TRUE, partial = TRUE, fill = NA, align = "right") #adjusts for NA's within d7 averages
   ) %>%
   mutate(YMD = lubridate::ymd(paste(CY, mm, dd, sep = "-"))) %>%
   mutate(DOY = lubridate::yday(YMD)) %>%
@@ -118,36 +118,24 @@ BON.temp.data <- BON.temp.raw %>%
     DOY = as.numeric(DOY)
   )
 
-
-
-
-df %>% 
-  left_join(BON.temp.data, by = c("year" = "CY", "doy" = "DOY")) 
-
-  #write_csv(here::here("data-raw", "X_X_data_subset.csv"))
-
-
 ```
 
 ```{r bind_temp_data, eval=FALSE}
 
-# old code? do not run? 
-
-#merge with subset dataset and save to data-raw/ folder
-df<-file.choose() #choose the subsetted dataset to merge with river temperature data
+#merge with subset dataset from code chunk above (wrangle_orig_data) or import already saved subset file in data-raw/ 
+# df<-file.choose() #choose the subsetted dataset to merge with river temperature data 
 
 
 df<- df%>% 
-  mutate(
-    year = as.character(year),
-    doy = as.character(doy)
-  ) %>% 
-  left_join(y= select(BON.temp.data, BON.temp, BON.temp.apply, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
+  # mutate(
+  #   year = as.character(year),
+  #   doy = as.character(doy)
+  # ) %>% 
+  left_join(y= select(BON.temp.data, BON.temp, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
   mutate ( BON.tempz = scale(BON.temp, center = TRUE, scale = TRUE)
-  ) %>% 
-  select(!c( BON.temp.apply))
+  ) 
 
 # save subset output to data-raw/ folder and update naming
-#write.csv(df, row.names = F, here("data-raw/HydroSurvDOYTEMP_data_subset", "wild_steelhead_data_subset.csv"))
+#write.csv(df, row.names = F, here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
 ```
 

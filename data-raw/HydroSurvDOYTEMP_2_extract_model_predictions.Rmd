@@ -20,9 +20,6 @@ library(GGally)
 Current code below is setup to manually run each df of choice through to extract predictions from corresponding model. Next step would be to set as a function to clean-up code. Returns a .csv saved in the data/ folder and is used for all plots within the app. 
 
 
-
-
-
 ## Data wrangling
 
 ```{r data_import}
@@ -85,7 +82,7 @@ mod_hatchery_steelhead_temp<- readRDS(here::here("Examples/results", "mod_hatche
 ```
 
 ```{r generate_newdata}
-#####doy
+#####doy, scale using pre-aggregated data
 scale.doy <- scale(as.numeric(df$doy))
 scale.x.doy <- attr(scale.doy, "scaled:center")
 scale.sd.doy <- attr(scale.doy, "scaled:scale")

@@ -16,7 +16,9 @@ library(knitr)
 
 
 
-# Model
+# Model 
+# loop model for each species and rear type
+use to loop through all data_subset files and run models for each species and rear type. Save to data-raw/models folder
 
 ```{r fct_run_models}
 
@@ -99,7 +101,7 @@ for (filename in filenames) {
 
 ```
 
-# individual components
+# individual run (if needed)
 
 ##subset raw data
 Import each subset file and run model for doy and temp. Save to data-raw/models folder
@@ -147,43 +149,42 @@ df.agg <- df%>%
 
 ```
 
-
+## run model
 Based on which species and rear type, update the naming for saving files
 
 
 
 ```{r, set_prior}
-default_prior(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
-                   data = df.agg, 
-                   family = binomial(link = "logit"), prior = bprior)
-
 bprior <- c(prior(normal(0, 5), class = b), 
             prior(normal(0, 5), class = sd),
             prior(normal(0, 2), class = sd, group = year))
+
+default_prior(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+                   data = df.agg, 
+                   family = binomial(link = "logit"), prior = bprior)
 ```
 
 
 
 ```{r mod_DOY_binomial}
-rm(mod_natural_chinook_doy)
-mod_natural_chinook_doy_prior <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
+mod_natural_chinook_doy <- brm(alive | trials(n) ~ doyz + I(doyz^2) + transport + doyz:transport + I(doyz^2):transport + (1 + doyz + I(doyz^2) + transport | year), 
                    data = df.agg, 
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
                    prior = bprior,
-                   file = here("data-raw/models", "mod_natural_chinook_doy_prior")
+                   file = here("data-raw/models", "mod_natural_chinook_doy")
                    )
 
 #check summary
-summary(mod_natural_chinook_doy_prior)
+summary(mod_natural_chinook_doy)
 summary(mod_natural_chinook_doy)
 
-loo(mod_natural_chinook_doy, mod_natural_chinook_doy_prior)
+# loo(mod_natural_chinook_doy, mod_natural_chinook_doy_prior)
 
 shinystan::launch_shinystan(mod_natural_chinook_doy)
-pp_check(mod_natural_chinook_doy_prior)
-prior_summary(mod_natural_chinook_doy_prior)
+pp_check(mod_natural_chinook_doy)
+prior_summary(mod_natural_chinook_doy)
 ```
 
 ```{r mod_TEMP_binomial}
@@ -193,6 +194,7 @@ mod_natural_steelhead_temp <- brm(alive | trials(n) ~ mean.tempz + I(mean.tempz^
                    family = binomial(link = "logit"), 
                    chains = 3,
                    cores = 3,
+                   prior = bprior,
                    file = here("data-raw/models", "mod_natural_steelhead_temp")
                    )
 
@@ -202,9 +204,9 @@ summary(mod_natural_steelhead_temp)
 ```
 
 
-```{r compare}
+```{r compare, eval= FALSE}
  
-r<-loo(mod1, mod_natural_chinook_temp)
+r<-loo(mod_natural_chinook_doy, mod_natural_chinook_temp)
 kable(r$diffs)
 
 ```
