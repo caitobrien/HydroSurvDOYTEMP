@@ -81,7 +81,7 @@ This code is used to import BON river temperature data and calculate 7-day rolli
 
 
 ```{r setup, eval=FALSE}
-BON.temp.raw<-read_csv(here::here("Examples/data", "rivermg_1704223998_133.csv")) #update to pull from CBR link
+BON.temp.raw<-read_csv(here::here("data-raw", "rivermg_1704223998_133.csv")) #update to pull from CBR link
 
 BON.temp.data <- BON.temp.raw %>%
   # mutate(across(everything(), ~ifelse(.=="", NA, as.character(.)))) %>%
@@ -114,8 +114,8 @@ BON.temp.data <- BON.temp.raw %>%
   mutate(DOY = lubridate::yday(YMD)) %>%
  # select("CY","mm", "DOY", "BON.temp") %>%
   mutate(
-    CY = as.character(CY),
-    DOY = as.character(DOY)
+    CY = as.numeric(CY),
+    DOY = as.numeric(DOY)
   )
 
 
@@ -130,6 +130,8 @@ df %>%
 ```
 
 ```{r bind_temp_data, eval=FALSE}
+
+# old code? do not run? 
 
 #merge with subset dataset and save to data-raw/ folder
 df<-file.choose() #choose the subsetted dataset to merge with river temperature data
