@@ -6,14 +6,15 @@
 #'
 #' @noRd
 
-fct_SAR_by_year_plot<-function(data, selected_years, observed = "no"){
+fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_covariate, observed = "no"){
+
 
 
   #wrangle data to plot median per year per grouping
   data_summarized<- data %>%
     dplyr::mutate(x_var = dplyr::case_when(
       covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ temp
+      TRUE ~ mean.temp#temp
     )) %>%
     dplyr::mutate(
       transport = as.factor(transport),
@@ -75,9 +76,29 @@ fct_SAR_by_year_plot<-function(data, selected_years, observed = "no"){
 
   #functionality to include obs data or not in plot
   if (observed == "yes") {
-    p.obs <- p +  ggplot2::geom_point(data = data_summarized,
+    if(selected_covariate == "Day-of-year (DOY)"){
+      observed_data<- observed_data %>% mutate(covariate = "Day-of-year (DOY)")
+    } else if(selected_covariate == "Temperature (°C)"){
+      observed_data<- observed_data %>% mutate(covariate = "Temperature (°C)")
+    }
+
+    wrangled_observed_data<-observed_data %>%
+      dplyr::mutate(x_var = dplyr::case_when(
+        covariate == "Day-of-year (DOY)" ~ doy,
+        TRUE ~ mean.temp#temp
+      )) %>%
+      dplyr::mutate(
+        transport = as.factor(transport),
+        year = as.factor(year),
+        rear_type = as.factor(rear_type),
+        covariate = as.factor(covariate),
+        species = as.factor(species),
+        species_rear = interaction(species, rear_type)) %>%
+      dplyr::group_by(year)
+
+    p.obs <- p +  ggplot2::geom_point(data = wrangled_observed_data,
                                       ggplot2::aes(y =sar.pit,
-                                                   size = n.obs,
+                                                   size = n,
                                                    shape =  transport,
                                                    color = transport),
                                       alpha = .7)+
@@ -86,7 +107,7 @@ fct_SAR_by_year_plot<-function(data, selected_years, observed = "no"){
                                   breaks = c("0", "1"),
                                   labels = c("In-river", "Transported")) +
       ggplot2::scale_size_continuous(range = c(1, 5),
-                                     breaks = c(1, pretty(c(1, max(stats::na.omit(data_summarized$n.obs)), n = 3))))
+                                     breaks = c(1, pretty(c(1, max(stats::na.omit(wrangled_observed_data$n)), n = 3))))
 
 
     return(p.obs)
@@ -97,3 +118,21 @@ fct_SAR_by_year_plot<-function(data, selected_years, observed = "no"){
 
 }
 
+
+# #example
+# set_species<-"Chinook"
+# set_rear_type<- "Natural-origin"
+# set_covariate<- "Temperature (°C)" #"Day-of-year (DOY)"
+# filtered_data<-df_mod_predict %>%
+#   select(doy, temp, transport, year, SAR, SAR.lo, SAR.hi, rear_type, covariate, species) %>%
+#   filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate) %>%
+#   rename(mean.temp = temp) %>%
+#   filter(between(year, 2010, 2018))
+#
+# selected_covariate<-"Temperature (°C)" #"Day-of-year (DOY)"
+# filtered_observed_data<-df_observed %>%
+#   filter(species == set_species, rear_type == set_rear_type) %>%
+#   filter(between(year, 2010, 2018))
+#
+# covar
+# fct_SAR_by_year_plot(data = filtered_data, observed_data = filtered_observed_data, selected_covariate = "Temperature (°C)", selected_years = c(2010:2018), observed = "yes")

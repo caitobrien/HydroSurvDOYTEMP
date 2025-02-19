@@ -13,14 +13,26 @@ library(modelr)
 
 
 ```{r}
+#running out of mememory when trying to run all models-- switch to lists or use manual method? Or try a single model just to confirm all works. 
+
 # Define a function to import data
 import_data <- function(filename) {
   df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", filename))
   return(df)
 }
 
+# #set filename of interest for check
+# filename <- "natural_chinook_data_subset.csv"
+# #check import
+# df<-import_data(filename)
+
+
 # Define a function to aggregate data
-aggregate_data <- function(df) {
+aggregate_data <- function(df, data_file) {
+  #get model info
+  rear_type <- ifelse(grepl("natural", data_file, ignore.case = TRUE), "Natural-origin", "Hatchery-origin")
+  species <- ifelse(grepl("chinook", data_file, ignore.case = TRUE), "Chinook", "Steelhead")
+  
   #aggregate each subsetted df
     df.agg<-df %>%
     # calculate # of juveniles--used as total trials in binomial model
@@ -54,11 +66,16 @@ aggregate_data <- function(df) {
     mutate(date = parse_date_time(x = paste(year, doy), orders = "yj")) %>%
     mutate(
       year = as.character(year),
-      transport = as.character(transport)
+      transport = as.character(transport),
+        rear_type = rear_type,
+        species = species
     )
     
     return(df.agg)
 }
+
+# #check aggregate data
+# df.agg<-aggregate_data(df)
 
 # Define a function to import models
 import_model <- function(filename) {
@@ -69,71 +86,139 @@ import_model <- function(filename) {
  return(list("model" = model, "model_name" = model_name))
 }
 
+# #check import model
+# model<-import_model("mod_natural_chinook_doy.rds")
+# model_name<-model$model_name
 
 # Define a function to generate new data
-generate_newdata <- function(df) {
-  ##### doy
-  scale.doy <- scale(as.numeric(df$doy))
-  scale.x.doy <- attr(scale.doy, "scaled:center")
-  scale.sd.doy <- attr(scale.doy, "scaled:scale")
+generate_newdata <- function(df,model_name) {
   
-  scale.temp <- scale(as.numeric(df$BON.temp))
-  scale.x.temp <- attr(scale.temp, "scaled:center")
-  scale.sd.temp <- attr(scale.temp, "scaled:scale")
+  rear_type <- ifelse(grepl("natural", model_name, ignore.case = TRUE), "natural", "hatchery")
+  species <- ifelse(grepl("chinook", model_name, ignore.case = TRUE), "chinook", "steelhead")
   
-  newdata.doy <- expand_grid(
-    doyz = ((90:160) - scale.x.doy) / scale.sd.doy,
-    transport = c(0, 1),
-    year = c(1993:2018),
-    n = 1
-  )
+  # set to years of available model train years-- update with new models/data
+    years <- if (species == "chinook") {
+      c(1993:1996, 1998:2018)
+    } else if (species == "steelhead" & rear_type == "natural") {
+      c(1994:2018)  # Adjust this range if needed for natural steelhead
+    } else {  # Assuming rear_type is "hatchery" for steelhead
+      c(1993:2018)  # Adjust this range if needed for hatchery steelhead
+    }
   
-  newdata.temp <- expand_grid(
-    mean.tempz = seq_range(df$BON.tempz, n = 71), # to match DOY
-    transport = c(0, 1),
-    year = c(1993:2018),
-    n = 1
-  )
   
-  newdata <- bind_cols(newdata.doy, newdata.temp[, 1])
+  if(grepl("doy", model_name)) {
+    ##### doy
+    scale.doy <- scale(as.numeric(df$doy))
+    scale.x <- attr(scale.doy, "scaled:center")
+    scale.sd <- attr(scale.doy, "scaled:scale")
   
-  return(list(newdata = newdata, 
-              scale.sd.doy = scale.sd.doy, 
-              scale.x.doy = scale.x.doy, 
-              scale.sd.temp = scale.sd.temp, 
-              scale.x.temp = scale.x.temp))
-}
-
-
-
-
-# Define a function to add predictions
-add_predictions <- function(newdata, model, scale.sd.doy, scale.x.doy, scale.sd.temp, scale.x.temp) {
-  df.pred <- newdata %>%
-    tidybayes::add_linpred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
-    tidybayes::median_qi() %>%
-    rename(
-      SAR = .linpred,
-      SAR.lo = .lower,
-      SAR.hi = .upper
-    ) %>%
-    group_by(year, doyz) %>%
-    mutate(
-      transport = as.factor(transport),
-      TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
-      TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
-      TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
-    ) %>%
-    ungroup() %>%
-    mutate(
-      doy = (doyz * scale.sd.doy) + scale.x.doy,
-      date = parse_date_time(x = paste(year, doy), orders = "yj"),
-      temp = (mean.tempz * scale.sd.temp) + scale.x.temp
+    newdata <- expand_grid(
+      doyz = ((90:160) - scale.x) / scale.sd,
+      transport = c(0, 1),
+      year = years,
+      n = 1
     )
   
-  return(df.pred)
+    return(list(newdata = newdata, 
+              scale.sd = scale.sd, 
+              scale.x = scale.x
+             )
+    )
+  } else {
+
+  ##temp
+  scale.temp <- scale(as.numeric(df$BON.temp))
+  scale.x <- attr(scale.temp, "scaled:center")
+  scale.sd <- attr(scale.temp, "scaled:scale")
   
+  newdata <- expand_grid(
+  mean.tempz = (seq(from = 6, to = 15, by = 0.1) - scale.x)/scale.sd, #following range set by JG in first shiny edition 
+  transport = c(0, 1),
+  year = years,
+  n = 1
+    )
+  
+    return(list(newdata = newdata, 
+              scale.sd = scale.sd, 
+              scale.x = scale.x
+             )
+    )
+  }
 }
+
+# #check new data
+# newdata<-generate_newdata(df, model$model_name)
+#  view(newdata$newdata)
+
+# Define a function to add predictions
+add_predictions <- function(newdata, model_info) {
+model <- model_info$model 
+model_name <- model_info$model_name
+
+new_data <- newdata$newdata
+scale.x <- newdata$scale.x
+scale.sd <- newdata$scale.sd
+  
+  if(grepl("doy", model_name)) {
+    print(paste("predictions for doy", model_name))
+    
+    df.pred <- new_data %>%
+      tidybayes::add_epred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
+      tidybayes::median_qi() %>%
+      rename(
+        SAR = .epred,
+        SAR.lo = .lower,
+        SAR.hi = .upper
+      ) %>%
+      group_by(year, doyz) %>%
+      mutate(
+        transport = as.factor(transport),
+        TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
+        TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
+        TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
+      ) %>%
+      ungroup() %>%
+      mutate(
+        doy = (doyz * scale.sd) + scale.x,
+        date = parse_date_time(x = paste(year, doy), orders = "yj"),
+      )
+  
+  return(df.pred)
+
+  } else {
+    print( paste("predictions for temp", model_name))
+    df.pred <- new_data %>%
+      tidybayes::add_epred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
+      tidybayes::median_qi() %>%
+      rename(
+        SAR = .epred,
+        SAR.lo = .lower,
+        SAR.hi = .upper
+      ) %>%
+      group_by(year, mean.tempz) %>%
+      mutate(
+        transport = as.factor(transport),
+        TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
+        TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
+        TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
+      ) %>%
+      ungroup() %>%
+      mutate(
+        mean.temp = (mean.tempz * scale.sd) + scale.x
+      ) 
+  
+  return(df.pred)
+  }
+}
+
+# #check predictions 
+# df.pred<-add_predictions(newdata = newdata , model_info = model)
+# 
+# df.pred %>% 
+#   ggplot(aes(x = doy, y= SAR, color = transport)) +
+#   geom_point() +
+#   geom_line() +
+#   facet_wrap(~year)
 
 # Define a function to append observed data to predictions
 append_obsdata_to_predictions <- function(df_pred, df_agg, model_name) {
@@ -141,92 +226,106 @@ append_obsdata_to_predictions <- function(df_pred, df_agg, model_name) {
   covariate <- ifelse(grepl("doy", model_name, ignore.case = TRUE), "Day-of-year (DOY)", "Temperature (°C)")
   species <- ifelse(grepl("chinook", model_name, ignore.case = TRUE), "Chinook", "Steelhead")
   
-  df.pred<- df.pred %>%
-    mutate(
-      year = as.character(year),
-      transport = as.character(transport)
-    ) %>%
-    left_join(select(df.agg, "transport", "year", "doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>%
-    mutate(
-      rear_type = rear_type,
-      covariate = covariate,
-      species = species,
-      transport = as.factor(transport),
-      year = as.factor(year)
-    ) %>%
-    rename(n.obs = n.y)
-  
-  return(df.pred)
+  if (grepl("doy", model_name, ignore.case = TRUE)) {
+    df.pred <- df.pred %>%
+      mutate(
+        year = as.character(year),
+        transport = as.character(transport)
+      ) %>%
+      left_join(select(df.agg, "transport", "year", "doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>%
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        transport = as.factor(transport),
+        year = as.factor(year)
+      ) %>%
+      rename(n.obs = n.y)
+    
+      return(df.pred)
+  } else {
+    df.pred <- df.pred %>%
+      mutate(
+        year = as.character(year),
+        transport = as.character(transport)
+      ) %>%
+      left_join(select(df.agg, "transport", "year", "mean.temp", "sar.pit", "n"), by = c("transport", "year", "mean.temp")) %>%
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        transport = as.factor(transport),
+        year = as.factor(year)
+      ) %>%
+      rename(n.obs = n.y)
+      
+    return(df.pred)
+  }
 }
 
+# #check append
+# df_append<-append_obsdata_to_predictions(df_pred = d.pred, df_agg = df.agg, model_name = model$model_name)
+# 
+# df_append %>% 
+#   ggplot() +
+#   geom_point(aes(x = doy, y= SAR, color = transport)) +
+#   geom_point(aes(x = doy, y = n.obs, color = transport)) +
+#   geom_line(aes(x = doy, y= SAR, color = transport)) +
+#   facet_wrap(~year)
+```
+
+
+```{r run loop}
+####-----------Example loop
 # # Define your data files, models, and other parameters
 data_files <- c("natural_chinook_data_subset.csv", "hatchery_chinook_data_subset.csv", "natural_steelhead_data_subset.csv", "hatchery_steelhead_data_subset.csv")
-
 # Define the model files associated with each data file
 model_files <- list(
   "hatchery_chinook_data_subset.csv" = c("mod_hatchery_chinook_doy.rds", "mod_hatchery_chinook_temp.rds"),
   "natural_chinook_data_subset.csv" = c("mod_natural_chinook_doy.rds","mod_natural_chinook_temp.rds"),
   "hatchery_steelhead_data_subset.csv" = c("mod_hatchery_steelhead_doy.rds", "mod_hatchery_steelhead_temp.rds"),
-  "natural_steelhead_data_subset.csv" = c("mod_natural_steelhead_doy.rds", "mod_natural_steelhead_temp.rds") 
+  "natural_steelhead_data_subset.csv" = c("mod_natural_steelhead_doy.rds", "mod_natural_steelhead_temp.rds")
 )
 
-# # Initialize 'all' as an empty list
-# all <- list()
-# 
-# for (data_file in data_files) {
-#   df <- import_data(data_file)
-#   df.agg <- aggregate_data(df)
-#   # Get the models associated with this data file
-#   models <- model_files[[data_file]]
-#   for (model_file in models) {
-#     model_info <- import_model(model_file)
-#     newdata_info <- generate_newdata(df)
-#     df.pred <- add_predictions(newdata_info$newdata, 
-#                                model_info$model, 
-#                                newdata_info$scale.sd.doy, 
-#                                newdata_info$scale.x.doy, 
-#                                newdata_info$scale.sd.temp, 
-#                                newdata_info$scale.x.temp)
-#     df.pred <- append_obsdata_to_predictions(df.pred, 
-#                                              df.agg, 
-#                                              model_info$model_name)
-#     
-#     # Save each df.pred as a separate element in the 'all' list
-#     all[[paste(data_file, model_file, sep = "_")]] <- df.pred
-#   }
-# }
-# 
-# return(all)
 # Loop over data files and models
-all <- data.frame() # Initialize 'all' as an empty data frame
+all <- list(doy = list(), temp = list(), observed = list()) # Initialize 'all' as an empty data frame
 
 for (data_file in data_files) {
   df <- import_data(data_file)
-  df.agg <- aggregate_data(df)
+  df.agg <- aggregate_data(df,data_file)
+  
+  all$observed <- append(all$observed, list(df.agg))
   # Get the models associated with this data file
   models <- model_files[[data_file]]
   for (model_file in models) {
     model_info <- import_model(model_file)
-    newdata_info <- generate_newdata(df)
-    df.pred <- add_predictions(newdata_info$newdata,
-                               model_info$model,
-                               newdata_info$scale.sd.doy,
-                               newdata_info$scale.x.doy,
-                               newdata_info$scale.sd.temp,
-                               newdata_info$scale.x.temp)
+    newdata_info <- generate_newdata(df, model_info$model_name)
+    df.pred <- add_predictions(newdata_info,
+                               model_info
+                              )
     df.pred <- append_obsdata_to_predictions(df.pred,
                                              df.agg,
                                              model_info$model_name)
 
-    all <- rbind(all,df.pred)
-
+    # Store predictions in the appropriate list based on the model_name
+    if (grepl("doy", model_info$model_name)) {
+      all$doy <- append(all$doy, list(df.pred))
+    } else if (grepl("temp", model_info$model_name)) {
+      all$temp <- append(all$temp, list(df.pred))
+    }
   }
 }
 
-return(all)
+# Combine the results using bind_rows for each list
+all_doy <- dplyr::bind_rows(all$doy)
+all_temp <- dplyr::bind_rows(all$temp)
+
+# Combine all results into a single data frame
+all_combined <- dplyr::bind_rows(all_doy, all_temp)
+
 
 # #add as rds file for golem framework
-# df_mod_predict<-all
+df_mod_predict<-all_combined
 # usethis::use_data(df_mod_predict)
 
 # Export predictions
@@ -234,16 +333,150 @@ write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 ```
 
 
+for now mimic df_mod_predict
+```{r}
+df_observed<-bind_rows(all$observed)
+df_aggregated_observed<-df_observed %>% 
+  select(year,doy,transport, n, mean.temp, sar.pit, sar.pit.lo, sar.pit.hi, rear_type,  species)
+usethis::use_data(df_aggregated_observed)
+```
+
+```{r}
+library(ggplot2)
+
+#doy
+#sar
+for (i in 1:length(all$doy)) {
+  df_pred <- all$doy[[i]]  
+  
+  p <- df_pred %>%
+    ggplot(aes(x = doy, y = SAR, color = transport)) +
+    geom_point() +
+    geom_line() +  
+    geom_ribbon(aes(ymin = SAR.lo, ymax = SAR.hi), alpha = 0.25) +
+    labs(
+      title = paste(unique(df_pred$species), unique(df_pred$rear_type),": day-of-year"),
+      x = "Day of Year",
+      y = "SAR"
+    ) +
+    facet_wrap(~year, scales = "free") +
+    theme_minimal() +
+    theme(plot.background = element_rect(color = "white"),
+          panel.background = element_rect(color = "white"),
+          strip.background = element_rect(fill = "lightgrey")
+    )
+  
+  print(p)  
+  
+  ggplot2::ggsave(
+    filename = here::here("plots", paste0(unique(df_pred$species),"_", unique(df_pred$rear_type),"_","doy_", i, ".png")),
+    plot = p,
+    device = "png",
+    width = 10,
+    height = 14
+  )
+}
+#TI
+for (i in 1:length(all$doy)) {
+  df_pred <- all$doy[[i]]  
+  
+  p <- df_pred %>%
+    filter(transport == 1) %>% 
+    ggplot(aes(x = doy, y = TI)) +
+    geom_point() +
+    geom_line() + 
+    labs(
+      title = paste(unique(df_pred$species), unique(df_pred$rear_type),": day-of-year"),
+      x = "Day of Year",
+      y = "TI"
+    ) +
+    facet_wrap(~year, scales = "free") +
+    theme_minimal() +
+    theme(plot.background = element_rect(color = "white"),
+          panel.background = element_rect(color = "white"),
+          strip.background = element_rect(fill = "lightgrey")
+    )
+  
+  print(p)  
+  
+  ggplot2::ggsave(
+    filename = here::here("plots", paste0(unique(df_pred$species),"_", unique(df_pred$rear_type),"_","doy_TI_", i, ".png")),
+    plot = p,
+    device = "png",
+    width = 10,
+    height = 14
+  )
+}
+
+#temp
+#sar
+for (i in 1:length(all$temp)) {
+  df_pred <- all$te[[i]]  
+  
+  p <- df_pred %>%
+    ggplot(aes(x = mean.temp, y = SAR, color = transport)) +
+    geom_point() +
+    geom_line() +  
+    geom_ribbon(aes(ymin = SAR.lo, ymax = SAR.hi), alpha = 0.25) +
+    labs(
+      title = paste(unique(df_pred$species), unique(df_pred$rear_type),": BON temperature"),
+      x = "Temperature (°C)",
+      y = "SAR"
+    ) +
+    facet_wrap(~year, scales = "free") +
+    theme_minimal() +
+    theme(plot.background = element_rect(color = "white"),
+          panel.background = element_rect(color = "white"),
+          strip.background = element_rect(fill = "lightgrey")
+    )
+  
+  print(p)  # Ensure the plot is printed in the loop
+  
+  ggplot2::ggsave(
+    filename = here::here("plots", paste0(unique(df_pred$species),"_", unique(df_pred$rear_type),"_","BONtemp_", i, ".png")),
+    plot = p,
+    device = "png",
+    width = 10,
+    height = 14
+  )
+}
+
+#TI
+for (i in 1:length(all$temp)) {
+  df_pred <- all$temp[[i]]  
+  
+  p <- df_pred %>%
+    filter(transport == 1) %>% 
+    ggplot(aes(x = mean.temp, y = TI)) +
+    geom_point() +
+    geom_line() + 
+    labs(
+      title = paste(unique(df_pred$species), unique(df_pred$rear_type),": BON temperature"),
+      x = "Temperature (°C)",
+      y = "TI"
+    ) +
+    facet_wrap(~year, scales = "free") +
+    theme_minimal() +
+    theme(plot.background = element_rect(color = "white"),
+          panel.background = element_rect(color = "white"),
+          strip.background = element_rect(fill = "lightgrey")
+    )
+  
+  print(p)  # Ensure the plot is printed in the loop
+  
+  ggplot2::ggsave(
+    filename = here::here("plots", paste0(unique(df_pred$species),"_", unique(df_pred$rear_type),"_","BONtemp_TI_", i, ".png")),
+    plot = p,
+    device = "png",
+    width = 10,
+    height = 14
+  )
+}
+
+  
+```
 
 ```{r}
 
-all %>% 
-  group_by(species, rear_type, covariate) %>% 
-  summarise(
-            n_distinct(transport), 
-            n_distinct(year), 
-            n_distinct(doy), n())
-
 ```
-
 

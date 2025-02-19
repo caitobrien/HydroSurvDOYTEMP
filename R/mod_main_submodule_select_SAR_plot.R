@@ -28,7 +28,7 @@ mod_main_submodule_select_SAR_plot_ui <- function(id){
 #' SAR_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_select_SAR_plot_server <- function(id, data, year_display, plot_height, years_selected){
+mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, year_display, plot_height, years_selected, selected_covariate){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
@@ -57,11 +57,11 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, year_display, pl
       # Filter data based on user selection
        if (year_display() == "All Years") {
 
-         fct_SAR_all_years_plot(data(), observed = "yes")
+         fct_SAR_all_years_plot(data = data(), observed = "yes")
 
       } else if (year_display() == "Year") {
 
-        fct_SAR_by_year_plot(data =data(), selected_years = years_selected(), observed = "yes")
+        fct_SAR_by_year_plot(data =data(), observed_data = observed_data(), selected_years = years_selected(), observed = "yes", selected_covariate = selected_covariate())
 
        }
       }, height = plot_height()

@@ -28,7 +28,7 @@ mod_main_submodule_select_TI_plot_ui <- function(id){
 #' TI_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected){
+mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected, selected_covariate){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 

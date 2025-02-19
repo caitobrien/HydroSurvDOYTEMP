@@ -14,13 +14,15 @@ app_server <- function(input, output, session) {
 
   observe({
       filtered_data <- dataselect_reactives$filtered_data
+      filtered_observed_data <- dataselect_reactives$filtered_observed_data
        year_display <- dataselect_reactives$year_display
        plot_height <- dataselect_reactives$plot_height
        years_selected <- dataselect_reactives$years_selected
+       selected_covariate <- dataselect_reactives$selected_covariate
 
 
-  mod_main_submodule_select_SAR_plot_server("SAR_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
-  mod_main_submodule_select_TI_plot_server("TI_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected())
+  mod_main_submodule_select_SAR_plot_server("SAR_plot_1", data = filtered_data(), observed_data = filtered_observed_data(),  year_display = year_display(), plot_height = plot_height(), years_selected = years_selected(), selected_covariate = selected_covariate())
+  mod_main_submodule_select_TI_plot_server("TI_plot_1", data = filtered_data(), year_display = year_display(), plot_height = plot_height(), years_selected = years_selected(), selected_covariate = selected_covariate())
   mod_main_submodule_compare_SAR_TI_plot_server("compare_single_plot", data = filtered_data(), year_display = year_display(), years_selected = years_selected())
 
   mod_main_page_server("main_page_ui_1")

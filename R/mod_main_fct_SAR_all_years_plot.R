@@ -6,16 +6,20 @@
 #'
 #' @noRd
 
+# set_species<-"Chinook"
+# set_rear_type<- "Natural-origin"
+# set_covariate<- "Temperature (°C)" #"Day-of-year (DOY)"#"Temperature (°C)"
+# filtered_data<-all_combined %>% filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate)
+# # fct_SAR_by_year_plot(data = filtered_data, selected_years = c(1993:2018), observed = "yes")
 
-
-fct_SAR_all_years_plot <- function(data, observed = "no") {
+fct_SAR_all_years_plot <- function(data,observed = "no") {
 
   # wrangle data to plot median per year per grouping
   data_n.obs<- data %>%
-    # dplyr::mutate(x_var = dplyr::case_when(
-    #   covariate == "Day-of-year (DOY)" ~ doy,
-    #   TRUE ~ temp
-    # )) %>%
+    dplyr::mutate(x_var = dplyr::case_when(
+      covariate == "Day-of-year (DOY)" ~ doy,
+      TRUE ~ mean.temp
+    )) %>%
     dplyr::mutate(
       transport = as.factor(transport),
       year = as.factor(year),
@@ -29,7 +33,7 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
   data_median<- data %>%
     dplyr::mutate(x_var = dplyr::case_when(
       covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ temp
+      TRUE ~ mean.temp
     )) %>%
     dplyr::mutate(
       transport = as.factor(transport),
@@ -115,3 +119,7 @@ fct_SAR_all_years_plot <- function(data, observed = "no") {
       }
 
 }
+
+
+# #example
+# fct_SAR_all_years_plot(data = filtered_data, observed = "yes")

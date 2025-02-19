@@ -109,6 +109,11 @@ mod_main_submodule_dataselect_server <- function(id) {
       input$select_years
     })
 
+    # Reactive for covariate
+    selected_covariate <- reactive({
+      input$select_cov
+    })
+
 
     # Reactive for plot height
     plot_height <- reactive({
@@ -146,12 +151,34 @@ mod_main_submodule_dataselect_server <- function(id) {
       }
     })
 
+    filtered_observed_data <- reactive({
+      if (input$year_display == "All Years") {
+        df_aggregated_observed %>%
+          dplyr::filter(
+            species %in% c(input$select_spp),
+            rear_type %in% c(input$select_rear)
+
+          )
+      } else if (input$year_display == "Year" && !is.null(input$select_years)) {
+        df_aggregated_observed %>%
+          dplyr::filter(
+            species %in% c(input$select_spp),
+            rear_type %in% c(input$select_rear),
+            year %in% c(input$select_years)
+          )
+      } else {
+        NULL
+      }
+    })
+
     # Return the filtered data reactive expression
     return(list(
       filtered_data = reactive(filtered_data),
+      filtered_observed_data = reactive(filtered_observed_data),
       year_display = reactive(year_display),
       plot_height = reactive(plot_height),
-      years_selected = reactive(years_selected)
+      years_selected = reactive(years_selected),
+      selected_covariate = reactive(selected_covariate)
     ))
   })
 }
