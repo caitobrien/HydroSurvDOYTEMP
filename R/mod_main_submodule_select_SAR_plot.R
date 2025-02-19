@@ -57,7 +57,8 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, y
       # Filter data based on user selection
        if (year_display() == "All Years") {
 
-         fct_SAR_all_years_plot(data = data(), observed = "yes")
+         fct_SAR_all_years_plot(data = data(),observed_data = observed_data(),selected_covariate = selected_covariate(), observed = "yes")
+
 
       } else if (year_display() == "Year") {
 

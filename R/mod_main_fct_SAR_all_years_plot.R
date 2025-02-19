@@ -12,23 +12,8 @@
 # filtered_data<-all_combined %>% filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate)
 # # fct_SAR_by_year_plot(data = filtered_data, selected_years = c(1993:2018), observed = "yes")
 
-fct_SAR_all_years_plot <- function(data,observed = "no") {
+fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, observed = "no") {
 
-  # wrangle data to plot median per year per grouping
-  data_n.obs<- data %>%
-    dplyr::mutate(x_var = dplyr::case_when(
-      covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ mean.temp
-    )) %>%
-    dplyr::mutate(
-      transport = as.factor(transport),
-      year = as.factor(year),
-      rear_type = as.factor(rear_type),
-      covariate = as.factor(covariate),
-      species = as.factor(species)
-    ) %>%
-    dplyr::group_by(covariate, species, rear_type, transport, doy) %>%
-    dplyr::summarise(n.sar.pit = sum(n.obs, na.rm = TRUE))
 
   data_median<- data %>%
     dplyr::mutate(x_var = dplyr::case_when(
@@ -43,24 +28,24 @@ fct_SAR_all_years_plot <- function(data,observed = "no") {
       species = as.factor(species)
     ) %>%
     dplyr::group_by(covariate, x_var, species, rear_type, transport, doy) %>%
-    ggdist::median_qi(SAR, sar.pit, na.rm=TRUE)
+    ggdist::median_qi(SAR, na.rm=TRUE)
 
 
-  data_summarized <- data_median %>%
-    dplyr::left_join(data_n.obs, by = c("covariate", "species", "rear_type", "transport", "doy"))
-
-  # Convert data_summarized to data frame
-  data_summarized <- as.data.frame(data_summarized)
+  # data_summarized <- data_median %>%
+  #   dplyr::left_join(data_n.obs, by = c("covariate", "species", "rear_type", "transport", "doy"))
+  #
+  # # Convert data_summarized to data frame
+  # data_summarized <- as.data.frame(data_summarized)
 
   # Extract unique covariate name
-  covar_label <- unique(data_summarized$covariate)
+  covar_label <- unique(data_median$covariate)
 
   # plot
-  p <- ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, color = transport)) +
+  p <- ggplot2::ggplot(data_median, ggplot2::aes(x = x_var, color = transport)) +
     ggplot2::geom_point(ggplot2::aes(y = SAR, fill = transport)) +
     # ggplot2::geom_line(ggplot2::aes(y = SAR)) +
     # ggplot2::geom_ribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport), alpha = .25) +
-    tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = SAR.lower, ymax = SAR.upper, fill = transport),
+    tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = .lower, ymax = .upper, fill = transport),
                                alpha = .25
     ) +
     # ggdist::geom_pointinterval(ggplot2::aes(
@@ -97,10 +82,61 @@ fct_SAR_all_years_plot <- function(data,observed = "no") {
 
   #functionality to include obs data or not in plot
   if (observed == "yes") {
-    p.obs <- p + ggdist::geom_pointinterval( data = data_summarized, ggplot2::aes(
+
+    if(selected_covariate == "Day-of-year (DOY)"){
+      observed_data<- observed_data %>% mutate(covariate = "Day-of-year (DOY)")
+
+      wrangled_observed_data <- observed_data %>%
+        dplyr::mutate(x_var = dplyr::case_when(
+        covariate == "Day-of-year (DOY)" ~ doy,
+        TRUE ~ mean.temp
+      )) %>%
+        dplyr::mutate(
+          transport = as.factor(transport),
+          year = as.factor(year),
+          rear_type = as.factor(rear_type),
+          covariate = as.factor(covariate),
+          species = as.factor(species)
+        ) %>%
+        dplyr::group_by(covariate,x_var, species, rear_type, transport, doy) %>%
+        dplyr::summarise(
+          n.sar.pit = sum(n, na.rm = TRUE),  # Sum 'n' per year
+          sar.pit = median(sar.pit, na.rm = TRUE),  # Median SAR.pit
+          sar.pit.lo = quantile(sar.pit, probs = 0.025, na.rm = TRUE),  # Lower bound (2.5th percentile)
+          sar.pit.hi = quantile(sar.pit, probs = 0.975, na.rm = TRUE)   # Upper bound (97.5th percentile)
+        ) %>%
+        ungroup()
+
+    } else if(selected_covariate == "Temperature (°C)"){
+      observed_data<- observed_data %>% mutate(covariate = "Temperature (°C)")
+
+      wrangled_observed_data <- observed_data %>%
+        dplyr::mutate(x_var = dplyr::case_when(
+          covariate == "Day-of-year (DOY)" ~ doy,
+          TRUE ~ mean.temp
+        )) %>%
+        dplyr::mutate(
+          transport = as.factor(transport),
+          year = as.factor(year),
+          rear_type = as.factor(rear_type),
+          covariate = as.factor(covariate),
+          species = as.factor(species)
+        ) %>%
+        dplyr::group_by(covariate,x_var, species, rear_type, transport, mean.temp) %>%
+        dplyr::summarise(
+          n.sar.pit = sum(n, na.rm = TRUE),  # Sum 'n' per year
+          sar.pit = median(sar.pit, na.rm = TRUE),  # Median SAR.pit
+          sar.pit.lo = quantile(sar.pit, probs = 0.025, na.rm = TRUE),  # Lower bound (2.5th percentile)
+          sar.pit.hi = quantile(sar.pit, probs = 0.975, na.rm = TRUE)   # Upper bound (97.5th percentile)
+        ) %>%
+        ungroup()
+    }
+    print(wrangled_observed_data)
+    p.obs <- p +
+      ggdist::geom_pointinterval( data = wrangled_observed_data, ggplot2::aes(
       y = ifelse(n.sar.pit > 7, sar.pit, NA),
-      ymin = sar.pit.lower,
-      ymax = sar.pit.upper,
+      ymin = sar.pit.lo,
+      ymax = sar.pit.hi,
       shape = transport,
       color = transport),
       alpha = .25
@@ -122,4 +158,20 @@ fct_SAR_all_years_plot <- function(data,observed = "no") {
 
 
 # #example
+<<<<<<< HEAD
 # fct_SAR_all_years_plot(data = filtered_data, observed = "yes")
+=======
+
+set_species<-"Chinook"
+set_rear_type<- "Natural-origin"
+set_covariate<- "Day-of-year (DOY)"#"Temperature (°C)" #"Day-of-year (DOY)"
+filtered_data<-df_mod_predict %>%
+  select(doy, mean.temp, transport, year, SAR, SAR.lo, SAR.hi, rear_type, covariate, species) %>%
+  filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate)
+
+selected_covariate<-"Day-of-year (DOY)"#"Temperature (°C)" #"Day-of-year (DOY)"
+filtered_observed_data<-df_aggregated_observed %>%
+  filter(species == set_species, rear_type == set_rear_type)
+
+fct_SAR_all_years_plot(data = filtered_data, observed_data = filtered_observed_data, selected_covariate = selected_covariate,  observed = "yes")
+>>>>>>> 6c85a78 (edits to methods)
