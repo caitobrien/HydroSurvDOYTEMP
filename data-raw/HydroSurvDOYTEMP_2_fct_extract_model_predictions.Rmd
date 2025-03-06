@@ -155,6 +155,10 @@ add_predictions <- function(newdata, model_info) {
 model <- model_info$model 
 model_name <- model_info$model_name
 
+rear_type <- ifelse(grepl("natural", model_name, ignore.case = TRUE), "Natural-origin", "Hatchery-origin")
+covariate <- ifelse(grepl("doy", model_name, ignore.case = TRUE), "Day-of-year (DOY)", "Temperature (°C)")
+species <- ifelse(grepl("chinook", model_name, ignore.case = TRUE), "Chinook", "Steelhead")
+
 new_data <- newdata$newdata
 scale.x <- newdata$scale.x
 scale.sd <- newdata$scale.sd
@@ -181,6 +185,12 @@ scale.sd <- newdata$scale.sd
       mutate(
         doy = (doyz * scale.sd) + scale.x,
         date = parse_date_time(x = paste(year, doy), orders = "yj"),
+      ) %>% 
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        year = as.factor(year)
       )
   
   return(df.pred)
@@ -205,7 +215,13 @@ scale.sd <- newdata$scale.sd
       ungroup() %>%
       mutate(
         mean.temp = (mean.tempz * scale.sd) + scale.x
-      ) 
+      ) %>% 
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        year = as.factor(year)
+      )
   
   return(df.pred)
   }
@@ -303,9 +319,9 @@ for (data_file in data_files) {
     df.pred <- add_predictions(newdata_info,
                                model_info
                               )
-    df.pred <- append_obsdata_to_predictions(df.pred,
-                                             df.agg,
-                                             model_info$model_name)
+    # df.pred <- append_obsdata_to_predictions(df.pred,
+    #                                          df.agg,
+    #                                          model_info$model_name)
 
     # Store predictions in the appropriate list based on the model_name
     if (grepl("doy", model_info$model_name)) {
@@ -337,9 +353,33 @@ for now mimic df_mod_predict
 ```{r}
 df_observed<-bind_rows(all$observed)
 df_aggregated_observed<-df_observed %>% 
-  select(year,doy,transport, n, mean.temp, sar.pit, sar.pit.lo, sar.pit.hi, rear_type,  species)
+  select(year,doy,transport, n, mean.temp, sar.pit, rear_type,  species)
 usethis::use_data(df_aggregated_observed)
+
+
+# Combine the results using bind_rows for each list
+all_doy <- dplyr::bind_rows(all$doy)
+all_temp <- dplyr::bind_rows(all$temp)
+
+covariates<-bind_rows(all_doy, all_temp)
+df_mod_predict<-covariates
+
+usethis::use_data(covariates)
 ```
+
+```{r}
+ggplot()+
+  geom_point(data = df_aggregated_observed, aes(x = doy, y = sar.pit, color = transport)) +
+  geom_line(data = all_doy, aes(x = doy, y = SAR, color = transport)) +
+  facet_grid(year ~ species*rear_type, scale = "free") 
+
+
+ggplot()+
+  geom_point(data = df_aggregated_observed, aes(x = mean.temp, y = sar.pit, color = transport)) +
+  geom_line(data = all_temp, aes(x = mean.temp, y = SAR, color = transport)) +
+  facet_grid(year ~ species*rear_type, scale = "free") 
+```
+
 
 ```{r}
 library(ggplot2)
@@ -477,6 +517,6 @@ for (i in 1:length(all$temp)) {
 ```
 
 ```{r}
-
+all$doy[[1]]
 ```
 

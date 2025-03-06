@@ -8,14 +8,21 @@
 
 fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_covariate, observed = "no"){
 
-
+x_var <- if (selected_covariate == "Day-of-year (DOY)") {
+    "doy"
+  } else if (selected_covariate == "Temperature (°C)") {
+    "mean.temp"
+  } else {
+    stop("Invalid covariate selected")
+  }
+print(data)
 
   #wrangle data to plot median per year per grouping
   data_summarized<- data %>%
-    dplyr::mutate(x_var = dplyr::case_when(
-      covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ mean.temp#temp
-    )) %>%
+    # dplyr::mutate(x_var = dplyr::case_when(
+    #   covariate == "Day-of-year (DOY)" ~ doy,
+    #   TRUE ~ mean.temp#temp
+    # )) %>%
     dplyr::mutate(
       transport = as.factor(transport),
       year = as.factor(year),
@@ -28,8 +35,8 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
   # Convert data_summarized to data frame
   data_summarized <- as.data.frame(data_summarized)
 
-  # Extract unique covariate name
-  covar_label <-  unique(data_summarized$covariate)
+  # # Extract unique covariate name
+  # covar_label <-  unique(data_summarized$covariate)
 
 
 
@@ -41,7 +48,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
     tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = SAR.lo, ymax = SAR.hi, fill = transport, color = transport),
                                alpha = .25
     ) +
-    ggplot2::labs( x = covar_label,
+    ggplot2::labs( x = selected_covariate,
           y = "Smolt-to-Adult Ratio\n(SAR)",
           size = "Number of fish observed",
           color = "Predicted SAR",
@@ -77,16 +84,16 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
   #functionality to include obs data or not in plot
   if (observed == "yes") {
     if(selected_covariate == "Day-of-year (DOY)"){
-      observed_data<- observed_data %>% mutate(covariate = "Day-of-year (DOY)")
+      observed_data<- observed_data %>% dplyr::mutate(covariate = "Day-of-year (DOY)")
     } else if(selected_covariate == "Temperature (°C)"){
-      observed_data<- observed_data %>% mutate(covariate = "Temperature (°C)")
+      observed_data<- observed_data %>% dplyr::mutate(covariate = "Temperature (°C)")
     }
 
     wrangled_observed_data<-observed_data %>%
-      dplyr::mutate(x_var = dplyr::case_when(
-        covariate == "Day-of-year (DOY)" ~ doy,
-        TRUE ~ mean.temp#temp
-      )) %>%
+      # dplyr::mutate(x_var = dplyr::case_when(
+      #   covariate == "Day-of-year (DOY)" ~ doy,
+      #   TRUE ~ mean.temp#temp
+      # )) %>%
       dplyr::mutate(
         transport = as.factor(transport),
         year = as.factor(year),
@@ -97,10 +104,12 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
       dplyr::group_by(year)
 
     p.obs <- p +  ggplot2::geom_point(data = wrangled_observed_data,
-                                      ggplot2::aes(y =sar.pit,
-                                                   size = n,
-                                                   shape =  transport,
-                                                   color = transport),
+                                      ggplot2::aes(
+                                        x = x_var,
+                                        y =sar.pit,
+                                        size = n,
+                                        shape =  transport,
+                                        color = transport),
                                       alpha = .7)+
       ggplot2::labs(shape = "Observed data") +
       ggplot2::scale_shape_manual(values = c(21,21),

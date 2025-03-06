@@ -13,13 +13,20 @@
 # # fct_SAR_by_year_plot(data = filtered_data, selected_years = c(1993:2018), observed = "yes")
 
 fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, observed = "no") {
+  x_var <- if (selected_covariate == "Day-of-year (DOY)") {
+    "doy"
+  } else if (selected_covariate == "Temperature (°C)") {
+    "mean.temp"
+  } else {
+    stop("Invalid covariate selected")
+  }
 
 
   data_median<- data %>%
-    dplyr::mutate(x_var = dplyr::case_when(
-      covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ mean.temp
-    )) %>%
+    # dplyr::mutate(x_var = dplyr::case_when(
+    #   covariate == "Day-of-year (DOY)" ~ doy,
+    #   TRUE ~ mean.temp
+    # )) %>%
     dplyr::mutate(
       transport = as.factor(transport),
       year = as.factor(year),
@@ -27,7 +34,7 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
       covariate = as.factor(covariate),
       species = as.factor(species)
     ) %>%
-    dplyr::group_by(covariate, x_var, species, rear_type, transport, doy) %>%
+    dplyr::group_by(covariate, species, rear_type, transport, doy) %>%
     ggdist::median_qi(SAR, na.rm=TRUE)
 
 
@@ -84,13 +91,13 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
   if (observed == "yes") {
 
     if(selected_covariate == "Day-of-year (DOY)"){
-      observed_data<- observed_data %>% mutate(covariate = "Day-of-year (DOY)")
+      observed_data<- observed_data %>% dplyr::mutate(covariate = "Day-of-year (DOY)")
 
       wrangled_observed_data <- observed_data %>%
-        dplyr::mutate(x_var = dplyr::case_when(
-        covariate == "Day-of-year (DOY)" ~ doy,
-        TRUE ~ mean.temp
-      )) %>%
+      #   dplyr::mutate(x_var = dplyr::case_when(
+      #   covariate == "Day-of-year (DOY)" ~ doy,
+      #   TRUE ~ mean.temp
+      # )) %>%
         dplyr::mutate(
           transport = as.factor(transport),
           year = as.factor(year),
@@ -98,23 +105,23 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
           covariate = as.factor(covariate),
           species = as.factor(species)
         ) %>%
-        dplyr::group_by(covariate,x_var, species, rear_type, transport, doy) %>%
+        dplyr::group_by(covariate, species, rear_type, transport, doy) %>%
         dplyr::summarise(
           n.sar.pit = sum(n, na.rm = TRUE),  # Sum 'n' per year
           sar.pit = median(sar.pit, na.rm = TRUE),  # Median SAR.pit
           sar.pit.lo = quantile(sar.pit, probs = 0.025, na.rm = TRUE),  # Lower bound (2.5th percentile)
           sar.pit.hi = quantile(sar.pit, probs = 0.975, na.rm = TRUE)   # Upper bound (97.5th percentile)
         ) %>%
-        ungroup()
+        dplyr::ungroup()
 
     } else if(selected_covariate == "Temperature (°C)"){
       observed_data<- observed_data %>% mutate(covariate = "Temperature (°C)")
 
       wrangled_observed_data <- observed_data %>%
-        dplyr::mutate(x_var = dplyr::case_when(
-          covariate == "Day-of-year (DOY)" ~ doy,
-          TRUE ~ mean.temp
-        )) %>%
+        # dplyr::mutate(x_var = dplyr::case_when(
+        #   covariate == "Day-of-year (DOY)" ~ doy,
+        #   TRUE ~ mean.temp
+        # )) %>%
         dplyr::mutate(
           transport = as.factor(transport),
           year = as.factor(year),
@@ -129,7 +136,7 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
           sar.pit.lo = quantile(sar.pit, probs = 0.025, na.rm = TRUE),  # Lower bound (2.5th percentile)
           sar.pit.hi = quantile(sar.pit, probs = 0.975, na.rm = TRUE)   # Upper bound (97.5th percentile)
         ) %>%
-        ungroup()
+        dplyr::ungroup()
     }
     print(wrangled_observed_data)
     p.obs <- p +
@@ -157,21 +164,3 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
 }
 
 
-# #example
-<<<<<<< HEAD
-# fct_SAR_all_years_plot(data = filtered_data, observed = "yes")
-=======
-
-set_species<-"Chinook"
-set_rear_type<- "Natural-origin"
-set_covariate<- "Day-of-year (DOY)"#"Temperature (°C)" #"Day-of-year (DOY)"
-filtered_data<-df_mod_predict %>%
-  select(doy, mean.temp, transport, year, SAR, SAR.lo, SAR.hi, rear_type, covariate, species) %>%
-  filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate)
-
-selected_covariate<-"Day-of-year (DOY)"#"Temperature (°C)" #"Day-of-year (DOY)"
-filtered_observed_data<-df_aggregated_observed %>%
-  filter(species == set_species, rear_type == set_rear_type)
-
-fct_SAR_all_years_plot(data = filtered_data, observed_data = filtered_observed_data, selected_covariate = selected_covariate,  observed = "yes")
->>>>>>> 6c85a78 (edits to methods)
