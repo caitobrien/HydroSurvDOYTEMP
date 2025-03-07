@@ -23,7 +23,7 @@ mod_main_submodule_dataselect_ui <- function(id) {
       inputId = ns("select_cov"),
       label = "Select covariate",
       choices = c("Day-of-year (DOY)", "Temperature (°C)"),
-      selected = "Day of Year (DOY)",
+      selected = "Day-of-year (DOY)",
       width = "200px",
       multiple = F
     )
@@ -78,7 +78,7 @@ mod_main_submodule_dataselect_ui <- function(id) {
 #' dataselect Server Functions
 #'
 #' @noRd
-mod_main_submodule_dataselect_server <- function(id) {
+mod_main_submodule_dataselect_server <- function(id, all) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
@@ -109,6 +109,11 @@ mod_main_submodule_dataselect_server <- function(id) {
       input$select_years
     })
 
+    # Reactive for covariate
+    selected_covariate <- reactive({
+      input$select_cov
+    })
+
 
     # Reactive for plot height
     plot_height <- reactive({
@@ -125,33 +130,75 @@ mod_main_submodule_dataselect_server <- function(id) {
       }
     })
 
-    filtered_data <- reactive({
-      if (input$year_display == "All Years") {
-        df_mod_predict %>%
-          dplyr::filter(
-            species %in% c(input$select_spp),
-            rear_type %in% c(input$select_rear),
-            covariate %in% c(input$select_cov)
-          )
-      } else if (input$year_display == "Year" && !is.null(input$select_years)) {
-        df_mod_predict %>%
-          dplyr::filter(
-            species %in% c(input$select_spp),
-            rear_type %in% c(input$select_rear),
-            covariate %in% c(input$select_cov),
-            year %in% c(input$select_years)
-          )
-      } else {
-        NULL
-      }
+    load("data/all.rda")
+    get("all")
+
+    # Filter data based on selections
+    filtered_data_pred <- reactive({
+
+      # extract list for covariate
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_pred else if(input$select_cov == "Temperature (°C)") all$temp_pred
+      # Filter based on inputs
+      filtered_list <- purrr::map(selected_list, ~ .x %>%
+                                    dplyr::filter(
+                                      species %in% c(input$select_spp),
+                                      rear_type %in% c(input$select_rear),
+                                      if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
+                                    ) %>%
+                                    mutate(transport = as.factor(transport))
+      )
+
+      # Combine filtered list into a single data frame
+      filtered_data <- dplyr::bind_rows(filtered_list)
+      return(filtered_data)
     })
 
-    # Return the filtered data reactive expression
+    # Filter data based on selections
+    filtered_data_ti <- reactive({
+
+      # extract list for covariate
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_ti else if(input$select_cov == "Temperature (°C)") all$temp_ti
+      # Filter based on inputs
+      filtered_list <- purrr::map(selected_list, ~ .x %>%
+                                    dplyr::filter(
+                                      species %in% c(input$select_spp),
+                                      rear_type %in% c(input$select_rear),
+                                      if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
+                                    )
+      )
+
+      # Combine filtered list into a single data frame
+      filtered_data <- dplyr::bind_rows(filtered_list)
+      return(filtered_data)
+    })
+
+    filtered_observed_data <- reactive({
+
+      # Filter each list element based on user selections
+      filtered_list <- purrr::map(all$observed, ~ .x %>%
+                                    dplyr::filter(
+                                      species %in% c(input$select_spp),
+                                      rear_type %in% c(input$select_rear),
+                                      if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
+                                    ) %>%
+                                    mutate(transport = as.factor(transport))
+
+      )
+
+      # Combine filtered list into a single data frame
+      filtered_observed_data <- as.data.frame(dplyr::bind_rows(filtered_list))
+      return(filtered_observed_data)
+    })
+
+    # Return the filtered data as a reactive list
     return(list(
-      filtered_data = reactive(filtered_data),
+      filtered_data_pred = reactive(filtered_data_pred),
+      filtered_data_ti = reactive(filtered_data_ti),
+      filtered_observed_data = reactive(filtered_observed_data),
       year_display = reactive(year_display),
       plot_height = reactive(plot_height),
-      years_selected = reactive(years_selected)
+      years_selected = reactive(years_selected),
+      selected_covariate = reactive(selected_covariate)
     ))
   })
 }

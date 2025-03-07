@@ -6,46 +6,43 @@
 #'
 #' @noRd
 #'
-fct_TI_all_years_plot <- function(data) {
+fct_TI_all_years_plot <- function(data, selected_covariate) {
 
-  # wrangle data to plot median per year per grouping
-  data_summarized <- data %>%
-    dplyr::mutate(x_var = dplyr::case_when(
-      covariate == "Day-of-year (DOY)" ~ doy,
-      TRUE ~ temp
-    )) %>%
-    dplyr::mutate(
-      transport = as.factor(transport),
-      year = as.factor(year),
-      rear_type = as.factor(rear_type),
-      covariate = as.factor(covariate),
-      species = as.factor(species)
-    ) %>%
-    dplyr::group_by(covariate, x_var, species, rear_type,doy) %>%
-    tidybayes::median_qi(TI, na.rm = TRUE)
+  if (selected_covariate == "Day-of-year (DOY)") {
+    data_median<- data %>%
+      dplyr::group_by(covariate, species, rear_type, doy) %>%
+      ggdist::median_qi(ti, na.rm=TRUE)
 
-  # Convert data_summarized to data frame
-  data_summarized <- as.data.frame(data_summarized)
+    x_var <- data_median$doy
+    covar_label <- "Day-of-year (DOY)"
 
-  # Extract unique covariate name
-  covar_label <- unique(data_summarized$covariate)
+    x_breaks <- seq(90, 160, by = 10)
+
+  } else if (selected_covariate == "Temperature (°C)") {
+    data_median<- data %>%
+      dplyr::group_by(covariate, species, rear_type, mean.temp) %>%
+      ggdist::median_qi(ti, na.rm=TRUE)
+
+    x_var <- data_median$mean.temp
+    covar_label <- "Temperature (°C)"
+
+    x_breaks <- seq(6, 18, by = 2)
+  }
+
 
   # plot
   p <-
-    ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = TI)) +
-    ggplot2::geom_point(ggplot2::aes(color=.point))+
-    # ggplot2::geom_line(ggplot2::aes(color = .point))+
-    tidybayes::geom_lineribbon(ggplot2::aes(y = TI, ymin = .lower, ymax = .upper), alpha = .25, fill = "darkgrey") +
+    ggplot2::ggplot(data_median, ggplot2::aes(x = x_var, y = ti)) +
+    tidybayes::geom_lineribbon(ggplot2::aes(y = ti, ymin = .lower, ymax = .upper, fill = "Predicted median,\nwith 95% CI"), alpha = .1) +
+    ggplot2::geom_point(ggplot2::aes(color = "Predicted median,\nwith 95% CI")) +
     ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
-      title = NULL,
-      color = NULL,
-      fill= NULL
+      title = NULL
     ) +
     ggplot2::geom_hline(yintercept = 1, color = "black" ) +
-    ggplot2::scale_color_manual(values =  "black",
-                       labels = "Predicted median,\nwith 95% CI")+
+    ggplot2::scale_color_manual(name = NULL, values = c("Predicted median,\nwith 95% CI" = "black")) +
+    ggplot2::scale_fill_manual(name = NULL, values = c("Predicted median,\nwith 95% CI" = "black")) +
     ggplot2::theme_light()+
     ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),

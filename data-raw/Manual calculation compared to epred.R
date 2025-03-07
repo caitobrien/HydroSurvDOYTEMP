@@ -135,6 +135,31 @@ ti_predictions %>%
   geom_line() +
   facet_wrap(~year)
 
+#plot TI with CI
+ti_predictions <- predictions %>%
+  pivot_wider(
+    names_from = transport,
+    values_from = c(median, .lower90, .upper90, .lower50, .upper50),
+    names_glue = "{.value}_{transport}"
+  ) %>%
+  mutate(
+    ti = median_1 / median_0,
+    ti_lower90 = .lower90_1 / .upper90_0,
+    ti_upper90 = .upper90_1 / .lower90_0,
+    ti_lower50 = .lower50_1 / .upper50_0,
+    ti_upper50 = .upper50_1 / .lower50_0
+  ) %>%
+  select(year, doyz, ti, ti_lower90, ti_upper90, ti_lower50, ti_upper50)
+
+
+ti_samples %>%
+  ggplot(aes(x = doyz, y = ti)) +
+  geom_point()+
+  geom_line() +
+  geom_ribbon(aes(ymin = ti_lower90, ymax = ti_upper90), alpha = 0.25) +
+  facet_wrap(~year)
+
+
 
 ####-------------compare to epred----####
 newdata_epred <- expand_grid(

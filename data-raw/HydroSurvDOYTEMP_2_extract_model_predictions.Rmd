@@ -85,6 +85,18 @@ mod_hatchery_steelhead_temp<- readRDS(here::here("data-raw/models", "mod_hatcher
 ```
 
 ```{r generate_newdata}
+# data missing years based on train data-- update new data to reflect which spp/rear is being run
+species<-
+  rear_type<-
+  years <- if (species == "chinook") {
+    c(1993:1996, 1998:2018)
+  } else if (species == "steelhead" & rear_type == "natural") {
+    c(1994:2018)
+  } else {
+    c(1993:2018)
+  }
+#add years to new data instead
+
 #####doy, scale using pre-aggregated data
 scale.doy <- scale(as.numeric(df$doy))
 scale.x.doy <- attr(scale.doy, "scaled:center")
@@ -105,49 +117,132 @@ scale.sd.temp <- attr(scale.temp, "scaled:scale")
 newdata.doy <- expand_grid(
   doyz = ((90:160) - scale.x.doy) / scale.sd.doy,
   transport = c(0, 1),
-  year = years,#c(1993:2018),
+  year = c(1993:1996,1998:2018),
   n = 1
   ) 
+newdata.doy <- newdata.doy %>%
+  mutate(
+    `I(DOYz^2)` = doyz^2,  # Squared DOYz
+    `doyz:transport` = doyz * transport,  # Interaction term between DOYz and transport
+    `I(DOYz^2):transport` = doyz^2 * transport  # Interaction term between squared DOYz and transport
+  )
 
 newdata.temp <- expand_grid(
-  mean.tempz = seq_range(df$BON.tempz, n = 71), #to match DOY 
+  mean.tempz = (seq(from = 6, to = 15, by = 0.1) - scale.x.temp)/scale.sd.temp, #following range set by JG in first shiny edition 
   transport = c(0, 1),
-  year = years, #c(1993:2018),
+  year = c(1993:1996,1998:2018),
   n = 1
   ) 
 
-newdata<-bind_cols(newdata.doy,newdata.temp[,1])
+newdata.temp <- newdata.temp %>%
+  mutate(
+    `I(mean.tempz^2)` = mean.tempz^2,  # Squared mean.tempz
+    `mean.tempz:transport` = mean.tempz * transport,  # Interaction term between mean.tempz and transport
+    `I(mean.tempz^2):transport` = mean.tempz^2 * transport  # Interaction term between squared mean.tempz and transport
+     # doy = rep(90:160, length.out = nrow(newdata.temp))
+  )
+
 ```
 
 ```{r add_predictions_SAR_TI}
-df.pred<-newdata %>% 
-  tidybayes::add_epred_draws(mod_natural_steelhead_temp, re_formula = NULL, allow_new_levels = TRUE,transform =TRUE) %>% 
+
+#doy
+df.pred.sar.doy<-newdata.doy %>% 
+  tidybayes::add_epred_draws(mod_natural_chinook_doy, re_formula = NULL, allow_new_levels = TRUE) %>% 
+
   tidybayes::median_qi() %>% 
   rename(SAR = .epred,
          SAR.lo = .lower,
-         SAR.hi = .upper) %>% 
+         SAR.hi = .upper) %>%
   group_by(year, doyz) %>% 
-  mutate(transport = as.factor(transport),
+  mutate( 
          TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
          TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
          TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)) %>% 
-  ungroup() %>% 
+  ungroup() %>%
   mutate(doy = (doyz * scale.sd.doy) + scale.x.doy,
-         date = parse_date_time(x = paste(year, doy), orders = "yj"),
-         temp = (mean.tempz * scale.sd.temp) + scale.x.temp) 
+         date = parse_date_time(x = paste(year, doy), orders = "yj"))
+         # temp = (mean.tempz * scale.sd.temp) + scale.x.temp)
+
+#temp
+df.pred.sar.temp<-newdata.temp %>% 
+  tidybayes::add_linpred_draws(mod_natural_chinook_temp, re_formula = NULL, allow_new_levels = TRUE, transform =TRUE) %>% 
+  tidybayes::median_qi() %>% 
+  rename(SAR = .linpred,
+         SAR.lo = .lower,
+         SAR.hi = .upper) %>%
+  group_by(year, mean.tempz) %>% 
+  mutate( 
+         TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
+         TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
+         TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)) %>% 
+  ungroup() %>%
+  mutate(temp = (mean.tempz * scale.sd.temp) + scale.x.temp)
+```
+
+
+```{r add_predictions_SAR_TI_plots, fig.height=20,fig.width=15}
+#doy
+df.pred.sar.doy %>% 
+  filter(transport == 1, 
+         # year == 1993
+         ) %>%
+ggplot(aes(x = doyz, y = TI, color = transport)) + 
+  geom_line() +
+  geom_point() +
+
+  facet_wrap(~year) +
+  theme_minimal() 
+
+df.pred.sar.doy %>% 
+ggplot(aes(x = doyz, y = SAR, color = as.factor(transport))) + 
+  geom_line() +
+    geom_ribbon(aes(ymin = SAR.lo, ymax = SAR.hi), alpha = 0.2) +
+  facet_wrap(~year) +
+  theme_minimal() 
+
+#temp
+df.pred.sar.temp %>% 
+  filter(transport == 1) %>%
+ggplot(aes(x = mean.tempz, y = TI, color = transport)) + 
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year) +
+  theme_minimal() 
+
+df.pred.sar.temp %>% 
+ggplot() + 
+  geom_line(aes(x = mean.tempz, y = SAR, color = as.factor(transport))) +
+  facet_wrap(~year) +
+  theme_minimal() 
+
+
 
 # back calculate:  df.agg$doyz * attr(df.agg$doyz, 'scaled:scale') + attr(df.agg$doyz, 'scaled:center')
 ```
 
 ```{r append_obsdata_to_predictions}
 #repeat code for each to get prediction
-df.pred.n.stl.temp<-df.pred %>% 
+
+df.pred.w.ch.doy<-df.pred.sar.doy %>% 
   mutate(year = as.character(year),
          transport = as.character(transport)) %>% 
   left_join(select(df.agg, "transport", "year","doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>% 
   mutate( rear_type =   "Natural-origin",#"Hatchery-origin",#
           covariate = "Temperature (°C)",#"Day-of-year (DOY)" ,# 
           species =   "Steelhead", # "Chinook", #
+          transport = as.factor(transport),
+          year = as.factor(year)) %>% 
+  rename( n.obs = n.y)
+
+#repeat code for each to get prediction
+df.pred.w.ch.temp<-df.pred.sar.temp %>% 
+  mutate(year = as.character(year),
+         transport = as.character(transport)) %>% 
+  left_join(select(df.agg, "transport", "year", "sar.pit", "n"), by = c("transport", "year")) %>% 
+  mutate( rear_type =    "Natural-origin", #"Hatchery-origin",#
+          covariate =   "Temperature (°C)", #"Day-of-year (DOY)" , # "Temperature (°C)",#
+          species =    "Chinook", #"Steelhead", #
           transport = as.factor(transport),
           year = as.factor(year)) %>% 
   rename( n.obs = n.y)
