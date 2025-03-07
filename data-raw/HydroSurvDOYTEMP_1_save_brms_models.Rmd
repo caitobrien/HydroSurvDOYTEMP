@@ -1,6 +1,5 @@
 ---
 title: "HydroSurvDOYTEMP_brms_models"
-output: html_notebook
 ---
 
 
@@ -38,8 +37,8 @@ df.agg <- df%>%
   #set reponse as sum of alive per trials 
   summarize(alive = sum(alive),
             n = mean(n),
-            mean.tempz = mean(BON.tempz),
-            mean.temp = mean(BON.temp)) %>% 
+            mean.tempz = mean(mean.tempz),
+            mean.temp = mean(mean.temp)) %>% 
   ungroup() %>% 
   #include sar based on pit tag returns of observed data-- binned by year, weekly doy (doy.bin), and transport (ROR v Transport)
   arrange(year, doy, doyz, transport) %>% 
@@ -211,6 +210,12 @@ kable(r$diffs)
 
 ```
 
+```{r CHECK results}
+pp_check(mod_hatchery_chinook_doy)
+
+mod_natural_chinook_temp
+
+```
 
 
 

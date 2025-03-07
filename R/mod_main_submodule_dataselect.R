@@ -82,6 +82,31 @@ mod_main_submodule_dataselect_server <- function(id, all) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    load("data/all.rda")
+    get("all")
+
+    get_years <- reactive({
+      species <- input$select_spp
+      rear_type <- input$select_rear
+
+      if (length(species) > 1 || length(rear_type) > 1) {
+        return(c(1993:2024))
+      }
+
+      if (species == "Chinook" && rear_type == "Natural-origin") {
+        unique(all$observed[[1]]$year) # c(1993:1996, 1998:2019, 2021:2024)
+      } else if (species == "Chinook" && rear_type == "Hatchery-origin") {
+        unique(all$observed[[2]]$year) # c(1993:1996, 1998:2019, 2021:2024)
+      } else if (species == "Steelhead" && rear_type == "Natural-origin") {
+        unique(all$observed[[3]]$year) # c(1994:2019, 2021:2024)
+      } else if (species == "Steelhead" && rear_type == "Hatchery-origin") {
+        unique(all$observed[[4]]$year) # c(1993:2019, 2021:2024)
+      } else {
+        c(1993:2024)
+      }
+    })
+
+
     # Render the UI for the year picker
     output$year_picker <- renderUI({
 
@@ -89,8 +114,8 @@ mod_main_submodule_dataselect_server <- function(id, all) {
         shinyWidgets::pickerInput(
           inputId = ns("select_years"),
           label = "Select Year(s)",
-          choices = unique(df_mod_predict$year),
-          selected = 2018,
+          choices = get_years(),
+          selected = 2021,
           options = list(`actions-box` = TRUE),
           multiple = TRUE
         )
@@ -130,8 +155,6 @@ mod_main_submodule_dataselect_server <- function(id, all) {
       }
     })
 
-    load("data/all.rda")
-    get("all")
 
     # Filter data based on selections
     filtered_data_pred <- reactive({

@@ -174,20 +174,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
 }
 
 
-# #example
-# set_species<-"Chinook"
-# set_rear_type<- "Natural-origin"
-# set_covariate<- "Temperature (°C)" #"Day-of-year (DOY)"
-# filtered_data<-df_mod_predict %>%
-#   select(doy, temp, transport, year, SAR, SAR.lo, SAR.hi, rear_type, covariate, species) %>%
-#   filter(species == set_species, rear_type == set_rear_type, covariate == set_covariate) %>%
-#   rename(mean.temp = temp) %>%
-#   filter(between(year, 2010, 2018))
-#
-# selected_covariate<-"Temperature (°C)" #"Day-of-year (DOY)"
-# filtered_observed_data<-df_observed %>%
-#   filter(species == set_species, rear_type == set_rear_type) %>%
-#   filter(between(year, 2010, 2018))
-#
-# covar
-# fct_SAR_by_year_plot(data = filtered_data, observed_data = filtered_observed_data, selected_covariate = "Temperature (°C)", selected_years = c(2010:2018), observed = "yes")
+# # # #example
+# df<-as.data.frame(all$doy_pred[1])
+# obs<- as.data.frame(all$observed[1])
+# fct_SAR_by_year_plot(data = df, observed_data = obs, selected_covariate = "Day-of-year (DOY)", observed = "yes")
