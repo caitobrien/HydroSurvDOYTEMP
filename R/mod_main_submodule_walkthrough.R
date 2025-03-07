@@ -45,7 +45,7 @@ mod_main_submodule_walkthrough_ui <- function(id) {
         ),
         br(),
         HTML("<ul>
-                      <li>In some years, SAR survival was relatively flat through the season (1994 & 1997), compared to others (2000 & 2006).</li>
+                      <li>In some years, SAR survival was relatively flat through the season (1994), compared to others (2000 & 2006).</li>
              </ul>"),
         # SAR example2 plot
         fluidRow(
@@ -205,12 +205,12 @@ mod_main_submodule_walkthrough_server <- function(id) {
           covariate == "Day-of-year (DOY)",
           species == "Chinook",
           rear_type == "Natural-origin",
-          year %in% c(1994, 1997, 2000, 2006)
+          year %in% c(1994, 2000, 2006)
         )
 
       fct_SAR_by_year_plot(data = filtered_data, observed = "no") +
         ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season",
-          subtitle = "Years: 1994, 1997, 2000, 2006; Species: Chinook salmon; Rear type: Natural-origin"
+          subtitle = "Years: 1994, 2000, 2006; Species: Chinook salmon; Rear type: Natural-origin"
         )
     })
 

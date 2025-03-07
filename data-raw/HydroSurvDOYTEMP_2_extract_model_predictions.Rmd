@@ -25,11 +25,14 @@ Current code below is setup to manually run each df of choice through to extract
 ```{r data_import}
 #import saved subset file 
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_chinook_data_subset.csv"))
-df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_spsu_chinook_data_subset.csv"))
+df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_chinook_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
 df<-read_csv(here("data-raw/HydroSurvDOYTEMP_data_subset", "hatchery_steelhead_data_subset.csv"))
 
 df<-read_csv(file.choose())
+species<- "steelhead"
+rear_type<-"natural"
+
 ```
 
 ## aggregate subset data
@@ -71,13 +74,13 @@ df.agg <- df%>%
 
 mod_natural_chinook_doy <- readRDS(here::here("data-raw/models", "mod_natural_chinook_doy.rds"))
 mod_natural_chinook_temp<- readRDS(here::here("data-raw/models", "mod_natural_chinook_temp.rds"))
-mod_natural_steelhead_doy<- readRDS(here::here("Examples/results", "mod_natural_steelhead_doy.rds"))
-mod_natural_steelhead_temp<- readRDS(here::here("Examples/results", "mod_natural_steelhead_temp.rds"))
+mod_natural_steelhead_doy<- readRDS(here::here("data-raw/models", "mod_natural_steelhead_doy.rds"))
+mod_natural_steelhead_temp<- readRDS(here::here("data-raw/models", "mod_natural_steelhead_temp.rds"))
 
-mod_hatchery_chinook_doy<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_doy.rds"))
-mod_hatchery_chinook_temp<- readRDS(here::here("Examples/results", "mod_hatchery_chinook_temp.rds"))
-mod_hatchery_steelhead_doy<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_doy.rds"))
-mod_hatchery_steelhead_temp<- readRDS(here::here("Examples/results", "mod_hatchery_steelhead_temp.rds"))
+mod_hatchery_chinook_doy<- readRDS(here::here("data-raw/models", "mod_hatchery_chinook_doy.rds"))
+mod_hatchery_chinook_temp<- readRDS(here::here("data-raw/models", "mod_hatchery_chinook_temp.rds"))
+mod_hatchery_steelhead_doy<- readRDS(here::here("data-raw/models", "mod_hatchery_steelhead_doy.rds"))
+mod_hatchery_steelhead_temp<- readRDS(here::here("data-raw/models", "mod_hatchery_steelhead_temp.rds"))
   
 ```
 
@@ -103,6 +106,13 @@ scale.temp <- scale(as.numeric(df$BON.temp))
 scale.x.temp <- attr(scale.temp, "scaled:center")
 scale.sd.temp <- attr(scale.temp, "scaled:scale")
 
+    years <- if (species == "chinook") {
+      c(1993:1996, 1998:2018)
+    } else if (species == "steelhead" & rear_type == "natural") {
+      c(1994:2018)  # Adjust this range if needed for natural steelhead
+    } else {  # Assuming rear_type is "hatchery" for steelhead
+      c(1993:2018)  # Adjust this range if needed for hatchery steelhead
+    }
 
 newdata.doy <- expand_grid(
   doyz = ((90:160) - scale.x.doy) / scale.sd.doy,
@@ -135,9 +145,11 @@ newdata.temp <- newdata.temp %>%
 ```
 
 ```{r add_predictions_SAR_TI}
+
 #doy
 df.pred.sar.doy<-newdata.doy %>% 
   tidybayes::add_epred_draws(mod_natural_chinook_doy, re_formula = NULL, allow_new_levels = TRUE) %>% 
+
   tidybayes::median_qi() %>% 
   rename(SAR = .epred,
          SAR.lo = .lower,
@@ -211,13 +223,14 @@ ggplot() +
 
 ```{r append_obsdata_to_predictions}
 #repeat code for each to get prediction
+
 df.pred.w.ch.doy<-df.pred.sar.doy %>% 
   mutate(year = as.character(year),
          transport = as.character(transport)) %>% 
   left_join(select(df.agg, "transport", "year","doy", "sar.pit", "n"), by = c("transport", "year", "doy")) %>% 
-  mutate( rear_type =    "Natural-origin", #"Hatchery-origin",#
-          covariate =    "Day-of-year (DOY)" , # "Temperature (°C)",#
-          species =    "Chinook", #"Steelhead", #
+  mutate( rear_type =   "Natural-origin",#"Hatchery-origin",#
+          covariate = "Temperature (°C)",#"Day-of-year (DOY)" ,# 
+          species =   "Steelhead", # "Chinook", #
           transport = as.factor(transport),
           year = as.factor(year)) %>% 
   rename( n.obs = n.y)
@@ -247,6 +260,9 @@ all<-rbind(df.pred.w.ch.doy, df.pred.w.ch.temp,
 
 #saved file will be the dataset used within data for all plots
 write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
+
+df_mod_predict<-all
+usethis::use_data(df_mod_predict, overwrite = TRUE)
 
 
 ```

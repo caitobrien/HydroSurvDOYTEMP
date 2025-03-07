@@ -57,3 +57,16 @@ rsconnect::deployApp(
   lint = FALSE,
   forceUpdate = TRUE
 )
+
+# used this 2/19/25:
+rsconnect::deployApp(
+  appFiles = c(
+    # Add any additional files unique to your app here.
+    "R/",
+    "inst/",
+    "data/",
+    "NAMESPACE",
+    "DESCRIPTION",
+    "app.R"
+  )
+)
