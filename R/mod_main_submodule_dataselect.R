@@ -134,10 +134,30 @@ mod_main_submodule_dataselect_server <- function(id, all) {
     get("all")
 
     # Filter data based on selections
-    filtered_data <- reactive({
+    filtered_data_pred <- reactive({
 
       # extract list for covariate
-      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy else if(input$select_cov == "Temperature (°C)") all$temp
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_pred else if(input$select_cov == "Temperature (°C)") all$temp_pred
+      # Filter based on inputs
+      filtered_list <- purrr::map(selected_list, ~ .x %>%
+                                    dplyr::filter(
+                                      species %in% c(input$select_spp),
+                                      rear_type %in% c(input$select_rear),
+                                      if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
+                                    ) %>%
+                                    mutate(transport = as.factor(transport))
+      )
+
+      # Combine filtered list into a single data frame
+      filtered_data <- dplyr::bind_rows(filtered_list)
+      return(filtered_data)
+    })
+
+    # Filter data based on selections
+    filtered_data_ti <- reactive({
+
+      # extract list for covariate
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_ti else if(input$select_cov == "Temperature (°C)") all$temp_ti
       # Filter based on inputs
       filtered_list <- purrr::map(selected_list, ~ .x %>%
                                     dplyr::filter(
@@ -160,7 +180,9 @@ mod_main_submodule_dataselect_server <- function(id, all) {
                                       species %in% c(input$select_spp),
                                       rear_type %in% c(input$select_rear),
                                       if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
-                                    )
+                                    ) %>%
+                                    mutate(transport = as.factor(transport))
+
       )
 
       # Combine filtered list into a single data frame
@@ -170,7 +192,8 @@ mod_main_submodule_dataselect_server <- function(id, all) {
 
     # Return the filtered data as a reactive list
     return(list(
-      filtered_data = reactive(filtered_data),
+      filtered_data_pred = reactive(filtered_data_pred),
+      filtered_data_ti = reactive(filtered_data_ti),
       filtered_observed_data = reactive(filtered_observed_data),
       year_display = reactive(year_display),
       plot_height = reactive(plot_height),

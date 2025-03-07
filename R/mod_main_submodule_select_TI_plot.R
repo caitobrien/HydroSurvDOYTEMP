@@ -55,11 +55,11 @@ mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plo
         # Filter data based on user selection
         if (year_display() == "All Years") {
 
-          fct_TI_all_years_plot(data())
+          fct_TI_all_years_plot(data(), selected_covariate())
 
         } else if (year_display() == "Year") {
 
-          fct_TI_by_years_plot(data())
+          fct_TI_by_years_plot(data(), selected_covariate())
 
         }
       }, height = plot_height() #this works--might try putting reactive lenth here as if-else instead?

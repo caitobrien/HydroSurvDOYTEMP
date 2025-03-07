@@ -194,10 +194,10 @@ scale.sd <- newdata$scale.sd
       ) %>%
       mutate(
         ti = SAR_1 / SAR_0,
-        ti_lower90 = SAR.lo_1 / SAR.hi_0,
-        ti_upper90 = SAR.hi_1 / SAR.lo_0
+        ti_lower95 = SAR.lo_1 / SAR.hi_0,
+        ti_upper95 = SAR.hi_1 / SAR.lo_0
       ) %>% 
-      select(year, doy, ti, ti_lower90, ti_upper90) %>% 
+      select(year, doy, ti, ti_lower95, ti_upper95) %>% 
       mutate(
         rear_type = rear_type,
         covariate = covariate,
@@ -238,10 +238,10 @@ scale.sd <- newdata$scale.sd
       ) %>%
       mutate(
         ti = SAR_1 / SAR_0,
-        ti_lower90 = SAR.lo_1 / SAR.hi_0,
-        ti_upper90 = SAR.hi_1 / SAR.lo_0
+        ti_lower95 = SAR.lo_1 / SAR.hi_0,
+        ti_upper95 = SAR.hi_1 / SAR.lo_0
       ) %>% 
-      select(year, mean.temp, ti, ti_lower90, ti_upper90) %>% 
+      select(year, mean.temp, ti, ti_lower95, ti_upper95) %>% 
       mutate(
         rear_type = rear_type,
         covariate = covariate,
