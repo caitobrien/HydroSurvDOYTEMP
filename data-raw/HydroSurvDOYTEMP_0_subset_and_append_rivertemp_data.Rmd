@@ -1,6 +1,6 @@
 ---
 title: "Subset original data and append river temperature data"
-output: html_notebook
+
 ---
 
 This code is was used to produce the subset dataset used for each model which can be found in the data-raw/ folder. 
@@ -32,7 +32,7 @@ DATA <- read.csv(file = file.choose(), stringsAsFactors = FALSE, na.strings = c(
 df<- DATA %>%
   # filter to include wild all run types, with a transport code released from LGR
   filter(
-    t_rear_type == "W",
+    t_rear_type == "W", #adjust as needed
     !is.na(pass_type),
     str_detect(rel_site, "LGR")
   ) %>%
@@ -43,7 +43,7 @@ df<- DATA %>%
   ) %>%
   
   filter(
-    between(year, 1993, 2018),
+    between(year, 1993, 2024),
     between(doy, 80, 160)
   ) %>%
   # redesignate tranportation codes--double check on -S and -T at other locations 
@@ -67,56 +67,52 @@ df<- DATA %>%
   mutate(
     transport = if_else(pass_type_T_R == "T", 1, 0),
     alive = if_else(!is.na(adu_lgr_first), 1, 0),
-    doyz = scale(doy, center = TRUE, scale = TRUE)
+    doyz = scale(doy, center = TRUE, scale = TRUE),
+    year = as.factor(year)
   ) 
-
-#save subset output to data-raw/ folder --rerun and update naming for each subsetted dataset
-#write.csv(df, row.names = F, here("data-raw", "wild_spsu_chinook_data_subset.csv"))
-
 ```
 
 # River data
 
-This code is used to import BON river temperature data and calculate 7-day rolling averages for the years 1993-2018. The data is then merged into a larger dataset for further analysis. 
+This code is used to import LGR river temperature data and calculate 7-day rolling averages for the years 1993-2018. The data is then merged into a larger dataset for further analysis. 
 
 
 ```{r setup, eval=FALSE}
-BON.temp.raw<-read_csv(here::here("data-raw", "rivermg_1704223998_133.csv")) #update to pull from CBR link
 
-BON.temp.data <- BON.temp.raw %>%
-  # mutate(across(everything(), ~ifelse(.=="", NA, as.character(.)))) %>%
-    filter(!row_number() %in% c(367:370)) %>% 
-  pivot_longer(
-    cols = c(2:27),
-    names_to = "ID",
-    values_to = "value"
-  ) %>%
-  separate(ID, c("CY", "BON", "ID")) %>%
-  pivot_wider(
-    names_from = "ID",
-    values_from = "value"
-  ) %>%
-  mutate_at(c("tempc"), as.numeric) %>%
-  separate(1, c("mm", "dd")) %>%
-  mutate(
-    CY = as.numeric(CY),
-    mm = as.numeric(mm),
-    dd = as.numeric(dd)
-  ) %>%
-  arrange(CY) %>% # sort data to use rollmean
-  group_by(CY) %>%
-  filter(complete.cases(tempc)) %>% #remove any days without temp (following JG's code) -update for age of return?
-  mutate(
-    BON.temp = rollmean(tempc, k = 7, fill = NA, align = "right") #same as JG code, returns NA for 7 day average with NA's present
-    # BON.temp.apply = rollapply(tempc, width = 7, FUN = function(x) mean(x, na.rm = TRUE), by = 1, by.column = TRUE, partial = TRUE, fill = NA, align = "right") #adjusts for NA's within d7 averages
-  ) %>%
-  mutate(YMD = lubridate::ymd(paste(CY, mm, dd, sep = "-"))) %>%
-  mutate(DOY = lubridate::yday(YMD)) %>%
- # select("CY","mm", "DOY", "BON.temp") %>%
-  mutate(
-    CY = as.numeric(CY),
-    DOY = as.numeric(DOY)
+#set years
+years<-c(1993:2020,2022:2024) #drop 2021 LWG to be replaced with tailrace
+# Concatenate the years into the URL
+year_param <- paste(sprintf("year%%5B%%5D=%s", years), collapse = "&")
+
+# Create the URL with the updated year parameter and multiple sites
+url <- sprintf("https://www.cbr.washington.edu/dart/cs/php/rpt/mg.php?sc=1&mgconfig=river&outputFormat=csvSingle&%s&loc%%5B%%5D=LWG&data%%5B%%5D=Temp+%%28WQM%%29&startdate=1%%2F1&enddate=12%%2F31&avgyear=0&consolidate=1&grid=1&y1min=0&y1max=&y2min=&y2max=&size=large", year_param)
+
+lwg_forebay_temp <- read.csv(url, header = TRUE, stringsAsFactors = FALSE) %>%
+  drop_na() %>% 
+  mutate(date = ymd(paste(year, mm.dd, sep = "-")),
+         doy = yday(date)
   )
+
+#pull in 2021 tailrace lwg temperature -- missing data
+url_2021<-"https://www.cbr.washington.edu/dart/cs/php/rpt/mg.php?sc=1&mgconfig=river&outputFormat=csvSingle&year%5B%5D=2021&loc%5B%5D=LGNW&data%5B%5D=Temp+%28WQM%29&startdate=1%2F1&enddate=12%2F31&avgyear=0&consolidate=1&grid=1&y1min=0&y1max=&y2min=&y2max=&size=large"
+
+# wrangle 2021 data to append to historical data
+lnwg_2021_temp<-read.csv(url_2021, header = TRUE, stringsAsFactors = FALSE) %>%
+  mutate(date = ymd(paste(year, mm.dd, sep = "-")),
+         doy = yday(date)
+         ) %>% 
+  drop_na()
+#combine 2021 with rest of years
+LWG.temp.data<- lwg_forebay_temp %>%
+  bind_rows(lnwg_2021_temp)
+
+LWG.temp.data <- LWG.temp.data %>%
+  select(year,doy,value) %>% 
+  arrange(year, doy) %>%
+  mutate(mean.temp = c(rep(NA,6), zoo::rollmean(value, k = 7, align = "right"))) %>% 
+  select(-value) %>% 
+  mutate(year = as.factor(year))
+
 
 ```
 
@@ -127,15 +123,11 @@ BON.temp.data <- BON.temp.raw %>%
 
 
 df<- df%>% 
-  # mutate(
-  #   year = as.character(year),
-  #   doy = as.character(doy)
-  # ) %>% 
-  left_join(y= select(BON.temp.data, BON.temp, CY, DOY), by = c("year" = "CY", "doy" = "DOY")) %>% 
-  mutate ( BON.tempz = scale(BON.temp, center = TRUE, scale = TRUE)
+  left_join(y= LWG.temp.data, by = c("year", "doy")) %>% 
+  mutate ( mean.tempz = scale(mean.temp, center = TRUE, scale = TRUE)
   ) 
 
 # save subset output to data-raw/ folder and update naming
-#write.csv(df, row.names = F, here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
+write.csv(df, row.names = F, here("data-raw/HydroSurvDOYTEMP_data_subset", "natural_steelhead_data_subset.csv"))
 ```
 
