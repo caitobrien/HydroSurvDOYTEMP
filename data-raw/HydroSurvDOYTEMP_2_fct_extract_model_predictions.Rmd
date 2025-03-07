@@ -75,7 +75,7 @@ aggregate_data <- function(df, data_file) {
 }
 
 # #check aggregate data
-# df.agg<-aggregate_data(df)
+# df.agg<-aggregate_data(df,filename)
 
 # Define a function to import models
 import_model <- function(filename) {
@@ -132,7 +132,7 @@ generate_newdata <- function(df,model_name) {
   scale.sd <- attr(scale.temp, "scaled:scale")
   
   newdata <- expand_grid(
-  mean.tempz = (seq(from = 6, to = 15, by = 0.1) - scale.x)/scale.sd, #following range set by JG in first shiny edition 
+  mean.tempz = (seq(from = 6, to = 18, by = 0.1) - scale.x)/scale.sd, #following range set by JG in first shiny edition --> update to extend to 18degC
   transport = c(0, 1),
   year = years,
   n = 1
@@ -174,14 +174,6 @@ scale.sd <- newdata$scale.sd
         SAR.lo = .lower,
         SAR.hi = .upper
       ) %>%
-      group_by(year, doyz) %>%
-      mutate(
-        transport = as.factor(transport),
-        TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
-        TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
-        TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
-      ) %>%
-      ungroup() %>%
       mutate(
         doy = (doyz * scale.sd) + scale.x,
         date = parse_date_time(x = paste(year, doy), orders = "yj"),
@@ -192,8 +184,30 @@ scale.sd <- newdata$scale.sd
         species = species,
         year = as.factor(year)
       )
-  
-  return(df.pred)
+    
+    df.ti <- df.pred %>%
+      select(year, doy, transport, SAR, SAR.lo, SAR.hi) %>%
+      pivot_wider(
+        names_from = transport,
+        values_from = c(SAR, SAR.lo, SAR.hi),
+        names_glue = "{.value}_{transport}"
+      ) %>%
+      mutate(
+        ti = SAR_1 / SAR_0,
+        ti_lower90 = SAR.lo_1 / SAR.hi_0,
+        ti_upper90 = SAR.hi_1 / SAR.lo_0
+      ) %>% 
+      select(year, doy, ti, ti_lower90, ti_upper90) %>% 
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        year = as.factor(year)
+      )
+
+  return(list(df.pred,
+              df.ti)
+  )
 
   } else {
     print( paste("predictions for temp", model_name))
@@ -205,14 +219,6 @@ scale.sd <- newdata$scale.sd
         SAR.lo = .lower,
         SAR.hi = .upper
       ) %>%
-      group_by(year, mean.tempz) %>%
-      mutate(
-        transport = as.factor(transport),
-        TI = if_else(transport == 1, (SAR[transport == 1] / SAR[transport == 0]), NA),
-        TI.lo = ifelse(transport == 1, SAR.lo[transport == 1] / SAR.lo[transport == 0], NA),
-        TI.hi = ifelse(transport == 1, SAR.hi[transport == 1] / SAR.hi[transport == 0], NA)
-      ) %>%
-      ungroup() %>%
       mutate(
         mean.temp = (mean.tempz * scale.sd) + scale.x
       ) %>% 
@@ -222,11 +228,34 @@ scale.sd <- newdata$scale.sd
         species = species,
         year = as.factor(year)
       )
+    
+    df.ti <- df.pred %>%
+      select(year, mean.temp, transport, SAR, SAR.lo, SAR.hi) %>%
+      pivot_wider(
+        names_from = transport,
+        values_from = c(SAR, SAR.lo, SAR.hi),
+        names_glue = "{.value}_{transport}"
+      ) %>%
+      mutate(
+        ti = SAR_1 / SAR_0,
+        ti_lower90 = SAR.lo_1 / SAR.hi_0,
+        ti_upper90 = SAR.hi_1 / SAR.lo_0
+      ) %>% 
+      select(year, mean.temp, ti, ti_lower90, ti_upper90) %>% 
+      mutate(
+        rear_type = rear_type,
+        covariate = covariate,
+        species = species,
+        year = as.factor(year)
+      )
   
-  return(df.pred)
+  return(list(df.pred,
+              df.ti)
+  )
   }
 }
 
+#---not needed: 
 # #check predictions 
 # df.pred<-add_predictions(newdata = newdata , model_info = model)
 # 
@@ -304,7 +333,7 @@ model_files <- list(
 )
 
 # Loop over data files and models
-all <- list(doy = list(), temp = list(), observed = list()) # Initialize 'all' as an empty data frame
+all <- list(doy_pred = list(),doy_ti = list(), temp_pred = list(), temp_ti = list(), observed = list()) # Initialize 'all' as an empty data frame
 
 for (data_file in data_files) {
   df <- import_data(data_file)
@@ -316,21 +345,27 @@ for (data_file in data_files) {
   for (model_file in models) {
     model_info <- import_model(model_file)
     newdata_info <- generate_newdata(df, model_info$model_name)
-    df.pred <- add_predictions(newdata_info,
+    prediction_ouput<- add_predictions(newdata_info,
                                model_info
                               )
+    df.pred<-prediction_ouput[[1]]
+    df.ti<-prediction_ouput[[2]]
     # df.pred <- append_obsdata_to_predictions(df.pred,
     #                                          df.agg,
     #                                          model_info$model_name)
 
     # Store predictions in the appropriate list based on the model_name
     if (grepl("doy", model_info$model_name)) {
-      all$doy <- append(all$doy, list(df.pred))
+      all$doy_pred <- append(all$doy_pred, list(df.pred))
+      all$doy_ti <- append(all$doy_ti, list(df.ti))
     } else if (grepl("temp", model_info$model_name)) {
-      all$temp <- append(all$temp, list(df.pred))
+      all$temp_pred <- append(all$temp_pred, list(df.pred))
+      all$temp_ti <- append(all$temp_ti, list(df.ti))
     }
   }
 }
+
+usethis::use_data(all, overwrite = TRUE)
 
 # Combine the results using bind_rows for each list
 all_doy <- dplyr::bind_rows(all$doy)
