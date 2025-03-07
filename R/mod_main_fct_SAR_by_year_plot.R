@@ -6,7 +6,7 @@
 #'
 #' @noRd
 
-fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_covariate, observed = "no"){
+fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed = "no"){
 
   if (observed == "no") {
 
@@ -18,6 +18,8 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
       x_var <- data_summarized$doy
       covar_label <- "Day-of-year (DOY)"
 
+      x_breaks <- seq(90, 160, by = 10)
+
     } else if (selected_covariate == "Temperature (°C)") {
       data_summarized<- data %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
@@ -25,6 +27,8 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
 
       x_var <- data_summarized$mean.temp
       covar_label <- "Temperature (°C)"
+
+      x_breaks <- seq(6, 18, by = 2)
     }
 
   p <-
@@ -49,6 +53,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
     ggplot2::scale_linetype_manual(values = c("solid","dashed"),
                           breaks = c("0", "1"),
                           labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
+    ggplot2::scale_x_continuous(breaks = x_breaks) +
     ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
                                 order = 1),
            size = ggplot2::guide_legend(override.aes = list(
@@ -146,6 +151,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_years, selected_cov
                                   labels = c("In-river", "Transported")) +
       ggplot2::scale_size_continuous(range = c(1, 5),
                                      breaks = c(10, pretty(c(10, max(stats::na.omit(wrangled_observed_data$n)), n = 3)))) +
+      ggplot2::scale_x_continuous(breaks = x_breaks) +
       ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
                                                     order = 1),
                       size = ggplot2::guide_legend(override.aes = list(

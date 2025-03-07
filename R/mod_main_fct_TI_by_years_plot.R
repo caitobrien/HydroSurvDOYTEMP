@@ -32,9 +32,8 @@ fct_TI_by_years_plot <- function(data, selected_covariate) {
   # plot
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = ti, group = year)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin = ti_lower95, ymax = ti_upper95, fill = "Predicted median,\nwith 95% CI"), alpha = 0.25) +
+    ggdist::geom_lineribbon(ggplot2::aes(y = ti, ymin = ti_lower90, ymax = ti_upper90, fill = "Predicted median,\nwith 95% CI"), alpha = 0.1) +
     ggplot2::geom_point(ggplot2::aes(fill = "Predicted median,\nwith 95% CI"))+
-    ggplot2::geom_line(ggplot2::aes(color = "Predicted median,\nwith 95% CI"))+
     ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",

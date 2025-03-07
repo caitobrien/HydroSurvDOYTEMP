@@ -29,7 +29,7 @@ mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
 #' compare_single_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display, years_selected){
+mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data_pred, data_ti, observed_data, year_display, years_selected,  selected_covariate){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -55,11 +55,17 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data, year_display
           year_selected <- years_selected()[i]
 
           # Filter data for the current year
-          data_filtered_year <- data() %>% dplyr::filter(year == year_selected)
+          data_filtered_year_pred <- data_pred() %>% dplyr::filter(year == year_selected)
+          data_filtered_year_ti <- data_ti() %>% dplyr::filter(year == year_selected)
+          data_filtered_observed_data <- observed_data() %>% dplyr::filter(year == year_selected)
 
 
           plots_list[[as.character(year_selected)]] <- fct_compare_SAR_TI_plot(
-            data = data_filtered_year
+            data_pred = data_filtered_year_pred,
+            data_ti = data_filtered_year_ti,
+            observed_data = data_filtered_observed_data,
+            selected_year = year_selected,
+            selected_covariate = selected_covariate()
 
           )
         }
