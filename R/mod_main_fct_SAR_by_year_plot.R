@@ -6,12 +6,16 @@
 #'
 #' @noRd
 
-fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed = "no"){
+fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, observed = "no"){
+
+  # Define the adu return year threshold dynamically
+  last_outmigration_year <- 2024
+  first_return_year <- last_outmigration_year - 3
 
   if (observed == "no") {
 
     if (selected_covariate == "Day-of-year (DOY)") {
-      data_summarized<- data %>%
+      data_summarized<- data_pred %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year)
 
@@ -21,7 +25,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
       x_breaks <- seq(90, 160, by = 10)
 
     } else if (selected_covariate == "Temperature (°C)") {
-      data_summarized<- data %>%
+      data_summarized<- data_pred %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year)
 
@@ -37,7 +41,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
     tidybayes::geom_lineribbon(ggplot2::aes(y = SAR, ymin = SAR.lo, ymax = SAR.hi, fill = transport, color = transport),
                                alpha = .25
     ) +
-    ggplot2::labs( x = covar_lab,
+    ggplot2::labs( x = covar_label,
           y = "Smolt-to-Adult Ratio\n(SAR)",
           size = "Number of fish observed",
           color = "Predicted SAR",
@@ -69,12 +73,15 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
           panel.spacing = ggplot2::unit(2, "lines"),
           panel.grid.minor = ggplot2::element_blank(),
           text = ggplot2::element_text(size = 15))
+
+  #*does not include annotation text--since using in walkthrough for specific year example.
+
   } else if (observed == "yes") {
 
 
     if (selected_covariate == "Day-of-year (DOY)") {
       #predicted data
-      data_summarized<- data %>%
+      data_summarized<- data_pred %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year)
 
@@ -94,7 +101,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
     } else if (selected_covariate == "Temperature (°C)") {
 
       #prediction data
-      data_summarized<- data %>%
+      data_summarized<- data_pred %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year)
 
@@ -166,8 +173,10 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
                      strip.text = ggplot2::element_text(colour = 'black'),
                      panel.spacing = ggplot2::unit(2, "lines"),
                      panel.grid.minor = ggplot2::element_blank(),
-                     text = ggplot2::element_text(size = 15))
-
+                     text = ggplot2::element_text(size = 15)) +
+      ggplot2::geom_text(data = data_summarized %>% dplyr::filter(as.numeric(as.character(year)) >= first_return_year),
+                         ggplot2::aes(x = Inf, y = Inf, label = "*Out-of-sample prediction until all adults return"),
+                         hjust = 1.1, vjust = 1.1, size = 3, color = "red", inherit.aes = FALSE)
   }
     return(p)
 

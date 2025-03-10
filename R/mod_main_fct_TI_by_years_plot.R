@@ -7,6 +7,9 @@
 #' @noRd
 fct_TI_by_years_plot <- function(data, selected_covariate) {
 
+  # Define the adu return year threshold dynamically
+  last_outmigration_year <- 2024
+  first_return_year <- last_outmigration_year - 3
 
   if (selected_covariate == "Day-of-year (DOY)") {
     data_summarized<- data %>%
@@ -50,7 +53,10 @@ fct_TI_by_years_plot <- function(data, selected_covariate) {
           panel.spacing = ggplot2::unit(2, "lines"),
           panel.grid.minor = ggplot2::element_blank(),
           text = ggplot2::element_text(size = 15)
-          )
+          ) +
+    ggplot2::geom_text(data = data_summarized %>% dplyr::filter(as.numeric(as.character(year)) >= first_return_year),
+                       ggplot2::aes(x = Inf, y = Inf, label = "*Out-of-sample prediction until all adults return"),
+                       hjust = 1.1, vjust = 1.1, size = 3, color = "red", inherit.aes = FALSE)
 
   p
 }

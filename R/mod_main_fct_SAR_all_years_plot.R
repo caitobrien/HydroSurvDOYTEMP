@@ -7,12 +7,43 @@
 #' @noRd
 
 
-fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, observed = "no") {
+fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate, observed = "no") {
+
+
+  # Remove outmigration year data that does not include all adult returns (i.e, 3 years since last outmigration year have not passed)
+  last_outmigration_year<-data_pred %>%
+    dplyr::mutate(year = as.numeric(as.character(year))) %>%
+    dplyr::pull(year) %>%
+    max()
+
+  current_year<-lubridate::year(Sys.Date())
+  current_doy <- lubridate::yday(Sys.Date())
+
+
+  adjusted_complete_adult_returns<-if (current_year > last_outmigration_year && current_doy < 160) {
+    adjusted_years<- current_year-3
+    adjusted_complete_adult_returns<- c(adjusted_years:last_outmigration_year)
+  } else if (current_year > last_outmigration_year && current_doy > 160){
+    adjusted_years<- last_outmigration_year-3
+    adjusted_complete_adult_returns<- c(adjusted_years:current_year)
+  }
+
+  data_pred <- dplyr::filter(data_pred, !year %in% adjusted_complete_adult_returns) %>%
+    dplyr::mutate(year = as.factor(year))
+
+  min_year<- data_pred %>%
+    dplyr::mutate(year = as.numeric(as.character(year))) %>%
+    dplyr::pull(year) %>%
+    min()
+  max_year<-data_pred %>%
+    dplyr::mutate(year = as.numeric(as.character(year))) %>%
+    dplyr::pull(year) %>%
+    max()
 
   if (observed == "no") {
 
   if (selected_covariate == "Day-of-year (DOY)") {
-    data_median<- data %>%
+    data_median<- data_pred %>%
       dplyr::group_by(covariate, species, rear_type, transport, doy) %>%
       ggdist::median_qi(SAR, na.rm=TRUE)
 
@@ -20,7 +51,7 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
     covar_label <- "Day-of-year (DOY)"
 
   } else if (selected_covariate == "Temperature (°C)") {
-    data_median<- data %>%
+    data_median<- data_pred %>%
       dplyr::group_by(covariate, species, rear_type, transport, mean.temp) %>%
       ggdist::median_qi(SAR, na.rm=TRUE)
 
@@ -50,7 +81,8 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
       y = "Smolt-to-Adult Ratio\n(SAR)",
       color = "Predicted SAR",
       fill = "Predicted SAR",
-      title = NULL
+      title = NULL,
+      caption = paste("\nFigure does not include years with incomplete adult returns.\nData includes years:", min_year, "to", max_year)
     ) +
     ggplot2::theme_light() +
     ggplot2::facet_grid(rear_type ~ species, scales = "free") +
@@ -63,7 +95,7 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
 
     if (selected_covariate == "Day-of-year (DOY)") {
       #predicted data
-      data_median<- data %>%
+      data_median<- data_pred %>%
         dplyr::group_by(covariate, species, rear_type, transport, doy) %>%
         ggdist::median_qi(SAR, na.rm=TRUE)
 
@@ -88,7 +120,7 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
     } else if (selected_covariate == "Temperature (°C)") {
 
       #prediction data
-      data_median<- data %>%
+      data_median<- data_pred %>%
         dplyr::group_by(covariate, species, rear_type, transport, mean.temp) %>%
         ggdist::median_qi(SAR, na.rm=TRUE)
 
@@ -149,7 +181,8 @@ fct_SAR_all_years_plot <- function(data, observed_data, selected_covariate, obse
         color = "Predicted SAR",
         fill = "Predicted SAR",
         title = NULL,
-        shape = "Observed data"
+        shape = "Observed data",
+        caption = paste("\nFigure does not include years with incomplete adult returns.\nData includes years:", min_year, "to", max_year)
       ) +
       ggplot2::scale_x_continuous(breaks = x_breaks) +
       ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747")))) + # change predator legend to squares

@@ -35,7 +35,7 @@ mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plo
     # Dynamic title based on user selection
     output$title_html <- renderUI({
       title_text <- if (year_display() == "All Years") {
-        "Viewing all years: 1993 to 2018"
+        "Viewing all years: 1993 to 2021"
       } else if (year_display() == "Year") {
 
         # Check if any years are selected

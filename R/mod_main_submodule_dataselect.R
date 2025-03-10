@@ -78,31 +78,29 @@ mod_main_submodule_dataselect_ui <- function(id) {
 #' dataselect Server Functions
 #'
 #' @noRd
-mod_main_submodule_dataselect_server <- function(id, all) {
+mod_main_submodule_dataselect_server <- function(id, model_output) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    load("data/all.rda")
-    get("all")
 
     get_years <- reactive({
       species <- input$select_spp
       rear_type <- input$select_rear
 
       if (length(species) > 1 || length(rear_type) > 1) {
-        return(c(1993:2024))
+        return(c(1993:2019,2021:2024))
       }
 
       if (species == "Chinook" && rear_type == "Natural-origin") {
-        unique(all$observed[[1]]$year) # c(1993:1996, 1998:2019, 2021:2024)
+        unique(model_output$observed[[1]]$year) # c(1993:1996, 1998:2019, 2021:2024)
       } else if (species == "Chinook" && rear_type == "Hatchery-origin") {
-        unique(all$observed[[2]]$year) # c(1993:1996, 1998:2019, 2021:2024)
+        unique(model_output$observed[[2]]$year) # c(1993:1996, 1998:2019, 2021:2024)
       } else if (species == "Steelhead" && rear_type == "Natural-origin") {
-        unique(all$observed[[3]]$year) # c(1994:2019, 2021:2024)
+        unique(model_output$observed[[3]]$year) # c(1994:2019, 2021:2024)
       } else if (species == "Steelhead" && rear_type == "Hatchery-origin") {
-        unique(all$observed[[4]]$year) # c(1993:2019, 2021:2024)
+        unique(model_output$observed[[4]]$year) # c(1993:2019, 2021:2024)
       } else {
-        c(1993:2024)
+        c(1993:2019,2021:2024) #no 2020 data for any spp/rear combo
       }
     })
 
@@ -160,7 +158,7 @@ mod_main_submodule_dataselect_server <- function(id, all) {
     filtered_data_pred <- reactive({
 
       # extract list for covariate
-      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_pred else if(input$select_cov == "Temperature (°C)") all$temp_pred
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") model_output$doy_pred else if(input$select_cov == "Temperature (°C)") model_output$temp_pred
       # Filter based on inputs
       filtered_list <- purrr::map(selected_list, ~ .x %>%
                                     dplyr::filter(
@@ -173,8 +171,6 @@ mod_main_submodule_dataselect_server <- function(id, all) {
 
       # Combine filtered list into a single data frame
       filtered_data <- dplyr::bind_rows(filtered_list)
-      print(filtered_data)
-      print(glimpse(filtered_data))
 
       return(filtered_data)
     })
@@ -183,7 +179,7 @@ mod_main_submodule_dataselect_server <- function(id, all) {
     filtered_data_ti <- reactive({
 
       # extract list for covariate
-      selected_list <- if (input$select_cov == "Day-of-year (DOY)") all$doy_ti else if(input$select_cov == "Temperature (°C)") all$temp_ti
+      selected_list <- if (input$select_cov == "Day-of-year (DOY)") model_output$doy_ti else if(input$select_cov == "Temperature (°C)") model_output$temp_ti
       # Filter based on inputs
       filtered_list <- purrr::map(selected_list, ~ .x %>%
                                     dplyr::filter(
@@ -201,7 +197,7 @@ mod_main_submodule_dataselect_server <- function(id, all) {
     filtered_observed_data <- reactive({
 
       # Filter each list element based on user selections
-      filtered_list <- purrr::map(all$observed, ~ .x %>%
+      filtered_list <- purrr::map(model_output$observed, ~ .x %>%
                                     dplyr::filter(
                                       species %in% c(input$select_spp),
                                       rear_type %in% c(input$select_rear),

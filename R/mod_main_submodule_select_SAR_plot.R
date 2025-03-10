@@ -35,7 +35,7 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, y
     # Dynamic title based on user selection
     output$title_html <- renderUI({
       title_text <- if (year_display() == "All Years") {
-        "Viewing all years: 1993 to 2018"
+        "Viewing years: 1993 to 2021"
       } else if (year_display() == "Year") {
 
         # Check if any years are selected
@@ -57,12 +57,12 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, y
       # Filter data based on user selection
        if (year_display() == "All Years") {
 
-         fct_SAR_all_years_plot(data = data(),observed_data = observed_data(),selected_covariate = selected_covariate(), observed = "yes")
+         fct_SAR_all_years_plot(data_pred = data(),observed_data = observed_data(),selected_covariate = selected_covariate(), observed = "yes")
 
 
       } else if (year_display() == "Year") {
 
-        fct_SAR_by_year_plot(data =data(), observed_data = observed_data(), observed = "yes", selected_covariate = selected_covariate())
+        fct_SAR_by_year_plot(data_pred =data(), observed_data = observed_data(), observed = "yes", selected_covariate = selected_covariate())
 
        }
       }, height = plot_height()
