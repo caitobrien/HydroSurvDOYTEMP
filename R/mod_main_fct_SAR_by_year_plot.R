@@ -85,7 +85,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
       wrangled_observed_data <- observed_data %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year) %>%
-        filter(n > 7) #remove data points with less than 7 observations
+        dplyr::filter(n > 7) #remove data points with less than 7 observations
 
       x_var_obs<- wrangled_observed_data$doy
 
@@ -105,7 +105,7 @@ fct_SAR_by_year_plot<-function(data, observed_data, selected_covariate, observed
       wrangled_observed_data <- observed_data %>%
         dplyr::mutate(species_rear = interaction(species, rear_type)) %>%
         dplyr::group_by(year) %>%
-        filter(n > 7) #remove data points with less than 7 observations
+        dplyr::filter(n > 7) #remove data points with less than 7 observations
 
       x_var_obs<- wrangled_observed_data$mean.temp
 

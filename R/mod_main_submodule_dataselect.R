@@ -168,11 +168,14 @@ mod_main_submodule_dataselect_server <- function(id, all) {
                                       rear_type %in% c(input$select_rear),
                                       if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
                                     ) %>%
-                                    mutate(transport = as.factor(transport))
+                                    dplyr::mutate(transport = as.factor(transport))
       )
 
       # Combine filtered list into a single data frame
       filtered_data <- dplyr::bind_rows(filtered_list)
+      print(filtered_data)
+      print(glimpse(filtered_data))
+
       return(filtered_data)
     })
 
@@ -204,7 +207,7 @@ mod_main_submodule_dataselect_server <- function(id, all) {
                                       rear_type %in% c(input$select_rear),
                                       if (input$year_display == "Year" && !is.null(input$select_years)) year %in% c(input$select_years) else TRUE
                                     ) %>%
-                                    mutate(transport = as.factor(transport))
+                                    dplyr::mutate(transport = as.factor(transport))
 
       )
 
