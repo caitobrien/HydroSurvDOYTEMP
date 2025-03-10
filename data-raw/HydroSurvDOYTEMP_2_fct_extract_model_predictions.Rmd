@@ -12,7 +12,7 @@ library(modelr)
 ```
 
 
-```{r}
+```{r functions}
 #running out of mememory when trying to run all models-- switch to lists or use manual method? Or try a single model just to confirm all works. 
 
 # Define a function to import data
@@ -168,7 +168,7 @@ scale.sd <- newdata$scale.sd
     
     df.pred <- new_data %>%
       tidybayes::add_epred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
-      tidybayes::median_qi() %>%
+      tidybayes::median_qi() %>% #default uses 95% CI
       rename(
         SAR = .epred,
         SAR.lo = .lower,
@@ -214,7 +214,7 @@ scale.sd <- newdata$scale.sd
     print( paste("predictions for temp", model_name))
     df.pred <- new_data %>%
       tidybayes::add_epred_draws(model, re_formula = NULL, allow_new_levels = TRUE, transform = TRUE) %>%
-      tidybayes::median_qi() %>%
+      tidybayes::median_qi() %>% #default uses 95% CI
       rename(
         SAR = .epred,
         SAR.lo = .lower,
@@ -305,22 +305,24 @@ for (data_file in data_files) {
   }
 }
 
-usethis::use_data(all, overwrite = TRUE)
+model_output<-all
 
-# Combine the results using bind_rows for each list
-all_doy <- dplyr::bind_rows(all$doy)
-all_temp <- dplyr::bind_rows(all$temp)
+usethis::use_data(model_output, overwrite = TRUE)
 
-# Combine all results into a single data frame
-all_combined <- dplyr::bind_rows(all_doy, all_temp)
-
-
-# #add as rds file for golem framework
-df_mod_predict<-all_combined
-# usethis::use_data(df_mod_predict)
-
-# Export predictions
-write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
+# # Combine the results using bind_rows for each list
+# all_doy <- dplyr::bind_rows(all$doy)
+# all_temp <- dplyr::bind_rows(all$temp)
+# 
+# # Combine all results into a single data frame
+# all_combined <- dplyr::bind_rows(all_doy, all_temp)
+# 
+# 
+# # #add as rds file for golem framework
+# df_mod_predict<-all_combined
+# # usethis::use_data(df_mod_predict)
+# 
+# # Export predictions
+# write.csv(all, row.names = F, here("data", "df_mod_predict.csv"))
 ```
 
 

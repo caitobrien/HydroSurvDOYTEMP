@@ -55,7 +55,7 @@ create_model_tables <- function(model_list, output_directory) {
     header <-  paste("Table", i, ". Parameter estimates for",
                      paste(paste0(tools::toTitleCase(model_vars[1]),"-origin"), tools::toTitleCase(model_vars[2]), collapse = " "),
                      "including the covariate",
-                     ifelse(tolower(model_vars[3]) == "doy", "day-of-year (DOY) passage at BON ", "river temperature (°C) at BON"),
+                     ifelse(tolower(model_vars[3]) == "doy", "day-of-year (DOY) passage at LGR ", "river temperature (°C) at LGR "),
                      " during juvenile outmigration.")
 
 

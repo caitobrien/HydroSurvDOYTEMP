@@ -53,7 +53,7 @@ model_files <- c(model_files_doy, model_files_temp)
       DOY_lab <- as.character(seq(90, 160, 10))
 
       p_DOY <- plot(c_eff, plot = FALSE)[[1]] +
-        labs(x = "Day-of-year (DOY)", y = "Probability of survival", title = "Day of year passage at BON") +
+        labs(x = "Day-of-year (DOY)", y = "Probability of survival", title = "Day of year passage at LGR") +
         geom_line(color = "steelblue4")+
         theme_minimal() +
         theme(
@@ -87,11 +87,11 @@ model_files <- c(model_files_doy, model_files_temp)
     } else {
       # Temperature
       # temp rescale
-      tempz_xaxis <- (seq(6, 20, 2) - mean(df$BON.temp, na.rm = TRUE)) / sd(df$BON.temp, na.rm = TRUE)
+      tempz_xaxis <- (seq(6, 20, 2) - mean(df$mean.temp, na.rm = TRUE)) / sd(df$mean.temp, na.rm = TRUE)
       temp_lab <- as.character(seq(6, 20, 2))
 
       p_temp <- plot(c_eff, plot = FALSE)[[1]] +
-        labs(x = "Temperature (°C)", y = "Probability of survival", title = "River temperature at BON") +
+        labs(x = "Temperature (°C)", y = "Probability of survival", title = "River temperature at LGR") +
         geom_line(color = "steelblue4")+
         theme_minimal() +
         theme(
