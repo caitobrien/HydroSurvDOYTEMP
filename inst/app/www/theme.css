@@ -28,3 +28,21 @@
   display: inline-block;
   margin: 0 5px;
 }
+
+
+/*custom CSS for tab panels */
+.nav-tabs > li > a {
+  color: #024c63 !important;
+}
+.nav-tabs > li > a:hover {
+  color: #024c63 !important;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  color: #024c63 !important;
+  font-weight: bold !important;
+}
+.tab-pane.active {
+  background-color: white !important;
+}
