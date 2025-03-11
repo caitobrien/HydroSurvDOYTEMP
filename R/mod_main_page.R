@@ -19,7 +19,7 @@ mod_main_page_ui <- function(id) {
         collapsible = TRUE,
         collapsed = FALSE,
         title = "Seasonal predictions of Smolt-to-Adult (SAR) and Transport to Bypass (T:B) ratios",
-        "By selecting factors of interest, explore seasonal predictions of SAR and T:B for Chinook salmon and Steelhead.",
+        "By selecting factors of interest, explore seasonal predictions of SAR (LGR to LGR) and T:B for Chinook salmon and Steelhead.",
 
       )
     ),
@@ -47,10 +47,10 @@ mod_main_page_ui <- function(id) {
 
         tabsetPanel(
           id = ns("plotTabs"),
-          tabPanel("Smolt-to-Adult Ratio (SAR)", mod_main_submodule_select_SAR_plot_ui("SAR_plot_1")),
-          tabPanel("Transport to Bypass Ratio (T:B)", mod_main_submodule_select_TI_plot_ui("TI_plot_1")),
-          tabPanel("SAR & T:B, compare select years", mod_main_submodule_compare_SAR_TI_plot_ui("compare_single_plot")),
-          tabPanel("As you explore...", mod_main_submodule_walkthrough_ui("walkthrough_example_1"))
+          tabPanel(title = "Smolt-to-Adult Ratio (SAR)", value = "sar", mod_main_submodule_select_SAR_plot_ui("SAR_plot_1")),
+          tabPanel(title = "Transport to Bypass Ratio (T:B)", value = "ti", mod_main_submodule_select_TI_plot_ui("TI_plot_1")),
+          tabPanel(title = "SAR & T:B, compare select years", value = "sarxti", mod_main_submodule_compare_SAR_TI_plot_ui("compare_single_plot")),
+          tabPanel(title = "As you explore...", value = "examples", mod_main_submodule_walkthrough_ui("walkthrough_example_1"))
       )
     )
     )
@@ -63,6 +63,18 @@ mod_main_page_ui <- function(id) {
 mod_main_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    current_tab <- reactiveVal()
+
+    observeEvent(input$plotTabs, {
+      current_tab(input$plotTabs)
+    })
+
+    return(
+      list(
+      current_tab = reactive(current_tab)
+      )
+    )
 
   })
 }
