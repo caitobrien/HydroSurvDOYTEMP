@@ -19,15 +19,6 @@ mod_about_page_ui <- function(id) {
       br()
       )
     ),
-    # fluidRow(
-    #   shinydashboard::box(
-    #     title = "Welcome to HydroSurvDOYTEMP,",
-    #     width = 12,
-    #     solidHeader = TRUE,
-    #     status = "primary",
-    #     em("a Shiny App based on the models adapted from Scheuerell et al. (2009) and Gosselin et al. (2018) predicting seasonal survival of Chinook salmon and Steelhead through the hydrosystem")
-    #   )
-    # ),
 
     # Info boxes
     fluidRow(
@@ -55,16 +46,6 @@ mod_about_page_ui <- function(id) {
       )
       ),
 
-      # leaflet map
-      fluidRow(
-        column(width = 2),  # Empty column to center map
-        column(
-          width = 8,
-          mod_about_submodule_leaflet_map_ui("leaflet_map_1")
-        ),
-        column(width = 2) # Empty column to center map
-      ),
-
       #overview
       fluidRow(
       shinydashboard::box(
@@ -87,7 +68,6 @@ mod_about_page_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    mod_about_submodule_leaflet_map_server("leaflet_map_1")
 
   })
 }

@@ -11,7 +11,6 @@ app_server <- function(input, output, session) {
 
   mod_about_page_server("about_page_ui_1")
 
-  mod_about_submodule_leaflet_map_server("leaflet_map_1")
 
   #retrieve reactive values to use in plots and tables as needed
   dataselect_reactives <- mod_main_submodule_dataselect_server("main_dataselect_2", model_output = model_output)
