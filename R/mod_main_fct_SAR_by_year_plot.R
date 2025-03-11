@@ -1,8 +1,13 @@
-#' SAR_by_year_plot
+#'@title SAR_by_year_plot
 #'
 #' @description A function to plot SAR separated by years.
 #'
 #' @return The return value is a plot with median SAR and 95 CI for each year of data per species, rear type and covariate (DOY, TEMP)
+#' @param data_pred unlisted Data frame containing the SAR data, reactive filtered object
+#' @param observed_data unlisted Data frame containing the observed SAR data, reactive filtered object
+#' @param selected_covariate user-selected covariate for the plot (either "Day-of-year (DOY)" or "Temperature (°C)")
+#' @param observed manually set to "yes" for SAR tab plots in app and no for walkthrough tab exluding observed data.
+#'
 #'
 #' @noRd
 
@@ -173,10 +178,15 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
                      strip.text = ggplot2::element_text(colour = 'black'),
                      panel.spacing = ggplot2::unit(2, "lines"),
                      panel.grid.minor = ggplot2::element_blank(),
-                     text = ggplot2::element_text(size = 15)) +
+                     text = ggplot2::element_text(size = 15))
+
+    #add text for years without all adult returns
+    if (any(as.numeric(as.character(data_summarized$year)) >= first_return_year)) {
+    p <- p +
       ggplot2::geom_text(data = data_summarized %>% dplyr::filter(as.numeric(as.character(year)) >= first_return_year),
                          ggplot2::aes(x = Inf, y = Inf, label = "*Out-of-sample prediction until all adults return"),
-                         hjust = 1.1, vjust = 1.1, size = 3, color = "red", inherit.aes = FALSE)
+                         hjust = 1.1, vjust = 2, size = 3, color = "red", inherit.aes = FALSE)
+    }
   }
     return(p)
 

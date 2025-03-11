@@ -28,17 +28,6 @@ fct_TI_all_years_plot <- function(data, selected_covariate) {
   data <- dplyr::filter(data, !year %in% adjusted_complete_adult_returns) %>%
     dplyr::mutate(year = as.factor(year))
 
-  min_year<- data %>%
-    dplyr::mutate(year = as.numeric(as.character(year))) %>%
-    dplyr::pull(year) %>%
-    min()
-  max_year<-data %>%
-    dplyr::mutate(year = as.numeric(as.character(year))) %>%
-    dplyr::pull(year) %>%
-    max()
-
-
-
 
   if (selected_covariate == "Day-of-year (DOY)") {
     data_median<- data %>%
@@ -71,7 +60,7 @@ fct_TI_all_years_plot <- function(data, selected_covariate) {
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
       title = NULL,
-      caption = paste("\nFigure does not include years with incomplete adult returns.\nData includes years:", min_year, "to", max_year)
+      caption = paste("\nData excludes years with incomplete adult returns.")
     ) +
     ggplot2::geom_hline(yintercept = 1, color = "black" ) +
     ggplot2::scale_color_manual(name = NULL, values = c("Predicted median,\nwith 95% CI" = "black")) +

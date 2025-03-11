@@ -23,6 +23,7 @@ app_server <- function(input, output, session) {
        plot_height <- dataselect_reactives$plot_height
        years_selected <- dataselect_reactives$years_selected
        selected_covariate <- dataselect_reactives$selected_covariate
+       get_years <- dataselect_reactives$get_years
 
 
   mod_main_submodule_select_SAR_plot_server("SAR_plot_1",
@@ -31,14 +32,16 @@ app_server <- function(input, output, session) {
                                             year_display = year_display(),
                                             plot_height = plot_height(),
                                             years_selected = years_selected(),
-                                            selected_covariate = selected_covariate()
+                                            selected_covariate = selected_covariate(),
+                                            get_years = get_years()
                                             )
   mod_main_submodule_select_TI_plot_server("TI_plot_1",
                                            data = filtered_data_ti(),
                                            year_display = year_display(),
                                            plot_height = plot_height(),
                                            years_selected = years_selected(),
-                                           selected_covariate = selected_covariate()
+                                           selected_covariate = selected_covariate(),
+                                           get_years = get_years()
                                            )
   mod_main_submodule_compare_SAR_TI_plot_server("compare_single_plot",
                                                 data_pred = filtered_data_pred(),

@@ -220,7 +220,8 @@ mod_main_submodule_dataselect_server <- function(id, model_output) {
       year_display = reactive(year_display),
       plot_height = reactive(plot_height),
       years_selected = reactive(years_selected),
-      selected_covariate = reactive(selected_covariate)
+      selected_covariate = reactive(selected_covariate),
+      get_years = reactive(get_years)
     ))
   })
 }

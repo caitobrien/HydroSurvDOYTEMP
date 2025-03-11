@@ -21,24 +21,15 @@ fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate,
 
 
   adjusted_complete_adult_returns<-if (current_year > last_outmigration_year && current_doy < 160) {
-    adjusted_years<- current_year-3
+    adjusted_years<- current_year-4
     adjusted_complete_adult_returns<- c(adjusted_years:last_outmigration_year)
-  } else if (current_year > last_outmigration_year && current_doy > 160){
-    adjusted_years<- last_outmigration_year-3
+  } else if (current_year >= last_outmigration_year && current_doy > 160){
+    adjusted_years<- current_year-3
     adjusted_complete_adult_returns<- c(adjusted_years:current_year)
   }
 
   data_pred <- dplyr::filter(data_pred, !year %in% adjusted_complete_adult_returns) %>%
     dplyr::mutate(year = as.factor(year))
-
-  min_year<- data_pred %>%
-    dplyr::mutate(year = as.numeric(as.character(year))) %>%
-    dplyr::pull(year) %>%
-    min()
-  max_year<-data_pred %>%
-    dplyr::mutate(year = as.numeric(as.character(year))) %>%
-    dplyr::pull(year) %>%
-    max()
 
   if (observed == "no") {
 
@@ -82,7 +73,7 @@ fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate,
       color = "Predicted SAR",
       fill = "Predicted SAR",
       title = NULL,
-      caption = paste("\nFigure does not include years with incomplete adult returns.\nData includes years:", min_year, "to", max_year)
+      caption = paste("\nData excludes years with incomplete adult returns.")
     ) +
     ggplot2::theme_light() +
     ggplot2::facet_grid(rear_type ~ species, scales = "free") +
@@ -125,7 +116,7 @@ fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate,
         ggdist::median_qi(SAR, na.rm=TRUE)
 
       x_var <- data_median$mean.temp
-      covar_label <- "Temperature (°C)"
+      covar_label <- "Temperature (°C) \n[binned to nearest degree]"
 
       #observed data
       wrangled_observed_data <- observed_data %>%
@@ -182,7 +173,7 @@ fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate,
         fill = "Predicted SAR",
         title = NULL,
         shape = "Observed data",
-        caption = paste("\nFigure does not include years with incomplete adult returns.\nData includes years:", min_year, "to", max_year)
+        caption = paste("\nData excludes years with incomplete adult returns.")
       ) +
       ggplot2::scale_x_continuous(breaks = x_breaks) +
       ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747")))) + # change predator legend to squares

@@ -28,14 +28,18 @@ mod_main_submodule_select_SAR_plot_ui <- function(id){
 #' SAR_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, year_display, plot_height, years_selected, selected_covariate){
+mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, year_display, plot_height, years_selected, selected_covariate, get_years){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
     # Dynamic title based on user selection
     output$title_html <- renderUI({
       title_text <- if (year_display() == "All Years") {
-        "Viewing years: 1993 to 2021"
+
+        #return data years if excluding incomplete adult returns
+        adjusted_years<-fct_adjust_get_years(get_years())
+
+        paste("Viewing years:", condense_years(adjusted_years))
       } else if (year_display() == "Year") {
 
         # Check if any years are selected
