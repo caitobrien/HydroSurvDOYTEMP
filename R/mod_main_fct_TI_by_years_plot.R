@@ -37,7 +37,8 @@ fct_TI_by_years_plot <- function(data, selected_covariate, credible_interval, le
   # plot
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes(x = x_var, y = ti, group = year)) +
-    ggplot2::geom_line(aes(color = "Predicted median")) +
+    ggplot2::geom_line(ggplot2::aes(color = "Predicted median")) +
+
     # ggdist::geom_lineribbon(ggplot2::aes(y = ti, ymin = ti_lower95, ymax = ti_upper95, fill = "Predicted median,\nwith 95% CI"), alpha = 0.1) +
     ggplot2::geom_point(ggplot2::aes(color = "Predicted median"))+
     ggplot2::labs(
@@ -73,8 +74,8 @@ fct_TI_by_years_plot <- function(data, selected_covariate, credible_interval, le
   if (credible_interval) {
     p <- p + ggplot2::geom_ribbon(data = data_summarized, ggplot2::aes( y = ti, ymin = ti_lower95, ymax = ti_upper95, fill = "95% CI"), alpha = 0.1) +
       ggplot2::scale_fill_manual(name = NULL, values = c("95% CI" = "black")) +  # Fill legend
-      ggplot2::guides(color = guide_legend(order = 1),
-                     fill = guide_legend(order = 2))
+      ggplot2::guides(color = ggplot2::guide_legend(order = 1),
+                     fill = ggplot2::guide_legend(order = 2))
   }
 
 
