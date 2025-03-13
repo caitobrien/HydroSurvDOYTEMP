@@ -20,7 +20,8 @@ mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
     fluidRow(
       column(
         width = 12,
-        plotOutput(outputId = ns("compare_single_plot"), width = "80%", height = 700)
+        align = "center",
+        plotOutput(outputId = ns("compare_single_plot"), width = "95%", height = 700)
       )
     )
   )

@@ -66,7 +66,7 @@ mod_main_submodule_select_SAR_plot_server <- function(id, data, observed_data, y
 
       } else if (year_display() == "Year") {
 
-        fct_SAR_by_year_plot(data_pred =data(), observed_data = observed_data(), observed = "yes", selected_covariate = selected_covariate())
+        fct_SAR_by_year_plot(data_pred =data(), observed_data = observed_data(), observed = "yes", selected_covariate = selected_covariate(), legend_location = "top")
 
        }
       }, height = plot_height()

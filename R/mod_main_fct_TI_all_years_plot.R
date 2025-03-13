@@ -6,7 +6,7 @@
 #'
 #' @noRd
 #'
-fct_TI_all_years_plot <- function(data, selected_covariate) {
+fct_TI_all_years_plot <- function(data, selected_covariate, credible_interval) {
   # Remove outmigration year data that does not include all adult returns (i.e, 3 years since last outmigration year have not passed)
   last_outmigration_year<-data %>%
     dplyr::mutate(year = as.numeric(as.character(year))) %>%
@@ -47,15 +47,16 @@ fct_TI_all_years_plot <- function(data, selected_covariate) {
     x_var <- data_median$mean.temp
     covar_label <- "Temperature (°C)"
 
-    x_breaks <- seq(6, 18, by = 2)
+    x_breaks <- seq(6, 15, by = 1)
   }
 
 
   # plot
   p <-
     ggplot2::ggplot(data_median, ggplot2::aes(x = x_var, y = ti)) +
-    tidybayes::geom_lineribbon(ggplot2::aes(y = ti, ymin = .lower, ymax = .upper, fill = "Predicted median,\nwith 95% CI"), alpha = .1) +
-    ggplot2::geom_point(ggplot2::aes(color = "Predicted median,\nwith 95% CI")) +
+    geom_line(aes(color = "Predicted median")) +
+    # tidybayes::geom_lineribbon(ggplot2::aes(y = ti, ymin = .lower, ymax = .upper, fill = "Predicted median,\nwith 95% CI"), alpha = .1) +
+    ggplot2::geom_point(ggplot2::aes(color = "Predicted median")) +
     ggplot2::labs(
       x = covar_label,
       y = "Transport to Bypass Ratio\n(T:B)",
@@ -63,13 +64,22 @@ fct_TI_all_years_plot <- function(data, selected_covariate) {
       caption = paste("\nData excludes years with incomplete adult returns.")
     ) +
     ggplot2::geom_hline(yintercept = 1, color = "black" ) +
-    ggplot2::scale_color_manual(name = NULL, values = c("Predicted median,\nwith 95% CI" = "black")) +
-    ggplot2::scale_fill_manual(name = NULL, values = c("Predicted median,\nwith 95% CI" = "black")) +
+    ggplot2::scale_color_manual(name = "T:B ratio:", values = c("Predicted median" = "black")) +
+    ggplot2::scale_x_continuous(breaks = x_breaks) +
     ggplot2::theme_light()+
     ggplot2::facet_grid(rear_type ~ species, scales = "free_y") +
     ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
                    strip.text = ggplot2::element_text(colour = 'black'),
                    text = ggplot2::element_text(size = 15))
 
-  p
+  # Add credible interval ribbon if set to TRUE
+  if (credible_interval) {
+    p <- p + ggplot2::geom_ribbon(data = data_median, ggplot2::aes( y = ti, ymin = .lower, ymax = .upper, fill = "95% CI"), alpha = 0.1) +
+      ggplot2::scale_fill_manual(name = NULL, values = c("95% CI" = "black")) +  # Fill legend
+      ggplot2::guides(color = guide_legend(order = 1),
+                     fill = guide_legend(order = 2))
+  }
+
+  return(p)
+
 }

@@ -132,7 +132,7 @@ fct_SAR_all_years_plot <- function(data_pred, observed_data, selected_covariate,
 
       x_var_obs<- wrangled_observed_data$rounded.mean.temp
 
-      x_breaks <- seq(6, 18, by = 2)
+      x_breaks <- seq(6, 15, by = 1)
 
     }
 

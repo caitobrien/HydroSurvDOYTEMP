@@ -18,6 +18,16 @@ mod_main_submodule_select_TI_plot_ui <- function(id){
         # Adding an HTML output for the title
         htmlOutput(outputId = ns("title_html")),
         br(),
+        div(
+          style = "text-align: right;",
+        shinyWidgets::prettySwitch(
+          inputId = ns("CI_display"),
+          label = "View without 95% CI",
+          inline = TRUE,
+          status = "default",
+          fill = TRUE
+          )
+        ),
         plotOutput(outputId = ns("TI_plot"),
                width = "100%")
       )
@@ -59,11 +69,11 @@ mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plo
         # Filter data based on user selection
         if (year_display() == "All Years") {
 
-          fct_TI_all_years_plot(data(), selected_covariate())
+          fct_TI_all_years_plot(data(), selected_covariate(), credible_interval = !input$CI_display)
 
         } else if (year_display() == "Year") {
 
-          fct_TI_by_years_plot(data(), selected_covariate())
+          fct_TI_by_years_plot(data(), selected_covariate(), credible_interval = !input$CI_display, legend_location = "top")
 
         }
       }, height = plot_height() #this works--might try putting reactive lenth here as if-else instead?

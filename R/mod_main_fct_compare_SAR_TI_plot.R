@@ -10,14 +10,14 @@
 fct_compare_SAR_TI_plot <- function(data_pred, data_ti, observed_data, selected_year, selected_covariate) {
 
   # input data for sar plot function
-  sar_plot<- fct_SAR_by_year_plot(data_pred =data_pred, observed_data = observed_data, observed = "yes", selected_covariate = selected_covariate)
+  sar_plot<- fct_SAR_by_year_plot(data_pred =data_pred, observed_data = observed_data, observed = "yes", selected_covariate = selected_covariate, legend_location = "right")
 
   # set title for plot being showed
   sar_plot <- sar_plot + ggplot2::ggtitle(paste0("SAR & T:B, year of interest: ", selected_year)) +
                          ggplot2::theme(plot.title = ggplot2::element_text(face = "bold"))
 
   # input data for ti plot function
-  ti_plot<- fct_TI_by_years_plot(data = data_ti, selected_covariate = selected_covariate)
+  ti_plot<- fct_TI_by_years_plot(data = data_ti, selected_covariate = selected_covariate, credible_interval = TRUE, legend_location = "right")
 
 
   # arrange plots with patchwork

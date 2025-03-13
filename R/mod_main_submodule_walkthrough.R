@@ -202,7 +202,7 @@ mod_main_submodule_walkthrough_server <- function(id, model_output) {
       example2_obs_data<- model_output$observed[[1]] %>% dplyr::filter( year %in% c(1994, 2000, 2006))
 
 
-      fct_SAR_by_year_plot(data_pred = example2_pred_data, observed_data = example2_obs_data, selected_covariate = "Day-of-year (DOY)", observed = "no") +
+      fct_SAR_by_year_plot(data_pred = example2_pred_data, observed_data = example2_obs_data, selected_covariate = "Day-of-year (DOY)", observed = "no", legend_location = "right") +
         ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season",
           subtitle = "Years: 1994, 2000, 2006; Species: Chinook salmon; Rear type: Natural-origin"
         )
@@ -216,7 +216,7 @@ mod_main_submodule_walkthrough_server <- function(id, model_output) {
       example3_obs_data <- dplyr::bind_rows(model_output$observed[[1]], model_output$observed[[3]]) %>%
         dplyr::filter(year == 2018)
 
-      fct_SAR_by_year_plot(data_pred = example3_pred_data, observed_data = exampled3_obs_data, selected_covariate = "Day-of-year (DOY)",  observed = "no") +
+      fct_SAR_by_year_plot(data_pred = example3_pred_data, observed_data = exampled3_obs_data, selected_covariate = "Day-of-year (DOY)",  observed = "no", legend_location = "right") +
         ggplot2::ggtitle("Predicted SAR compared to smolt outmigration season",
           subtitle = "Year: 2018, Species: Chinook salmon & Steelhead; Rear type: Natural-origin"
         )

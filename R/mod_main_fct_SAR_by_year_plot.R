@@ -11,7 +11,7 @@
 #'
 #' @noRd
 
-fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, observed = "no"){
+fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, observed = "no", legend_location){
 
   # Define the adu return year threshold dynamically
   last_outmigration_year <- 2024
@@ -37,7 +37,7 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
       x_var <- data_summarized$mean.temp
       covar_label <- "Temperature (°C)"
 
-      x_breaks <- seq(6, 18, by = 2)
+      x_breaks <- seq(6, 15, by = 1)
     }
 
   p <-
@@ -48,9 +48,10 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
     ) +
     ggplot2::labs( x = covar_label,
           y = "Smolt-to-Adult Ratio\n(SAR)",
-          size = "Number of fish observed",
-          color = "Predicted SAR",
-          fill = "Predicted SAR",
+          size = "Number of fish observed:",
+          color = "Predicted SAR:",
+          fill = "Predicted SAR:",
+          shape = "Observed data:",
           title = NULL
     ) +
     ggplot2::scale_color_manual(breaks = c("0", "1"),
@@ -72,12 +73,24 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
            color = ggplot2::guide_legend(order = 3),
            fill = ggplot2::guide_legend(order = 3)) +
     ggplot2::theme_light()+
-    ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
-    ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
-          strip.text = ggplot2::element_text(colour = 'black'),
-          panel.spacing = ggplot2::unit(2, "lines"),
-          panel.grid.minor = ggplot2::element_blank(),
-          text = ggplot2::element_text(size = 15))
+    # ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
+    ggh4x::facet_wrap2(~year + species_rear, scales = "free_y", axes = "all", ncol = 4) +
+    ggplot2::theme(
+        strip.background = ggplot2::element_rect(fill="lightgrey"),
+        strip.text = ggplot2::element_text(colour = 'black'),
+        panel.spacing = ggplot2::unit(2, "lines"),
+        panel.grid.minor = ggplot2::element_blank(),
+        text = ggplot2::element_text(size = 15))
+
+  if(legend_location == "top"){
+    p <-p + ggplot2::theme(
+      legend.position = "top",  # Top right corner
+      legend.justification.top = c("left", "top"),  # Adjusts legend alignment to the top right corner
+      legend.direction = "vertical"
+    )
+  } else if(legend_location == "right"){
+    p
+  }
 
   #*does not include annotation text--since using in walkthrough for specific year example.
 
@@ -121,7 +134,7 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
 
       x_var_obs<- wrangled_observed_data$mean.temp
 
-      x_breaks <- seq(6, 18, by = 2)
+      x_breaks <- seq(6, 15, by = 1)
 
     }
 
@@ -143,10 +156,10 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
                           alpha = .7)+
       ggplot2::labs( x = covar_label,
                      y = "Smolt-to-Adult Ratio\n(SAR)",
-                     size = "Number of fish observed",
-                     color = "Predicted SAR",
-                     fill = "Predicted SAR",
-                     shape = "Observed data",
+                     size = "Number of fish observed:",
+                     color = "Predicted SAR:",
+                     fill = "Predicted SAR:",
+                     shape = "Observed data:",
                      title = NULL
       ) +
       ggplot2::scale_color_manual(breaks = c("0", "1"),
@@ -165,20 +178,23 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
                                      breaks = c(10, pretty(c(10, max(stats::na.omit(wrangled_observed_data$n)), n = 3)))) +
       ggplot2::scale_x_continuous(breaks = x_breaks) +
       ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
-                                                    order = 1),
+                                                    order = 1, nrow = 1),
                       size = ggplot2::guide_legend(override.aes = list(
                         label = list(size = 8),
                         shape = 21),
-                        order = 2),
-                      color = ggplot2::guide_legend(order = 3),
-                      fill = ggplot2::guide_legend(order = 3)) +
+                        order = 2,
+                        nrow = 1),
+                      color = ggplot2::guide_legend(order = 3, nrow = 1),
+                      fill = ggplot2::guide_legend(order = 3, nrow = 1)) +
       ggplot2::theme_light()+
-      ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
-      ggplot2::theme(strip.background = ggplot2::element_rect(fill="lightgrey"),
-                     strip.text = ggplot2::element_text(colour = 'black'),
-                     panel.spacing = ggplot2::unit(2, "lines"),
-                     panel.grid.minor = ggplot2::element_blank(),
-                     text = ggplot2::element_text(size = 15))
+      # ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
+      ggh4x::facet_wrap2(~year + species_rear, scales = "free_y", axes = "all", ncol = 4) +
+      ggplot2::theme(
+        strip.background = ggplot2::element_rect(fill="lightgrey"),
+        strip.text = ggplot2::element_text(colour = 'black'),
+        panel.spacing = ggplot2::unit(2, "lines"),
+        panel.grid.minor = ggplot2::element_blank(),
+        text = ggplot2::element_text(size = 15))
 
     #add text for years without all adult returns
     if (any(as.numeric(as.character(data_summarized$year)) >= first_return_year)) {
@@ -187,6 +203,17 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
                          ggplot2::aes(x = Inf, y = Inf, label = "*Out-of-sample prediction until all adults return"),
                          hjust = 1.1, vjust = 2, size = 3, color = "red", inherit.aes = FALSE)
     }
+
+    if(legend_location == "top"){
+      p <-p + ggplot2::theme(
+        legend.position = "top",  # Top right corner
+        legend.justification.top = c("left", "top"),  # Adjusts legend alignment to the top right corner
+        legend.direction = "vertical"
+      )
+    } else if(legend_location == "right"){
+      p
+    }
+
   }
     return(p)
 
