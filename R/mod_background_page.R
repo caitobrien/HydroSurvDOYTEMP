@@ -13,7 +13,7 @@ mod_background_page_ui <- function(id){
 
     fluidRow(
       shinydashboard::box(
-        title = "Supplementary infomation for  HydroSurvDOYTEMP shinyAPP",
+        title = HTML("Supplementary infomation for HydroSurvDOYTEMP <small style ='font-size:0.8em; color: white;'>BetaVersion.Mar25</small>"),
         width = 12,
         solidHeader = TRUE,
         status = "primary"

@@ -19,7 +19,7 @@ mod_main_page_ui <- function(id) {
         collapsible = TRUE,
         collapsed = FALSE,
         title = "Seasonal predictions of Smolt-to-Adult (SAR) and Transport to Bypass (T:B) ratios",
-        "By selecting factors of interest, explore seasonal predictions of SAR (LGR to LGR) and T:B for Chinook salmon and Steelhead.",
+        "By selecting factors of interest, explore seasonal predictions of SAR (LGR to LGR) and T:B for spring/summer Chinook salmon and Steelhead.",
 
       )
     ),

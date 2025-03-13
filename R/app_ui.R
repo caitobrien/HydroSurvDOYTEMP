@@ -13,7 +13,7 @@ app_ui <- function(request) {
 
       shinydashboardPlus::dashboardPage(
         header = shinydashboard::dashboardHeader(
-          title = HTML("HydroSurvDOYTEMP <small style='font-size:0.6em; color: #fff;'>BetaVersion.Mar25</small>"),
+          title = HTML("HydroSurvDOYTEMP <small style ='font-size:0.6em; color: white;'>BetaVersion.Mar25</small>"),
           # Add a logo to the header
           tags$li(
             class = "dropdown header-img",
