@@ -132,7 +132,7 @@ generate_newdata <- function(df,model_name) {
   scale.sd <- attr(scale.temp, "scaled:scale")
   
   newdata <- expand_grid(
-  mean.tempz = (seq(from = 6, to = 18, by = 0.1) - scale.x)/scale.sd, #following range set by JG in first shiny edition --> update to extend to 18degC
+  mean.tempz = (seq(from = 6, to = 15, by = 0.1) - scale.x)/scale.sd, #following range set by JG in first shiny edition --> update to extend to 18degC
   transport = c(0, 1),
   year = years,
   n = 1
@@ -290,6 +290,7 @@ for (data_file in data_files) {
                               )
     df.pred<-prediction_ouput[[1]]
     df.ti<-prediction_ouput[[2]]
+    view(df.ti)
     # df.pred <- append_obsdata_to_predictions(df.pred,
     #                                          df.agg,
     #                                          model_info$model_name)
