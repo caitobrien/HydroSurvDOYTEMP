@@ -33,7 +33,7 @@ mod_about_page_ui <- function(id) {
       shinydashboard::box(
         title = "What does this application do?",
         width = 6,
-        height = "250px",
+        height = "300px",
         solidHeader = TRUE,
         status = "primary",
         collapsible = TRUE,
@@ -46,7 +46,7 @@ mod_about_page_ui <- function(id) {
       shinydashboard::box(
         title = "How to use this application?",
         width = 6,
-        height = "250px",
+        height = "300px",
         solidHeader = TRUE,
         status = "primary",
         collapsible = TRUE,

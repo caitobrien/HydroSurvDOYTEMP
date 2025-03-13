@@ -70,3 +70,10 @@ rsconnect::deployApp(
     "app.R"
   )
 )
+# will be prompted with choice to deploy:
+# What do you want to do?
+#
+# 1: Snapshot, just using the currently installed packages.
+# 2: Install the packages, then snapshot.
+# 3: Cancel, and resolve the situation on your own.
+# select 1 to deploy via rsconnect
