@@ -17,7 +17,8 @@ mod_main_submodule_walkthrough_ui <- function(id) {
         width = 12,
         br(),
         h5("As you explore this application, below outlines examples of trends you may notice in the data. Click on the boxes to expand and see more information."),
-      )
+      ),
+      br()
     ),
 
     # information to add
@@ -169,6 +170,7 @@ mod_main_submodule_walkthrough_ui <- function(id) {
             column(
               width = 12,
               offset = 1,
+              align = "center",
               imageOutput(outputId = ns("condeff_plot"), width = "100%", height = "auto")
           )
            )
