@@ -52,7 +52,8 @@ app_server <- function(input, output, session) {
                                                 observed_data = filtered_observed_data(),
                                                 year_display = year_display(),
                                                 years_selected = years_selected(),
-                                                selected_covariate = selected_covariate()
+                                                selected_covariate = selected_covariate(),
+                                                update_button = update_button()
                                                 )
 
   mod_main_page_server("main_page_ui_1")

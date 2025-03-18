@@ -40,6 +40,9 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
       x_breaks <- seq(6, 15, by = 1)
     }
 
+    unique_transport <- unique(data_summarized$transport)
+
+
   p <-
     ggplot2::ggplot(data_summarized, ggplot2::aes( x= x_var)) +
     ggplot2::geom_point(ggplot2::aes(y =SAR, fill =  transport, color = transport))+
@@ -54,15 +57,19 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
           shape = "Observed data:",
           title = NULL
     ) +
-    ggplot2::scale_color_manual(breaks = c("0", "1"),
-                       values = c("steelblue4", "#b47747"),
-                       labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
-    ggplot2::scale_fill_manual(breaks = c("0", "1"),
-                      values = c("steelblue4", "#b47747"),
-                      labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
-    ggplot2::scale_linetype_manual(values = c("solid","dashed"),
-                          breaks = c("0", "1"),
-                          labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
+    ggplot2::scale_color_manual(
+      values = c("0" = "steelblue4", "1" = "#b47747"),
+      labels = c("0" = "In-river, \npredicted with 95% CI", "1" = "Transported, \npredicted with 95% CI")
+    ) +
+    ggplot2::scale_fill_manual(
+      values = c("0" = "steelblue4", "1" = "#b47747"),
+      labels = c("0" = "In-river, \npredicted with 95% CI", "1" = "Transported, \npredicted with 95% CI")
+
+    ) +
+    ggplot2::scale_linetype_manual(
+      values = c("0" = "solid", "1" = "dashed"),
+      labels = c("0" = "In-river", "1" = "Transported")
+    ) +
     ggplot2::scale_x_continuous(breaks = x_breaks) +
     ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
                                 order = 1),
@@ -138,6 +145,7 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
 
     }
 
+    unique_transport_obs <- unique(wrangled_observed_data$transport)
 
     p <-
       ggplot2::ggplot() +
@@ -162,30 +170,45 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
                      shape = "Observed data:",
                      title = NULL
       ) +
-      ggplot2::scale_color_manual(breaks = c("0", "1"),
-                                  values = c("steelblue4", "#b47747"),
-                                  labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
-      ggplot2::scale_fill_manual(breaks = c("0", "1"),
-                                 values = c("steelblue4", "#b47747"),
-                                 labels = c("In-river, \npredicted with 95% CI", "Transported, \npredicted with 95% CI"))+
-      ggplot2::scale_linetype_manual(values = c("solid","dashed"),
-                                     breaks = c("0", "1"),
-                                     labels = c("In-river,\nmedian predicted probability", "Transported,\nmedian predicted probability"))+
-      ggplot2::scale_shape_manual(values = c(21,21),
-                                  breaks = c("0", "1"),
-                                  labels = c("In-river", "Transported")) +
-      ggplot2::scale_size_continuous(range = c(1, 5),
-                                     breaks = c(10, pretty(c(10, max(stats::na.omit(wrangled_observed_data$n)), n = 3)))) +
+      ggplot2::scale_color_manual(
+        values = c("0" = "steelblue4", "1" = "#b47747"),
+        labels = c("0" = "In-river, \npredicted with 95% CI", "1" = "Transported, \npredicted with 95% CI")
+      ) +
+      ggplot2::scale_fill_manual(
+        values = c("0" = "steelblue4", "1" = "#b47747"),
+        labels = c("0" = "In-river, \npredicted with 95% CI", "1" = "Transported, \npredicted with 95% CI")
+      ) +
+      ggplot2::scale_linetype_manual(
+        values = c("0" = "solid", "1" = "dashed"),
+        labels = c("0" = "In-river", "1" = "Transported")
+      ) +
+      ggplot2::scale_shape_manual(
+        values = c("0" = 21, "1" = 21),
+        labels = c("0" = "In-river", "1" = "Transported")
+      ) +
+      ggplot2::scale_size_continuous(
+        range = c(1, 5),
+        breaks = c(10, pretty(c(10, max(stats::na.omit(wrangled_observed_data$n)), n = 3)))
+      ) +
       ggplot2::scale_x_continuous(breaks = x_breaks) +
-      ggplot2::guides(shape = ggplot2::guide_legend(override.aes = list(color = c("steelblue4", "#b47747") ),
-                                                    order = 1, nrow = 1),
-                      size = ggplot2::guide_legend(override.aes = list(
-                        label = list(size = 8),
-                        shape = 21),
-                        order = 2,
-                        nrow = 1),
-                      color = ggplot2::guide_legend(order = 3, nrow = 1),
-                      fill = ggplot2::guide_legend(order = 3, nrow = 1)) +
+      ggplot2::guides(
+        # Fix the shape guide to dynamically use only the available transport values
+        shape = ggplot2::guide_legend(
+          override.aes = list(color = c("steelblue4", "#b47747")[as.numeric(as.character(unique_transport_obs)) + 1]),
+          order = 1,
+          nrow = 1
+        ),
+        size = ggplot2::guide_legend(
+          override.aes = list(
+            label = list(size = 8),
+            shape = 21
+          ),
+          order = 2,
+          nrow = 1
+        ),
+        color = ggplot2::guide_legend(order = 3, nrow = 1),
+        fill = ggplot2::guide_legend(order = 3, nrow = 1)
+      ) +
       ggplot2::theme_light()+
       # ggplot2::facet_wrap(~year + species_rear, scales = "free_y", ncol = 4) +
       ggh4x::facet_wrap2(~year + species_rear, scales = "free_y", axes = "all", ncol = 4) +
@@ -221,6 +244,6 @@ fct_SAR_by_year_plot<-function(data_pred, observed_data, selected_covariate, obs
 
 
 # # # #example
-# df<-as.data.frame(all$doy_pred[1])
-# obs<- as.data.frame(all$observed[1])
-# fct_SAR_by_year_plot(data = df, observed_data = obs, selected_covariate = "Day-of-year (DOY)", observed = "yes")
+# df<-as.data.frame(model_output$doy_pred[1]) %>% filter(year == 1994)
+# obs<- as.data.frame(model_output$observed[1])%>% filter(year == 1994)
+# fct_SAR_by_year_plot(data_pred = df, observed_data = obs, selected_covariate = "Day-of-year (DOY)", observed = "yes", legend_location = "top")

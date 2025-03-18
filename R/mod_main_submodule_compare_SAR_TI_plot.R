@@ -30,7 +30,7 @@ mod_main_submodule_compare_SAR_TI_plot_ui <- function(id){
 #' compare_single_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data_pred, data_ti, observed_data, year_display, years_selected,  selected_covariate){
+mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data_pred, data_ti, observed_data, year_display, years_selected,  selected_covariate, update_button){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -45,6 +45,7 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data_pred, data_ti
     })
 
     output$compare_single_plot <- renderPlot({
+      update_button
 
       if (year_display() == "Year") {
 
@@ -60,6 +61,12 @@ mod_main_submodule_compare_SAR_TI_plot_server <- function(id, data_pred, data_ti
           data_filtered_year_ti <- data_ti() %>% dplyr::filter(year == year_selected)
           data_filtered_observed_data <- observed_data() %>% dplyr::filter(year == year_selected)
 
+
+          # Skip the year if any dataset is empty
+          if (nrow(data_filtered_year_pred) == 0 || nrow(data_filtered_year_ti) == 0 || nrow(data_filtered_observed_data) == 0) {
+            print(paste("Skipping year", year_selected, "due to missing data"))
+            next
+          }
 
           plots_list[[as.character(year_selected)]] <- fct_compare_SAR_TI_plot(
             data_pred = data_filtered_year_pred,
