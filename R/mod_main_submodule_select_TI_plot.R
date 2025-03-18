@@ -38,12 +38,14 @@ mod_main_submodule_select_TI_plot_ui <- function(id){
 #' TI_plot Server Functions
 #'
 #' @noRd
-mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected, selected_covariate, get_years){
+mod_main_submodule_select_TI_plot_server <- function(id, data, year_display, plot_height, years_selected, selected_covariate, get_years, update_button){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
     # Dynamic title based on user selection
     output$title_html <- renderUI({
+      update_button
+
       title_text <- if (year_display() == "All Years") {
 
         #return data years if excluding incomplete adult returns
